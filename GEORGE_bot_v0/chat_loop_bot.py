@@ -44,9 +44,6 @@ def print_colored(color: str, text: str):
     print(color + str(text) + Color.ENDC)
 
 
-
-
-
 def load_focus_data(focus_file_path: str) -> str:
     """Loads focus data as a string from the specified file."""
     try:
@@ -131,47 +128,73 @@ def process_turn(user_input: str) -> None:
         # Stage 1: Input/Reasoning Model
         conversation_history.append(f"User: {user_input}")
 
-        combined_prompt = f"input: {conversation_history}\n current focus: {load_focus_data('focus/focus.json')}"
+        # Prompt for the Input/Reasoning Model:
+        combined_prompt = f"""
+            You are a helpful AI assistant.  You have access to tools. 
+            Please consider the current focus and previous conversation turns. 
+            Use tools when necessary. What are the possible actions to take next? 
+
+            Current Focus: {load_focus_data('focus/focus.json')}
+
+            Conversation:
+            {conversation_history[-1]} 
+
+            Available Tools:
+            {tool_manager.get_short_tool_descriptions()}
+        """
+
         time.sleep(1)
-        response_input = input_model.generate_content(combined_prompt)
-        print(f"Input/Reasoning Model Response: {response_input}")
+        try:
+            response_input = input_model.generate_content(combined_prompt)
+            print(f"Input/Reasoning Model Response: {response_input}")
 
-        conversation_history.append(f" {response_input}")
-        text_extracted_response = extract_text_from_response(response_input)
-        print(f"Extracted Text: {text_extracted_response}")
+            conversation_history.append(f" {response_input}")
+            text_extracted_response = extract_text_from_response(response_input)
 
-        tool_results = handle_tool_calls(response_input)
-        print(f"Tool Results: {tool_results}")
-        conversation_history.append(f"Tool Results: {tool_results}")
-        current_turn.extend(tool_results)
+            tool_results = handle_tool_calls(response_input)
+            print(f"Extracted Text: {text_extracted_response}")
+            print(f"Tool Results: {tool_results}")
+            conversation_history.append(f"Tool Results: {tool_results}")
+            current_turn.extend(tool_results)
+        except Exception as E:
+            print_colored(Color.FAIL, f"Error generating content from Input/Reasoning Model: {E}")
 
         # Stage 2: Action Taker
         time.sleep(1)
-        response_action_taker = action_taker_model.generate_content(conversation_history)
-        print(f"Action Taker Model Response: {response_action_taker}")
+        try:
+            response_action_taker = action_taker_model.generate_content(conversation_history)
+            print(f"Action Taker Model Response: {response_action_taker}")
 
-        conversation_history.append(f"Action Taker Model Response: {response_action_taker}")
-        text_extracted_response = extract_text_from_response(response_action_taker)
-        print(f"Extracted Text: {text_extracted_response}")
+            conversation_history.append(f"Action Taker Model Response: {response_action_taker}")
+            text_extracted_response = extract_text_from_response(response_action_taker)
+            print(f"Extracted Text: {text_extracted_response}")
 
-        tool_results = handle_tool_calls(response_action_taker)
-        print(f"Tool Results: {tool_results}")
-        conversation_history.append(f"Tool Results: {tool_results}")
-        current_turn.extend(tool_results)
+            tool_results = handle_tool_calls(response_action_taker)
+            print(f"Tool Results: {tool_results}")
+            conversation_history.append(f"Tool Results: {tool_results}")
+            current_turn.extend(tool_results)
+        except Exception as E:
+            print_colored(Color.FAIL, f"Error generating content from Action Taker Model: {E}")
 
         # Stage 3: Evaluator Model
         time.sleep(3)
-        response_evaluator = evaluator_model.generate_content(conversation_history)
-        print(f"Evaluator Model Response: {response_evaluator}")
-        conversation_history.append(f"Evaluator Model Response: {response_evaluator}")
-        text_extracted_response = extract_text_from_response(response_evaluator)
-        print(f"Extracted Text: {text_extracted_response}")
+        try:
+            response_evaluator = evaluator_model.generate_content(conversation_history)
+            print(f"Evaluator Model Response: {response_evaluator}")
+            conversation_history.append(f"Evaluator Model Response: {response_evaluator}")
+            text_extracted_response = extract_text_from_response(response_evaluator)
+            print(f"Extracted Text: {text_extracted_response}")
 
-        tool_results = handle_tool_calls(response_evaluator)
-        print(f"Tool Results: {tool_results}")
-        conversation_history.extend(tool_results)
+            tool_results = handle_tool_calls(response_evaluator)
+            print(f"Tool Results: {tool_results}")
+            conversation_history.extend(tool_results)
+        except Exception as E:
+            print_colored(Color.FAIL, f"Error generating content from Evaluator Model: {E}")
+
     except Exception as e:
         print(e)
+        for entry in conversation_history:
+            print(entry)
         time.sleep(5)
 
 
@@ -179,19 +202,26 @@ def process_turn(user_input: str) -> None:
 conversation_history = []
 current_turn = []
 memory = {}
-
+availbe_tools = tool_manager.get_short_tool_descriptions()
+print("************************************************************************************")
+print(availbe_tools)
 # System instructions for each model
-input_system_instruction = """You are a helpful assistant. You can update your internal focus.
+input_system_instruction = f"""
+You are a helpful AI assistant with a focus on completing the current task. 
+You can update your internal focus.
+You have access to these tools: {availbe_tools}
+"""
+print()
+action_taking_system_instruction = """
+You are a tool execution expert. Do not hallucinate! 
+Execute the following actions based on the identified focus and tool suggestions: [List the actions from the input model].
+
 """
 
-action_taking_system_instruction = """You are executing tools, don't hallucinate. 
- """
-
-evaluation_system_instruction = """Summarize results, identify issues, and suggest improvements.
-Explain your reasoning. 
- """
-
-
+evaluation_system_instruction = """
+Summarize results, identify issues, and suggest improvements.
+Explain your reasoning. Based on the results, update your focus if necessary.
+"""
 
 # Initialize models
 try:
@@ -202,7 +232,7 @@ try:
         tools=tool_manager.load_tools_of_type("all")
     )
 except Exception as E:
-    print(f"Error initializing input_model: {E}")
+    print_colored(Color.FAIL, f"Error initializing input_model: {E}")
 
 try:
     action_taker_model = genai.GenerativeModel(
@@ -212,7 +242,7 @@ try:
         tools=tool_manager.load_tools_of_type("all")
     )
 except Exception as E:
-    print(f"Error initializing action_taker_model: {E}")
+    print_colored(Color.FAIL, f"Error initializing action_taker_model: {E}")
 
 try:
     evaluator_model = genai.GenerativeModel(
@@ -222,7 +252,9 @@ try:
         tools=tool_manager.load_tools_of_type("all")
     )
 except Exception as E:
-    print(f"Error initializing evaluator_model: {E}")
+    print_colored(Color.FAIL, f"Error initializing evaluator_model: {E}")
+
+
 
 # Main Loop:
 # Initial user input

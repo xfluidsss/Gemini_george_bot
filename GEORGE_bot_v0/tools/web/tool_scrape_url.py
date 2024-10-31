@@ -70,7 +70,7 @@ def tool_scrape_url(
 ) -> dict:
     """
     Scrapes content from a URL based on specified parameters using Selenium and Chrome.
-    good  to get  images, links,  or  any content from given link
+    good  to get  images, links,  or  any content from given link, so  if  you have  an  url  you can use  that for  getting inside of  given url
     Args:
         url (str): The URL to scrape.
         scrape_images (bool): Whether to scrape images from the page.

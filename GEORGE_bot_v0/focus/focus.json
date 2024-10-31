@@ -1,11 +1,13 @@
 {
-    "current_focus": "",
-    "category": "",
-    "frustration": 0.0,
-    "focus_strength": 0.0,
-    "defocus_threshold": 0.0,
-    "importance": 1.0,
-    "progress": 0.0,
+    "current_focus": "Download 10 images about Dragon Ball",
+    "user_goal": "Download 10 images about Dragon Ball",
+    "frustration": 0.2,
+    "focus_strength": 0.8,
+    "defocus_threshold": 0.5,
+    "importance": 0.9,
+    "progress": 0.1,
     "additional": "",
-    "verbose": ""
-}
+    "verbose": "Downloading images from a website",
+    "tasks": {
+        "current_task": "Download images about Dragon Ball",
+        "task_list_to_accomplish_user_goal": 

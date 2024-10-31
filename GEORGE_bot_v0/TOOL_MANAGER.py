@@ -157,3 +157,7 @@ class ToolManager:
             return result
         except Exception as e:
             raise RuntimeError(f"Error calling tool '{tool_name}': {e}")
+
+    def get_short_tool_descriptions(self) -> Dict[str, str]:
+        """Returns a dictionary of tool names and their short descriptions."""
+        return {tool.name: tool.description for tool in self.tools.values()}
