@@ -1,8 +1,3 @@
-tool_type_for_TOOL_MANAGER = "web"
-tool_get_duckduckgo_links_short_description = "Gets links from DuckDuckGo"
-
-
-
 import time
 from typing import List
 from selenium import webdriver
@@ -14,23 +9,21 @@ from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 
 
-
-
 def tool_get_duckduckgo_links(search_phrase: str, num_more_results: float, forbidden_phrases: List[str],
                               safe_search: bool):
     """
-      Retrieves DuckDuckGo search result links with the option to disable safe search,
-      scroll through 'More Results  and filter out links containing forbidden phrases.
-      you  will  get  links from goduckgo, that  you can  scrape  later  on
-      Args:
-          search_phrase (str): The search query to use.
-          num_more_results (float): The number of times to click the 'More Results' button    non-negative full numbers like 0,1,2 ....
-          forbidden_phrases (list(str)): A list of phrases to exclude from the results.
-          safe_search (bool): Whether to enable safe search default: False.
-
-      Returns:
-          list: A list of unique links from the DuckDuckGo search results.
-      """
+    Retrieves DuckDuckGo search result links with the option to disable safe search,
+    scroll through 'More Results' and filter out links containing forbidden phrases.
+    You will get links from DuckDuckGo, that you can scrape later on.
+    Args:
+        search_phrase (str): The search query to use.
+        num_more_results (float): The number of times to click the 'More Results' button,
+                                  non-negative full numbers like 0,1,2 ....
+        forbidden_phrases (list(str)): A list of phrases to exclude from the results.
+        safe_search (bool): Whether to enable safe search, default: False.
+    Returns:
+        list: A list of unique links from the DuckDuckGo search results.
+    """
 
     def perform_search(driver):
         search_input = driver.find_element(By.NAME, "q")
@@ -40,21 +33,21 @@ def tool_get_duckduckgo_links(search_phrase: str, num_more_results: float, forbi
     def set_safe_search_off(driver):
         if not safe_search:
             try:
-                # Click the Safe Search dropdown button
-                safe_search_dropdown_button = WebDriverWait(driver, 1).until(
+                # Explicit wait for safe search dropdown button
+                safe_search_dropdown_button = WebDriverWait(driver, 10).until(  # Increase timeout
                     EC.element_to_be_clickable(
                         (By.CSS_SELECTOR, ".dropdown--safe-search .dropdown__button.js-dropdown-button"))
                 )
                 safe_search_dropdown_button.click()
 
-                # Find the "Safe Search: Off" option and click it
-                safe_search_off_option = WebDriverWait(driver, 1).until(
+                # Explicit wait for "Safe Search: Off" option
+                safe_search_off_option = WebDriverWait(driver, 10).until(  # Increase timeout
                     EC.element_to_be_clickable((By.CSS_SELECTOR, ".modal--dropdown--safe-search a[data-value='-2']"))
                 )
                 safe_search_off_option.click()
 
             except TimeoutException:
-                print("TimeoutException occurred while setting safe search off..")
+                print("TimeoutException occurred while setting safe search off.")
 
     def get_search_result_links(driver):
         try:
@@ -95,10 +88,12 @@ def tool_get_duckduckgo_links(search_phrase: str, num_more_results: float, forbi
     perform_search(driver)
 
     # Scroll through 'More Results' if requested
-    if num_more_results > 0:  # Only execute the loop if num_more_results is greater than 0
+    if num_more_results > 0:
+        # Convert num_more_results to an integer
+        num_more_results = int(num_more_results)
         for _ in range(num_more_results):
             try:
-                more_results_button = WebDriverWait(driver, 1).until(
+                more_results_button = WebDriverWait(driver, 10).until(  # Increase timeout
                     EC.element_to_be_clickable((By.ID, "more-results"))
                 )
                 more_results_button.click()
@@ -116,9 +111,5 @@ def tool_get_duckduckgo_links(search_phrase: str, num_more_results: float, forbi
         print(f"Link: {link}")
 
     driver.quit()
-    list_filtered_links=list(filtered_links)
-
-
-    return list_filtered_links
-
-
+    list_filtered_links = list(filtered_links)
+    return {"status": "finished", "tool_get_duckduckgo_links": "results", "links": list_filtered_links}
