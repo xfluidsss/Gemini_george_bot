@@ -45,6 +45,9 @@ class SeleniumDriver:
         })
 
     def __enter__(self):
+        # Use a specific Chrome driver executable path (if needed)
+        # driver_path = '/path/to/chromedriver'  # Replace with your actual path
+        # self.driver = webdriver.Chrome(executable_path=driver_path, options=self.options)
         self.driver = webdriver.Chrome(options=self.options)
         return self.driver
 
@@ -67,7 +70,7 @@ def tool_scrape_url(
 ) -> dict:
     """
     Scrapes content from a URL based on specified parameters using Selenium and Chrome.
-
+    good  to get  images, links,  or  any content from given link
     Args:
         url (str): The URL to scrape.
         scrape_images (bool): Whether to scrape images from the page.
@@ -98,6 +101,11 @@ def tool_scrape_url(
         save_path = save_path or os.getcwd()
         os.makedirs(save_path, exist_ok=True)
 
+        # Headers for requests (add more if needed)
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36'
+        }
+
         with SeleniumDriver() as driver:
             # Navigate to the URL with timeout and wait for page load
             driver.set_page_load_timeout(30)
@@ -108,7 +116,7 @@ def tool_scrape_url(
                 EC.presence_of_element_located((By.TAG_NAME, "body"))
             )
 
-            # Allow dynamic content to load
+            # Allow dynamic content to load (adjust based on page characteristics)
             time.sleep(2)  # Adjust based on page characteristics
 
             # Scroll to load lazy content
@@ -158,7 +166,7 @@ def tool_scrape_url(
 
                         if save_images and img_url.startswith(('http://', 'https://')):
                             try:
-                                response = requests.get(img_url, timeout=10)
+                                response = requests.get(img_url, headers=headers, timeout=10)
                                 if response.status_code == 200:
                                     content_type = response.headers.get('content-type', '')
                                     if content_type.startswith('image/'):

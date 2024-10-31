@@ -27,7 +27,7 @@ def tool_update_focus(
         defocus_threshold (int, optional): A level indicating the threshold at which the focus should be considered defocused (0-10). Defaults to None.
         importance (float, optional): Importance of the focus (0-1). Defaults to None.
         progress (float, optional): Progress on the focus (0-1). Defaults to None.
-        additional (str, optional): Additional information about the focus. Defaults to None.
+        additional (str, optional): Additional information about the focus like important  data .
         verbose (str, optional): Verbosity level of the focus (e.g., "normal", "detailed"). Defaults to None.
 
 

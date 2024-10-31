@@ -1,3 +1,4 @@
+import time
 import google.generativeai as genai
 import json
 from typing import List, Dict, Optional
@@ -43,78 +44,7 @@ def print_colored(color: str, text: str):
     print(color + str(text) + Color.ENDC)
 
 
-# System instructions for each model
-input_system_instruction = """You analyze user inputs and provide initial insights. you can update  your internal focus
-"""
 
-reasoning_system_instruction = """you create  plan of  steps  
- """
-
-action_taking_system_instruction = """you are executing  tools , dont   halucinate
- """
-
-evaluation_system_instruction = """Summarize results, identify issues, and suggest improvements. 
-Explain your reasoning. 
- }"""
-
-memory_system_instruction = """You evaluate whether to create a memory, and if so, what content to store.  
-"""
-
-# Initialize conversation history
-conversation_history = []
-current_turn = []
-memory = {}
-
-try:
-    # Initialize models
-    input_model = genai.GenerativeModel(
-        model_name='gemini-1.5-flash-latest',
-        safety_settings=safety_settings,
-        system_instruction=input_system_instruction,
-        tools=tool_manager.load_tools_of_type("all")
-    )
-except Exception as E:
-    print(f"Error initializing input_model: {E}")
-
-try:
-    reasoning_model = genai.GenerativeModel(
-        model_name='gemini-1.5-flash-latest',
-        safety_settings=safety_settings,
-        system_instruction=reasoning_system_instruction,
-        tools=tool_manager.load_tools_of_type("all")
-    )
-except Exception as E:
-    print(f"Error initializing reasoning_model: {E}")
-
-try:
-    action_taker_model = genai.GenerativeModel(
-        model_name='gemini-1.5-flash-latest',
-        safety_settings=safety_settings,
-        system_instruction=action_taking_system_instruction,
-        tools=tool_manager.load_tools_of_type("all")
-    )
-except Exception as E:
-    print(f"Error initializing action_taker_model: {E}")
-
-try:
-    evaluator_model = genai.GenerativeModel(
-        model_name='gemini-1.5-flash-latest',
-        safety_settings=safety_settings,
-        system_instruction=evaluation_system_instruction,
-        tools=tool_manager.load_tools_of_type("all")
-    )
-except Exception as E:
-    print(f"Error initializing evaluator_model: {E}")
-
-try:
-    memory_model = genai.GenerativeModel(
-        model_name='gemini-1.5-flash-latest',
-        safety_settings=safety_settings,
-        system_instruction=memory_system_instruction,
-        tools=tool_manager.load_tools_of_type("all")
-    )
-except Exception as E:
-    print(f"Error initializing memory_model: {E}")
 
 
 def load_focus_data(focus_file_path: str) -> str:
@@ -191,59 +121,118 @@ def handle_tool_calls(response):
     return results
 
 
-def process_turn(user_input):
+def process_turn(user_input: str) -> None:
     """Handles a single turn in the conversation."""
-    current_turn.clear()
-    conversation_history.append(f"User: {user_input}")
-    current_turn.append(f"User: {user_input}")
+    global conversation_history, current_turn, memory
+    try:
+        # Reset the current turn
+        current_turn = []
 
-    # Combine prompts for Input and Reasoning models
-    combined_prompt = f"Input Model: Analyze the user input. Reasoning Model: Break down the task into steps. {user_input}\n{load_focus_data('focus/focus.json')}"
-    response_input_reasoning = input_model.generate_content(combined_prompt)
-    print(response_input_reasoning)
-    extracted_response = extract_text_from_response(response_input_reasoning)
-    current_turn.append(f"Input/Reasoning Model Response: {extracted_response}")
-    conversation_history.append(f"Input/Reasoning Model Response: {extracted_response}")
-    tool_results = handle_tool_calls(response_input_reasoning)
-    print(tool_results)
-    current_turn.extend(tool_results)
-    conversation_history.extend(tool_results)
+        # Stage 1: Input/Reasoning Model
+        conversation_history.append(f"User: {user_input}")
 
-    response_action_taker = action_taker_model.generate_content(conversation_history)
-    print(response_action_taker)
-    extracted_response = extract_text_from_response(response_action_taker)
-    current_turn.append(f"Action Taker Model Response: {extracted_response}")
-    conversation_history.append(f"Action Taker Model Response: {extracted_response}")
-    tool_results = handle_tool_calls(response_action_taker)
-    print(tool_results)
-    current_turn.extend(tool_results)
-    conversation_history.extend(tool_results)
+        combined_prompt = f"input: {conversation_history}\n current focus: {load_focus_data('focus/focus.json')}"
+        time.sleep(1)
+        response_input = input_model.generate_content(combined_prompt)
+        print(f"Input/Reasoning Model Response: {response_input}")
 
-    response_evaluator = evaluator_model.generate_content(conversation_history)
-    print(response_evaluator )
-    extracted_response = extract_text_from_response(response_evaluator)
-    current_turn.append(f"Evaluator Model Response: {extracted_response}")
-    conversation_history.append(f"Evaluator Model Response: {extracted_response}")
-    tool_results = handle_tool_calls(response_evaluator)
-    print(tool_results)
-    current_turn.extend(tool_results)
-    conversation_history.extend(tool_results)
+        conversation_history.append(f" {response_input}")
+        text_extracted_response = extract_text_from_response(response_input)
+        print(f"Extracted Text: {text_extracted_response}")
 
-    # Prompt the memory model to decide what to store
-    response_memory = memory_model.generate_content(f"Memory Model: Should we store any information from this turn? What is crucial for future turns? \n{current_turn}")
-    print(response_memory)
-    extracted_memory = extract_text_from_response(response_memory)
-    current_turn.append(f"Memory Model Response: {extracted_memory}")
-    conversation_history.append(f"Memory Model Response: {extracted_memory}")
+        tool_results = handle_tool_calls(response_input)
+        print(f"Tool Results: {tool_results}")
+        conversation_history.append(f"Tool Results: {tool_results}")
+        current_turn.extend(tool_results)
 
-    # Process the memory response to store relevant items
-    if "Store" in extracted_memory:
-        memory_items = extracted_memory.split("Store:")[1].strip().split(",")  # Assuming memory items are comma-separated
-        for item in memory_items:
-            memory[item.strip()] = conversation_history  # Store the entire conversation history associated with the item
+        # Stage 2: Action Taker
+        time.sleep(1)
+        response_action_taker = action_taker_model.generate_content(conversation_history)
+        print(f"Action Taker Model Response: {response_action_taker}")
+
+        conversation_history.append(f"Action Taker Model Response: {response_action_taker}")
+        text_extracted_response = extract_text_from_response(response_action_taker)
+        print(f"Extracted Text: {text_extracted_response}")
+
+        tool_results = handle_tool_calls(response_action_taker)
+        print(f"Tool Results: {tool_results}")
+        conversation_history.append(f"Tool Results: {tool_results}")
+        current_turn.extend(tool_results)
+
+        # Stage 3: Evaluator Model
+        time.sleep(3)
+        response_evaluator = evaluator_model.generate_content(conversation_history)
+        print(f"Evaluator Model Response: {response_evaluator}")
+        conversation_history.append(f"Evaluator Model Response: {response_evaluator}")
+        text_extracted_response = extract_text_from_response(response_evaluator)
+        print(f"Extracted Text: {text_extracted_response}")
+
+        tool_results = handle_tool_calls(response_evaluator)
+        print(f"Tool Results: {tool_results}")
+        conversation_history.extend(tool_results)
+    except Exception as e:
+        print(e)
+        time.sleep(5)
+
+
+# Initialize conversation history
+conversation_history = []
+current_turn = []
+memory = {}
+
+# System instructions for each model
+input_system_instruction = """You are a helpful assistant. You can update your internal focus.
+"""
+
+action_taking_system_instruction = """You are executing tools, don't hallucinate. 
+ """
+
+evaluation_system_instruction = """Summarize results, identify issues, and suggest improvements.
+Explain your reasoning. 
+ """
+
+
+
+# Initialize models
+try:
+    input_model = genai.GenerativeModel(
+        model_name='gemini-1.5-flash-latest',
+        safety_settings=safety_settings,
+        system_instruction=input_system_instruction,
+        tools=tool_manager.load_tools_of_type("all")
+    )
+except Exception as E:
+    print(f"Error initializing input_model: {E}")
+
+try:
+    action_taker_model = genai.GenerativeModel(
+        model_name='gemini-1.5-flash-latest',
+        safety_settings=safety_settings,
+        system_instruction=action_taking_system_instruction,
+        tools=tool_manager.load_tools_of_type("all")
+    )
+except Exception as E:
+    print(f"Error initializing action_taker_model: {E}")
+
+try:
+    evaluator_model = genai.GenerativeModel(
+        model_name='gemini-1.5-flash-latest',
+        safety_settings=safety_settings,
+        system_instruction=evaluation_system_instruction,
+        tools=tool_manager.load_tools_of_type("all")
+    )
+except Exception as E:
+    print(f"Error initializing evaluator_model: {E}")
 
 # Main Loop:
+# Initial user input
 user_input = input("user_input: ")
+process_turn(user_input)
+
 while True:
+    # Ask for user input after every 3 turns
+    for _ in range(3):
+        process_turn("")  # Process empty input for the next 3 turns
+
+    user_input = input("user_input: ")  # Get user input after 3 turns
     process_turn(user_input)
-    user_input = input("user_input: ")
