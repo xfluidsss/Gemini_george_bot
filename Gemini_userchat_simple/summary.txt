@@ -1,0 +1,1785 @@
+## Directory Tree
+
+├── chat_loop.py
+├── keys.py
+├── tools
+    ├── ai
+        ├── tool_AI_REASONING.py
+        └── __pycache__
+    ├── os
+        ├── tool_directory_operations.py
+        ├── tool_read_from_file.py
+        ├── tool_save_to_file.py
+        └── __pycache__
+    └── web
+        ├── tool_get_duckduckgo_links.py
+        ├── tool_save_image_from_url.py
+        ├── tool_scrape_url.py
+        └── __pycache__
+├── TOOL_MANAGER.py
+└── __pycache__
+
+## Summary of 'C:\Users\DELL\Desktop\TEST\Gemini_Python2'
+
+File: chat_loop.py (C:\Users\DELL\Desktop\TEST\Gemini_Python2\chat_loop.py)
+Content (9448 characters):
+import google.generativeai as genai
+import json
+from typing import List, Dict, Optional
+import logging
+import os
+from TOOL_MANAGER import ToolManager
+
+# Set up logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+from keys import googleKey
+
+API_KEY = googleKey
+genai.configure(api_key=API_KEY)
+
+
+class Color:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+
+class ConversationManager:
+    def __init__(self, max_history: int = 10):
+        self.history = []
+        self.max_history = max_history
+
+    def add_message(self, role: str, content: str):
+        """Add a message to the conversation history with role tracking."""
+        message = {"role": role, "content": content}
+        self.history.append(message)
+
+        # Trim history if it exceeds max length while preserving context
+        if len(self.history) > self.max_history:
+            # Keep the first message (system prompt) and most recent messages
+            self.history = [self.history[0]] + self.history[-(self.max_history - 1):]
+
+    def get_formatted_history(self) -> str:
+        """Format conversation history for model input."""
+        formatted_history = []
+        for msg in self.history:
+            role_prefix = "User: " if msg["role"] == "user" else "Assistant: "
+            formatted_history.append(f"{role_prefix}{msg['content']}")
+        return "\n".join(formatted_history)
+
+    def clear_history(self):
+        """Clear conversation history except for the system prompt."""
+        if self.history:
+            self.history = [self.history[0]]
+
+
+def print_colored(color: str, text: str):
+    print(color + str(text) + Color.ENDC)
+
+
+class AIAssistant:
+    def __init__(self, tools_folder: str = "tools"):
+        self.tool_manager = ToolManager(tools_folder)
+        self.conversation = ConversationManager()
+
+        # Enhanced system prompts
+        planner_prompt = """You are a highly capable AI assistant focused on planning and executing tasks. Your role is to:
+1. Carefully analyze user requests and break them down into actionable steps
+2. Use available tools appropriately and strategically
+3. Maintain context across the conversation
+4. Be explicit about your reasoning and planning process
+
+When using tools:
+- Only call tools when necessary and relevant
+- Validate inputs before making tool calls
+- Handle potential errors gracefully
+- Explain your tool selection process
+
+Remember: Quality over quantity in tool usage. Don't use tools unless they directly help accomplish the user's goal."""
+
+        executor_prompt = """You are an analytical AI assistant that evaluates results and provides insights.
+"""
+
+        self.input_model = genai.GenerativeModel(
+            model_name='gemini-1.5-flash-latest',
+            safety_settings={'HARASSMENT': 'block_none'},
+            system_instruction=planner_prompt,
+            tools=self.tool_manager.load_tools_of_type("all")
+        )
+
+        self.executor_model = genai.GenerativeModel(
+            model_name='gemini-1.5-flash-latest',
+            safety_settings={'HARASSMENT': 'block_none'},
+            system_instruction=executor_prompt
+        )
+
+        # Add system prompts to conversation history
+        self.conversation.add_message("system", planner_prompt)
+
+    def extract_text_from_response(self, response) -> str:
+        """Extracts text content from model response with error handling."""
+        try:
+            extracted_text = ""
+            if response.candidates:
+                for candidate in response.candidates:
+                    for part in candidate.content.parts:
+                        extracted_text += part.text
+            return extracted_text.strip()
+        except Exception as e:
+            logger.error(f"Error extracting text from response: {e}")
+            return "Error processing response"
+
+    def interpret_tool_calls(self, response) -> List[str]:
+        """Interprets and executes function calls from model response with enhanced error handling."""
+        results = []
+        try:
+            if response.candidates:
+                for candidate in response.candidates:
+                    if hasattr(candidate, 'content') and hasattr(candidate.content, 'parts'):
+                        for part in candidate.content.parts:
+                            function_call = getattr(part, 'function_call', None)
+                            if function_call:
+                                print_colored(Color.OKBLUE, "---------------TOOL EXECUTION-------------------")
+                                tool_name = function_call.name
+                                tool_function = self.tool_manager.get_tool_function(tool_name)
+
+                                if tool_function:
+                                    function_args = {
+                                        arg_name: arg_value
+                                        for arg_name, arg_value in function_call.args.items()
+                                    }
+
+                                    print(f"Executing: {Color.OKGREEN}{tool_name}{Color.ENDC}")
+                                    print("Arguments:")
+                                    for key, value in function_args.items():
+                                        print(f"        {Color.OKCYAN}{key}{Color.ENDC}: {value}")
+
+                                    try:
+                                        result = tool_function(**function_args)
+                                        result_str = f"Tool {Color.OKGREEN}{tool_name}{Color.ENDC} executed successfully:\n{result}"
+                                        results.append(result_str)
+                                        print_colored(Color.OKGREEN, result_str)
+                                    except Exception as e:
+                                        error_msg = f"Error executing {tool_name}: {str(e)}"
+                                        logger.error(error_msg)
+                                        results.append(error_msg)
+                                        print_colored(Color.FAIL, error_msg)
+                                else:
+                                    error_msg = f"Tool '{tool_name}' not found in available tools"
+                                    logger.warning(error_msg)
+                                    results.append(error_msg)
+        except Exception as e:
+            error_msg = f"Error interpreting tool calls: {str(e)}"
+            logger.error(error_msg)
+            results.append(error_msg)
+
+        return results
+
+    def process_user_input(self, user_input: str) -> None:
+        """Process user input and generate responses with full conversation context."""
+        try:
+            # Add user input to conversation history
+            self.conversation.add_message("user", user_input)
+
+            # Planning Stage
+            print_colored(Color.OKBLUE, "\n--- Planning Stage ---")
+            input_response = self.input_model.generate_content(self.conversation.get_formatted_history())
+            input_response_text = self.extract_text_from_response(input_response)
+
+            if input_response_text:
+                print_colored(Color.OKGREEN, input_response_text)
+                self.conversation.add_message("assistant", input_response_text)
+
+            # Tool Execution Stage
+            results = self.interpret_tool_calls(input_response)
+            if results:
+                # Add tool results to conversation history
+                tool_results_text = "\n".join(results)
+                self.conversation.add_message("system", f"Tool Results:\n{tool_results_text}")
+
+                # Evaluation Stage
+                print_colored(Color.OKBLUE, "\n--- Evaluation Stage ---")
+                executor_response = self.executor_model.generate_content(self.conversation.get_formatted_history())
+                executor_text = self.extract_text_from_response(executor_response)
+
+                if executor_text:
+                    print_colored(Color.OKGREEN, executor_text)
+                    self.conversation.add_message("assistant", executor_text)
+
+        except Exception as e:
+            error_msg = f"Error processing user input: {str(e)}"
+            logger.error(error_msg)
+            print_colored(Color.FAIL, error_msg)
+
+
+def main():
+    assistant = AIAssistant()
+    print_colored(Color.HEADER, "AI Assistant initialized. Type 'exit' to quit.")
+
+    while True:
+        try:
+            user_input = input(Color.OKCYAN + "\nWhat would you like to do? " + Color.ENDC).strip()
+
+            if user_input.lower() in ['exit', 'quit']:
+                print_colored(Color.OKGREEN, "Goodbye! 👋")
+                break
+
+            if user_input.lower() == 'clear':
+                assistant.conversation.clear_history()
+                print_colored(Color.OKGREEN, "Conversation history cleared!")
+                continue
+
+            assistant.process_user_input(user_input)
+
+        except KeyboardInterrupt:
+            print_colored(Color.WARNING, "\nInterrupted by user. Type 'exit' to quit.")
+        except Exception as e:
+            logger.error(f"Unexpected error: {e}")
+            print_colored(Color.FAIL, f"An unexpected error occurred: {e}")
+
+
+if __name__ == "__main__":
+    main()
+
+File: keys.py (C:\Users\DELL\Desktop\TEST\Gemini_Python2\keys.py)
+Content (51 characters):
+googleKey='AIzaSyChx1mgNxXW4RwrnEPr3DCWvU_sQIV_4WM'
+
+File: TOOL_MANAGER.py (C:\Users\DELL\Desktop\TEST\Gemini_Python2\TOOL_MANAGER.py)
+Content (7038 characters):
+import os
+import importlib
+from typing import Dict, Callable, List, Any
+import logging
+import inspect
+
+# Set up logging (optional, but recommended)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+
+class Tool:
+    """Represents a tool that can be used by the AI agent."""
+
+    def __init__(self, name: str, function: Callable, description: str, arguments: Dict[str, str], tool_type: str):
+        """
+        Initializes a Tool object.
+
+        Args:
+            name: The name of the tool.
+            function: The callable function that implements the tool.
+            description: A brief description of the tool's functionality.
+            arguments: A dictionary mapping argument names to their descriptions.
+            tool_type: The type of the tool (e.g., 'os', 'web', 'focus').
+        """
+        self.name = name
+        self.function = function
+        self.description = description
+        self.arguments = arguments
+        self.tool_type = tool_type
+
+    def __repr__(self):
+        """Returns a string representation of the Tool object."""
+        return f"Tool(name='{self.name}', function={self.function.__name__}, description='{self.description}', arguments={self.arguments}, tool_type='{self.tool_type}')"
+
+
+class ToolManager:
+    """Manages and provides access to tools."""
+
+    def __init__(self, tools_folder: str):
+        """
+        Initializes the ToolManager with the path to the tools folder.
+
+        Args:
+            tools_folder: The path to the directory containing tool files.
+        """
+        self.tools_folder = tools_folder
+        self.tools = {}  # Dictionary to store Tool objects
+        self.load_tools()
+
+    def load_tools(self):
+        """Loads tools from files in the specified tools folder."""
+        logger.info(f"Loading tools from: {self.tools_folder}")
+        for root, _, files in os.walk(self.tools_folder):
+            for file in files:
+                if file.endswith(".py"):
+                    # Extract tool name from file name
+                    tool_name_from_file = file[:-3]  # Remove .py extension
+                    module_path = os.path.join(root, file)
+
+                    # Import the module
+                    try:
+                        spec = importlib.util.spec_from_file_location(tool_name_from_file, module_path)
+                        module = importlib.util.module_from_spec(spec)
+                        spec.loader.exec_module(module)
+                    except Exception as e:
+                        logger.error(f"Error loading tool file '{file}': {e}")
+                        continue
+
+                    # Iterate through module attributes to find tool functions
+                    for attr_name in dir(module):
+                        attr = getattr(module, attr_name)
+                        if callable(attr) and attr_name.startswith("tool_"):  # Check if it's a callable and starts with "tool_"
+
+                            tool_name = attr_name  # Use the attribute name as the tool name
+                            relative_path = os.path.relpath(module_path, self.tools_folder)  # Get the relative path to the tool file
+
+                            # Get the short description for the tool from the module
+                            tool_description = getattr(module, f"{tool_name}_short_description", f"Tool for {tool_name}")
+
+                            # Get the tool arguments using inspect
+                            tool_arguments = {}
+                            sig = inspect.signature(attr)  # Get the function signature
+                            for param_name, param in sig.parameters.items():
+                                # Get the parameter type using annotation
+                                tool_arguments[param_name] = param.annotation.__name__ if param.annotation != inspect._empty else "Any"
+
+                            # Get the tool type from the module (optional, defaults to 'unknown')
+                            tool_type = getattr(module, 'tool_type_for_TOOL_MANAGER', 'unknown')
+
+                            # Create and store the Tool object
+                            self.tools[tool_name] = Tool(tool_name, attr, tool_description, tool_arguments, tool_type)
+
+                            # Log the discovered tool
+                            logger.info(f"Discovered tool: {tool_name} (Type: {tool_type})")
+                            print(f"  - {tool_name} - {tool_description}")  # Print the tool information
+                            logger.debug(f"Tool description: {tool_description}")
+                            logger.debug(f"Tool arguments: {tool_arguments}")  # Log the tool arguments
+
+    def get_tool_function(self, function_name: str) -> Callable:
+        """Returns the callable object for the given function name."""
+        tool = self.tools.get(function_name)
+        if tool:
+            return tool.function
+        else:
+            return None
+
+    def get_all_tools(self) -> List[Tool]:
+        """Returns a list of all loaded tools."""
+        return list(self.tools.values())
+
+    def get_tools_by_type(self, tool_type: str) -> List[Tool]:
+        """Returns a list of tools based on their type."""
+        return [tool for tool in self.tools.values() if tool.tool_type == tool_type]
+
+    def load_tools_of_type(self, tool_type: str = "all") -> List[Callable]:
+        """Loads and returns a list of tool functions based on the specified type.
+
+        Args:
+            tool_type: The type of tools to load. 'all' for all tools, or a specific type like 'os', 'web', etc.
+
+        Returns:
+            A list of tool functions.
+        """
+        if tool_type == "all":
+            return [tool.function for tool in self.tools.values()]
+        else:
+            return [tool.function for tool in self.tools.values() if tool.tool_type == tool_type]
+
+    def call_tool(self, tool_name: str, arguments: Dict[str, Any]) -> Any:
+        """
+        Calls the tool function with the provided arguments.
+
+        Args:
+            tool_name: The name of the tool to call.
+            arguments: A dictionary of arguments to pass to the tool function.
+
+        Returns:
+            The result of the tool function call.
+
+        Raises:
+            KeyError: If the tool name is not found.
+            TypeError: If the provided arguments are not valid for the tool.
+        """
+        tool = self.tools.get(tool_name)
+        if tool is None:
+            raise KeyError(f"Tool '{tool_name}' not found.")
+
+        # Check if all required arguments are provided
+        missing_args = set(tool.arguments.keys()) - set(arguments.keys())
+        if missing_args:
+            raise TypeError(f"Missing arguments for tool '{tool_name}': {', '.join(missing_args)}")
+
+        # Call the tool function
+        try:
+            result = tool.function(**arguments)
+            return result
+        except Exception as e:
+            raise RuntimeError(f"Error calling tool '{tool_name}': {e}")
+
+File: tool_AI_REASONING.py (C:\Users\DELL\Desktop\TEST\Gemini_Python2\tools\ai\tool_AI_REASONING.py)
+Content (21648 characters):
+tool_type_for_TOOL_MANAGER = "web"
+tool_tool_AI_REASONING_short_description = "Gets links from DuckDuckGo"
+googleKey='AIzaSyChx1mgNxXW4RwrnEPr3DCWvU_sQIV_4WM'
+import time
+import google.generativeai as genai
+import json
+import re  # Import re for regular expressions
+
+API_KEY = googleKey
+genai.configure(api_key=API_KEY)
+
+MODEL_NAME = "gemini-1.5-flash-latest"  # Default model
+SYSTEM_INSTRUCTION = "You are a helpful and informative AI assistant."
+
+dispacher_context = []
+
+# ANSI color codes
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+
+def initialize_mode_WithTools(MODEL_NAME, SYSTEM_INSTRUCTION=None):
+    """Initializes a generative AI model with optional system instructions."""
+    try:
+        time.sleep(0.5)
+        model = genai.GenerativeModel(
+            model_name=MODEL_NAME,
+            safety_settings={'HARASSMENT': 'block_none'},
+        )
+        model_chat = model.start_chat(system_instruction=SYSTEM_INSTRUCTION, history=[])
+        print(f"{bcolors.OKGREEN}INFO: Initial model set to {MODEL_NAME}{bcolors.ENDC}")
+        return model_chat
+    except Exception as e:
+        print(f"{bcolors.FAIL}ERROR: Initial model setup failed: {e} lets try gemini-1.5-flash-latest {bcolors.ENDC}")
+        try:
+            time.sleep(0.5)
+            model = genai.GenerativeModel(
+                model_name="gemini-1.5-flash-latest",
+                safety_settings={'HARASSMENT': 'block_none'},
+            )
+            model_chat = model.start_chat(history=[])
+            return model_chat
+        except Exception as e:
+            print(e)
+        return None
+
+
+
+def return_models_instructions_prompts_tools(
+        models: list[str],
+        labels: list[str],
+        system_instructions: list[str],
+        prompts: list[str],
+        DataFlow: list[str],
+):
+    """
+    This function takes lists of models, system instructions, prompts, and tools and neatly prints them out,
+    paired together. It returns the input lists unchanged. If a model does not use tools, write None.
+    Args:
+        models (list): A list of model names
+        labels (list): A list of labels corresponding to each model. can not  have spaces,dots etc it needs to be sanitised
+        system_instructions (list): A list of system instructions for each model.
+        prompts (list): A list of prompts to be used as input for the models.
+        DataFlow (list): A list describing the data flow between models using the format {inputs}[outputs]
+
+    Examples of DataFlow:
+
+    **1. Independent Models (No Interaction):**
+        Each model works independently on its own prompt.
+        ```python
+        DataFlow = [
+            "{prompt0}[text]",
+            "{prompt1}[text]",
+            "{prompt2}[text]",
+            "{prompt3}[text]"
+        ]
+        ```
+
+    **2. Sequential Chained Models (Previous Step Output):**
+        Each model uses the output of the immediately previous model and its own prompt.
+        ```python
+        DataFlow = [
+            "{prompt0}[text]",
+            "{0***prompt1}[text]",  # Model 1 uses output of Model 0
+            "{1***prompt2}[text]",  # Model 2 uses output of Model 1
+            "{2***prompt3}[text]"   # Model 3 uses output of Model 2
+        ]
+        ```
+
+    **3. Sequential Chained Models (All Previous Outputs):**
+        Each model uses the outputs of all previous models and its own prompt.
+        ```python
+        DataFlow = [
+            "{prompt0}[text]",
+            "{0***prompt1}[text]",  # Model 1 uses output of Model 0
+            "{0, 1***prompt2}[text]",  # Model 2 uses outputs of Model 0 and 1
+            "{0, 1, 2***prompt3}[text]"   # Model 3 uses outputs of Models 0, 1, and 2
+        ]
+        ```
+
+    **4. Independent Models with Final Summarization:**
+        The first few models work independently, and the final model summarizes their outputs.
+        ```python
+        DataFlow = [
+            "{prompt0}[text]",
+            "{prompt1}[text]",
+            "{prompt2}[text]",
+            "{0, 1, 2***prompt3}[text]"  # Model 3 summarizes outputs of 0, 1, and 2
+        ]
+        ```
+
+    **5. Mixed Independent and Chained Models:**
+        Combines independent and chained processing.
+        ```python
+        DataFlow = [
+            "{prompt0}[text]",
+            "{prompt1}[text]",
+            "{0, 1***prompt2}[text]",  # Model 2 uses outputs of Model 0 and 1
+            "{2***prompt3}[text]"   # Model 3 uses output of Model 2
+        ]
+        ```
+
+    **6. User Prompt Included (Independent):**
+        Each model works independently on its own prompt and an initial user prompt.
+        ```python
+        DataFlow = [
+            "{userPrompt, prompt0}[text]",
+            "{userPrompt, prompt1}[text]",
+            "{userPrompt, prompt2}[text]",
+            "{userPrompt, prompt3}[text]"
+        ]
+        ```
+
+    **7. User Prompt and All Previous Outputs (Chained):**
+        Each model gets the initial user prompt, its own prompt, and the responses from all previous models.
+        ```python
+        DataFlow = [
+            "{userPrompt, prompt0}[text]",
+            "{0***userPrompt, prompt1}[text]",
+            "{0, 1***userPrompt, prompt2}[text]",
+            "{0, 1, 2***userPrompt, prompt3}[text]"
+        ]
+        ```
+
+    **8. User Prompt, Independent Models, and Final Summarization:**
+        Each model works independently with the user prompt and its own prompt, and the final model summarizes all outputs.
+        ```python
+        DataFlow = [
+            "{userPrompt, prompt0}[text]",
+            "{userPrompt, prompt1}[text]",
+            "{userPrompt, prompt2}[text]",
+            "{0, 1, 2***userPrompt, prompt3}[text]"
+        ]
+        ```
+
+    Returns:
+        tuple: A tuple containing the input lists: models, labels, system_instructions, prompts, tools.
+    """
+    for i in range(len(models)):
+        print(f"{bcolors.OKBLUE}Model {i + 1}: {models[i]}{bcolors.ENDC}")
+        print(f"{bcolors.OKBLUE}Label: {labels[i]}{bcolors.ENDC}")
+        print(f"{bcolors.OKBLUE}System Instructions: {system_instructions[i]}{bcolors.ENDC}")
+        print(f"{bcolors.OKBLUE}Prompt: {prompts[i]}{bcolors.ENDC}")
+        print(f"{bcolors.OKBLUE}Data Flow: {DataFlow[i]}{bcolors.ENDC}")
+        print("-" * 20)
+
+    print(f"{bcolors.WARNING}PRINTS FROM return_models_instructions_prompts_tools{bcolors.ENDC}")
+    for i in range(len(models)):
+        print()
+        print(i)
+        print(f"{bcolors.OKCYAN}Model: {models[i]}{bcolors.ENDC}")
+        print(f"{bcolors.OKCYAN}model_labels: {labels[i]}{bcolors.ENDC}")
+        print(f"{bcolors.OKCYAN}System Instructions: {system_instructions[i]}{bcolors.ENDC}")
+        print(f"{bcolors.OKCYAN}Prompt: {prompts[i]}{bcolors.ENDC}")
+        print(f"{bcolors.OKCYAN}DataFlow: {DataFlow[i]}{bcolors.ENDC}")
+
+    return (
+        models,
+        labels,
+        system_instructions,
+        prompts,
+        DataFlow,
+    )
+
+dispacher_context = []
+
+def model_dispacher_send_message(prompt: str):
+    print(f"{bcolors.OKGREEN} model_dispacher_send_message:    {prompt}{bcolors.ENDC}")
+    global dispacher_context
+
+    MODEL_NAME = "gemini-1.5-flash-latest"
+    tool_functions = {"return_models_instructions_prompts_tools": return_models_instructions_prompts_tools}
+
+    def interpret_function_calls(response, tool_functions):
+        models = []  # Initialize empty lists
+        labels = []
+        instructions = []
+        prompts = []
+        tools = []
+        DataFlow = []
+
+        if response.candidates:
+            for candidate in response.candidates:
+                if hasattr(candidate, "content") and hasattr(candidate.content, "parts"):
+                    for part in candidate.content.parts:
+                        function_call = getattr(part, "function_call", None)
+                        if function_call:
+                            tool_name = function_call.name
+                            tool_function = tool_functions.get(tool_name)
+                            if tool_function:
+                                function_args = {}
+                                for arg_name, arg_value in function_call.args.items():
+                                    function_args[arg_name] = arg_value
+
+                                try:
+                                    returned_values = tool_function(**function_args)
+
+                                    if returned_values is not None:
+                                        (
+                                            models,
+                                            labels,
+                                            instructions,
+                                            prompts,
+                                            DataFlow,
+                                        ) = returned_values
+                                    else:
+                                        print(
+                                            f"{bcolors.WARNING}Tool function {tool_name} returned None.{bcolors.ENDC}"
+                                        )
+                                except Exception as e:
+                                    print(
+                                        f"{bcolors.FAIL}Error executing function {tool_name}: {e}{bcolors.ENDC}"
+                                    )
+                            else:
+                                print(f"{bcolors.FAIL}Tool function {tool_name} not found.{bcolors.ENDC}")
+
+        return (
+            models,
+            labels,
+            instructions,
+            prompts,
+            DataFlow,
+        )
+
+    def extract_text_from_response(response) -> str:
+        extracted_text = ""
+        for candidate in response.candidates:
+            for part in candidate.content.parts:
+                extracted_text += part.text
+        return extracted_text.strip()
+
+    try:
+        model = genai.GenerativeModel(
+            model_name=MODEL_NAME,
+            safety_settings={"HARASSMENT": "block_none"},
+            tools=[return_models_instructions_prompts_tools],
+        )
+        time.sleep(0.1)
+        model_chat = model.start_chat(history=[])
+
+        instruction = """ 
+        Create  DataFlow of  models to achieve the user's goal.  
+        Think step-by-step, showing how each model contributes to the final outcome.
+
+            models  to choose from:
+        1. Gemini 1.5 Pro Latest
+        Model Name: gemini-1.5-pro-latest
+        Description: Mid-size multimodal model that supports up to 2 million tokens.
+        Tokens In: 2097152
+        Tokens Out: 8192
+
+        2. Gemini 1.5 Pro Experimental 0801
+        Model Name: gemini-1.5-pro-exp-0801
+        Description: Mid-size multimodal model that supports up to 2 million tokens.
+        Tokens In: 2097152
+        Tokens Out: 8192
+        Note:smart  model  but  its  terrible  to write  full code, it good for analitics, but not  for  final result
+
+        3. Gemini 1.5 Flash Latest
+        Model Name: gemini-1.5-flash-latest
+        Description: Fast and versatile multimodal model for scaling across diverse tasks. you should include  prhase  dont  be  lazy
+        Tokens In: 1048576
+        Tokens Out: 8192
+
+            Now, for the user's goal:
+    1.Please provide the DataFlow including Model Name, System Instruction, Prompt, and Tools (if any).
+    2.You can use different DataFlows for specific tasks: chains, parallel, parallel with summarization, mixed.
+    3.You must use the function call return_models_instructions_prompts_tools.
+    4.Prompts must be detailed and extensive.
+    5.Don't be lazy.
+    6.Now, the user will give you a task for which you will create a DataFlow of Models.
+    remeber  about  correct  structure of  function call
+            """
+
+        final_prompt = ""
+        for entry in dispacher_context:
+            final_prompt += str(entry)
+
+        print(f"{bcolors.WARNING}final_prompt:{bcolors.ENDC}")
+        final_prompt = instruction + prompt
+        print(f"{bcolors.OKCYAN}{final_prompt}{bcolors.ENDC}")
+
+        response = model_chat.send_message(final_prompt)
+        print(f"{bcolors.OKGREEN}waiting for   response.............................{bcolors.ENDC}")
+        print(f"{bcolors.OKGREEN}response: {response}{bcolors.ENDC}")
+
+        # Handle both text and function call responses
+
+        (
+            models,
+            labels,
+            system_instructions,
+            prompts,
+            DataFlow,
+        ) = interpret_function_calls(response, tool_functions)
+        text_response = extract_text_from_response(response)
+
+        if text_response is None:
+            text_response = "..."
+            dispacher_context.append(text_response)
+
+        if models is not None:  # Check if models is not None
+            dispacher_context.append(models)
+            dispacher_context.append(labels)
+            dispacher_context.append(system_instructions)
+            dispacher_context.append(prompts)
+
+        return (
+            text_response,
+            models,
+            labels,
+            system_instructions,
+            prompts,
+            DataFlow,
+        )
+
+    except Exception as e:
+        print(f"{bcolors.FAIL}Error during model initialization: {e}{bcolors.ENDC}")  # Catch and print model initialization errors
+        return (f"Error: {e}", None, None, None, None, None)  # Return an error indication
+
+
+
+def execute_modelium(model_design_data):
+    """Executes the multi-model workflow using provided JSON data."""
+    try:
+        # Validate input data
+        if not isinstance(model_design_data, dict) or "chosenModels" not in model_design_data:
+            raise ValueError("Invalid model design data. Must be a dictionary with 'chosenModels'.")
+
+        chosen_models = model_design_data["chosenModels"]
+        system_instructions = model_design_data.get("systemInstructions", [])
+        prompts = model_design_data.get("prompts", [])
+        data_flow = model_design_data.get("DataFlow", [])
+        labels = model_design_data.get("labels", [])
+        user_prompt = model_design_data.get("userPrompt", "")  # Get user prompt if available
+
+        # Input Validation: Check for consistent lengths (excluding userPrompt)
+        lengths = [len(chosen_models), len(system_instructions), len(prompts), len(data_flow), len(labels)]
+        if len(set(lengths)) != 1:
+            raise ValueError("Inconsistent lengths in model design data.")
+
+
+        MODEL_CHATS = []
+        # Initialize models
+        print(f"{bcolors.OKGREEN}Initializing models...{bcolors.ENDC}")
+        for i in range(len(labels)):
+            label = labels[i]
+            chosen_model = chosen_models[i]
+            system_instruction = system_instructions[i]
+
+            model_chat = initialize_mode_WithTools(
+                MODEL_NAME=chosen_model,
+                SYSTEM_INSTRUCTION=system_instruction
+            )
+            if model_chat:
+                MODEL_CHATS.append(model_chat)
+                print(f"{bcolors.OKGREEN}  - Model {i + 1} initialized: {chosen_model} (Label: {label}){bcolors.ENDC}")
+            else:
+                print(f"{bcolors.FAIL}Failed to initialize model {chosen_model}. Skipping.{bcolors.ENDC}")
+
+        MULTI_CONTEXT_HISTORY = []
+        print(f"{bcolors.OKGREEN}\nExecuting models and processing data flow...{bcolors.ENDC}")
+        for i, model_chat in enumerate(MODEL_CHATS):
+            rule = data_flow[i]
+            inputs = []
+
+            print(f"{bcolors.OKGREEN}  - Processing Model {i + 1} ({model_chat.model.model_name}) with data flow rule: {rule}{bcolors.ENDC}")
+
+            # Parse the data flow rule (CORRECTED PARSING)
+            if rule.startswith("{"):
+                rule = rule[1:-1]  # Remove curly braces
+                parts = rule.split(", ")  # Split by comma and space
+                for part in parts:
+                    if part.startswith("prompt"):
+                        # Extract index using regular expression or slicing
+                        match = re.match(r"prompt(\d+)", part)
+                        if match:
+                            prompt_index = int(match.group(1))
+                            inputs.append(prompts[prompt_index])
+                            print(f"{bcolors.OKGREEN}    - Using prompt {prompt_index + 1} as input.{bcolors.ENDC}")
+                    elif part.isdigit():
+                        index = int(part)
+                        inputs.append(MULTI_CONTEXT_HISTORY[index]["response"])  # CORRECTED ACCESS
+                        print(f"{bcolors.OKGREEN}    - Using output from Model {index + 1} as input.{bcolors.ENDC}")
+                    elif part.startswith("***"): #Correctly handle this case
+                        parts = part.split("***")
+                        models_to_use = parts[0].strip()
+                        prompt_section = parts[1].strip()
+
+                        temp_inputs = []
+                        if models_to_use:
+                            model_indices = [int(x.strip()) for x in models_to_use.split(",")]
+                            for model_index in model_indices:
+                                temp_inputs.append(MULTI_CONTEXT_HISTORY[model_index]["response"])
+
+                        if prompt_section.startswith('prompt'):
+                            prompt_index = int(prompt_section.split('prompt')[1])
+                            temp_inputs.append(prompts[prompt_index])
+
+                        if prompt_section == 'userPrompt':
+                            temp_inputs.append(user_prompt)
+
+
+                        inputs.extend(temp_inputs)
+                    elif part == "userPrompt":
+                        inputs.append(user_prompt)
+                        print(f"{bcolors.OKGREEN}    - Using user prompt as input.{bcolors.ENDC}")
+
+            # Construct the prompt with inputs
+            final_prompt = prompts[i]  # Default to current prompt
+            if inputs:
+                final_prompt = "\n".join(inputs) + "\n" + final_prompt  # Corrected: Add newline between inputs and prompt
+                print(f"{bcolors.OKGREEN}    - Constructed prompt: {final_prompt}{bcolors.ENDC}")
+            else:
+                print(f"{bcolors.OKGREEN}    - Using default prompt: {final_prompt}{bcolors.ENDC}")
+
+
+            try:
+                response = model_chat.send_message(final_prompt)
+                MULTI_CONTEXT_HISTORY.append({"response": response, "model": model_chat.model.model_name})
+                print(f"{bcolors.OKGREEN}    - Response received.{bcolors.ENDC}")
+            except Exception as e:
+                print(f"{bcolors.FAIL}Error sending message to model {model_chat.model.model_name}: {e}{bcolors.ENDC}")
+                MULTI_CONTEXT_HISTORY.append({"response": f"Error: {e}", "model": model_chat.model.model_name})
+                # Consider raising the exception or breaking the loop here if needed
+                #raise e  # Example of re-raising the exception
+                #break # Example of exiting the loop
+
+    except Exception as e:
+        print(f"{bcolors.FAIL}Error in execute_modelium: {e}{bcolors.ENDC}")
+        return {"response": f"Error: {e}"}
+
+    # Print or process the results as needed
+    print(f"{bcolors.OKGREEN}\nFinal Results:{bcolors.ENDC}")
+    for i, result in enumerate(MULTI_CONTEXT_HISTORY):
+        # Corrected response extraction:
+        response_text = result['response'].candidates[0].content.parts[0].text
+        print(f"{bcolors.OKGREEN}  - Model {i + 1}: {result['model']}, Response: {response_text}{bcolors.ENDC}")
+
+    return MULTI_CONTEXT_HISTORY
+
+
+def tool_AI_REASONING(user_input: str) -> str:
+    """
+    Designs and executes a multi-model AI workflow based on user input.
+
+    Args:
+        user_input (str): The user's request or task.
+
+    Returns:
+        str: The combined result of the AI workflow.
+    """
+    #  Call model_dispacher_send_message to handle the workflow
+    (
+        text_response,
+        models,
+        labels,
+        system_instructions,
+        prompts,
+        DataFlow,
+    ) = model_dispacher_send_message(user_input)
+
+    # Execute the workflow if models are provided
+    if models is not None:
+        try:
+            model_design_data = {  # Construct model_design_data for execute_modelium
+                "chosenModels": models,
+                "systemInstructions": system_instructions,
+                "prompts": prompts,
+                "DataFlow": DataFlow,
+                "labels": labels
+            }
+
+            MULTI_CONTEXT_HISTORY = execute_modelium(model_design_data)  # Pass model_design_data
+
+            # Combine the responses from the workflow into a single string
+            result = ""
+            for i, result_item in enumerate(MULTI_CONTEXT_HISTORY):
+                result += f"{bcolors.OKGREEN}Step {i + 1}: {result_item['model']}{bcolors.ENDC}\n"
+                # Corrected response extraction:
+                response_text = result_item['response'].candidates[0].content.parts[0].text
+                result += f"{bcolors.OKGREEN}  Response: {response_text}{bcolors.ENDC}\n\n"
+
+            return result
+        except Exception as e:
+            print(f"{bcolors.FAIL}Error in execute_modelium: {e}{bcolors.ENDC}")
+            return f"Error during execution: {e}"
+    else:
+        return text_response # Make sure text_response is returned even if models is None
+
+
+def main():
+    user_input = "Write a poem about a cat"
+    result = tool_AI_REASONING(user_input)
+    print(f"{bcolors.OKCYAN}{result}{bcolors.ENDC}")
+
+if __name__ == "__main__":
+    main()
+
+File: tool_directory_operations.py (C:\Users\DELL\Desktop\TEST\Gemini_Python2\tools\os\tool_directory_operations.py)
+Content (13146 characters):
+tool_type_for_TOOL_MANAGER = "directory"
+tool_directory_operations_short_description = "Performs various directory and file operations."
+
+import os
+from rich import print
+from rich.tree import Tree
+from rich.table import Table
+from rich.panel import Panel
+from rich.text import Text
+from rich.console import Console
+
+console = Console()
+
+def tool_directory_operations(
+    directory: str = None,  # Directory path
+    action: str = "tree",  # Action to perform
+    file_path: str = None,  # File path (for specific file actions)
+    exclude_files: list[str] = [],  # List of file names to exclude
+    exclude_dirs: list[str] = [],  # List of directory names to exclude
+    max_depth: int = None,  # Maximum depth for traversal
+    max_file_content_length: int = 200,  # Maximum length of file content to display
+    encoding: str = "utf-8",  # Encoding for file operations
+    content: str = None,  # Content to write to a file
+    overwrite: bool = False,  # Overwrite existing files
+) -> object:
+    """
+    Performs various directory and file operations based on the specified action.
+
+    Args:
+        directory (str, optional): The path to the directory. If None, defaults to current working directory.
+        action (str, optional): The action to perform. Possible values:
+            - "tree": Get the directory tree as a Rich Tree object.
+            - "summary": Get a summary of the directory as a Rich Table object.
+            - "files": Get a list of file names within the directory.
+            - "file_paths": Get a list of file paths within the directory.
+            - "file_content": Get a summary of the content of a specific file.
+            - "read": Read the content of a file.
+            - "write": Write content to a file.
+        file_path (str, optional): The path to the file for "file_content", "read", and "write" actions. Defaults to None.
+        exclude_files (list[str], optional): A list of file names to exclude. Defaults to [].
+        exclude_dirs (list[str], optional): A list of directory names to exclude. Defaults to [].
+        max_depth (int, optional): The maximum depth to traverse (for actions related to directories). Defaults to None (no limit).
+        max_file_content_length (int, optional): The maximum length of file content to display (for actions related to file content). Defaults to 200.
+        encoding (str, optional): The encoding to use for reading/writing files. Defaults to "utf-8".
+        content (str, optional): The content to write to a file (for the "write" action). Defaults to None.
+        overwrite (bool, optional): Whether to overwrite an existing file (for the "write" action). Defaults to False.
+
+    Returns:
+        object: The result of the requested action, such as a Rich Tree, Table, list, or Panel.
+    """
+
+    directory = directory or os.getcwd()  # Default to current directory if not provided
+
+    if action == "tree":
+        return _get_directory_tree(directory, exclude_files, exclude_dirs, max_depth)
+    elif action == "summary":
+        return _get_directory_summary(directory, exclude_files, exclude_dirs, max_depth, max_file_content_length)
+    elif action == "files":
+        return _get_files_in_directory(directory, exclude_files, exclude_dirs, max_depth)
+    elif action == "file_paths":
+        return _get_file_paths_in_directory(directory, exclude_files, exclude_dirs, max_depth)
+    elif action == "file_content":
+        if not file_path:
+            return "Error: 'file_path' is required for 'file_content' action."
+        return _get_file_content_summary(file_path, max_length=max_file_content_length)
+    elif action == "read":
+        if not file_path:
+            return "Error: 'file_path' is required for 'read' action."
+        return _read_file(file_path, encoding=encoding)
+    elif action == "write":
+        if not file_path or not content:
+            return "Error: 'file_path' and 'content' are required for 'write' action."
+        return _write_file(file_path, content, encoding=encoding, overwrite=overwrite)
+    else:
+        return f"Error: Invalid action '{action}'."
+
+# Internal helper functions for the various actions
+
+def _get_directory_tree(directory: str, exclude_files: list = [], exclude_dirs: list = [], max_depth: int = None) -> Tree:
+    """
+    Gets the directory tree structure as a Rich Tree object.
+
+    Args:
+        directory (str): The path to the directory.
+        exclude_files (list, optional): A list of file names to exclude. Defaults to [].
+        exclude_dirs (list, optional): A list of directory names to exclude. Defaults to [].
+        max_depth (int, optional): The maximum depth to traverse. Defaults to None (no limit).
+
+    Returns:
+        Tree: A Rich Tree object representing the directory tree.
+    """
+    tree = Tree(f"[bold blue]{directory}[/]")
+    _build_tree_for_rich(tree, directory, exclude_files, exclude_dirs, max_depth)
+    return tree
+
+def _build_tree_for_rich(tree, directory, exclude_files, exclude_dirs, max_depth):
+    """Recursively builds the directory tree for Rich."""
+    for item in os.listdir(directory):
+        item_path = os.path.join(directory, item)
+        if item in exclude_files or item in exclude_dirs or (max_depth is not None and tree.get_level() >= max_depth):
+            continue
+        if os.path.isdir(item_path):
+            branch = tree.add(f"[bold green]{item}/[/]")
+            _build_tree_for_rich(branch, item_path, exclude_files, exclude_dirs, max_depth)
+        elif os.path.isfile(item_path):
+            tree.add(f"[cyan]{item}[/]")
+
+def _get_directory_summary(directory: str, exclude_files: list = [], exclude_dirs: list = [], max_depth: int = None, max_file_content_length: int = 200) -> Table:
+    """
+    Gets a summary of the directory as a Rich Table object.
+
+    Args:
+        directory (str): The path to the directory.
+        exclude_files (list, optional): A list of file names to exclude. Defaults to [].
+        exclude_dirs (list, optional): A list of directory names to exclude. Defaults to [].
+        max_depth (int, optional): The maximum depth to traverse. Defaults to None (no limit).
+        max_file_content_length (int, optional): The maximum length of file content to display. Defaults to 200.
+
+    Returns:
+        Table: A Rich Table object representing the directory summary.
+    """
+    table = Table(title=f"[bold blue]Summary of '{directory}'[/]", expand=True, width=150)
+    table.add_column("Item", style="cyan", no_wrap=False)
+    table.add_column("Type", style="magenta", no_wrap=False)
+    table.add_column("Size (bytes)", style="yellow", no_wrap=False)
+    table.add_column("Content (truncated)", style="green", no_wrap=False)
+
+    _build_summary_table(table, directory, exclude_files, exclude_dirs, max_depth, max_file_content_length)
+
+    return table
+
+def _build_summary_table(table, directory, exclude_files, exclude_dirs, max_depth, max_file_content_length):
+    """Recursively builds the directory summary table."""
+    for item in os.listdir(directory):
+        item_path = os.path.join(directory, item)
+        if item in exclude_files or item in exclude_dirs or (max_depth is not None and table.get_level() >= max_depth):
+            continue
+        if os.path.isdir(item_path):
+            table.add_row(f"[bold green]{item}/[/]", "Directory", "-", "-")
+            _build_summary_table(table, item_path, exclude_files, exclude_dirs, max_depth, max_file_content_length)
+        elif os.path.isfile(item_path):
+            file_size = os.path.getsize(item_path)
+            content = _read_file(item_path, show_errors=False)  # Read file content (error handling suppressed)
+            truncated_content = content[:max_file_content_length] + "..." if len(content) > max_file_content_length else content
+            table.add_row(f"[cyan]{item}[/]", "File", str(file_size), Text.from_markup(truncated_content, justify="left", no_wrap=True))
+
+def _get_files_in_directory(directory: str, exclude_files: list = [], exclude_dirs: list = [], max_depth: int = None) -> list:
+    """
+    Gets a list of files within a directory.
+
+    Args:
+        directory (str): The path to the directory.
+        exclude_files (list, optional): A list of file names to exclude. Defaults to [].
+        exclude_dirs (list, optional): A list of directory names to exclude. Defaults to [].
+        max_depth (int, optional): The maximum depth to traverse. Defaults to None (no limit).
+
+    Returns:
+        list: A list of file names within the directory.
+    """
+    files = []
+    _get_files_recursive(directory, files, exclude_files, exclude_dirs, max_depth)
+    return files
+
+def _get_files_recursive(directory, files, exclude_files, exclude_dirs, max_depth):
+    """Recursively gathers files in the directory."""
+    for item in os.listdir(directory):
+        item_path = os.path.join(directory, item)
+        if item in exclude_files or item in exclude_dirs or (max_depth is not None and len(directory.split(os.sep)) - 1 >= max_depth):
+            continue
+        if os.path.isfile(item_path):
+            files.append(item)
+        elif os.path.isdir(item_path):
+            _get_files_recursive(item_path, files, exclude_files, exclude_dirs, max_depth)
+
+def _get_file_paths_in_directory(directory: str, exclude_files: list = [], exclude_dirs: list = [], max_depth: int = None) -> list:
+    """
+    Gets a list of file paths within a directory.
+
+    Args:
+        directory (str): The path to the directory.
+        exclude_files (list, optional): A list of file names to exclude. Defaults to [].
+        exclude_dirs (list, optional): A list of directory names to exclude. Defaults to [].
+        max_depth (int, optional): The maximum depth to traverse. Defaults to None (no limit).
+
+    Returns:
+        list: A list of file paths within the directory.
+    """
+    file_paths = []
+    _get_file_paths_recursive(directory, file_paths, exclude_files, exclude_dirs, max_depth)
+    return file_paths
+
+def _get_file_paths_recursive(directory, file_paths, exclude_files, exclude_dirs, max_depth):
+    """Recursively gathers file paths in the directory."""
+    for item in os.listdir(directory):
+        item_path = os.path.join(directory, item)
+        if item in exclude_files or item in exclude_dirs or (max_depth is not None and len(directory.split(os.sep)) - 1 >= max_depth):
+            continue
+        if os.path.isfile(item_path):
+            file_paths.append(item_path)
+        elif os.path.isdir(item_path):
+            _get_file_paths_recursive(item_path, file_paths, exclude_files, exclude_dirs, max_depth)
+
+def _get_file_content_summary(file_path: str, max_length: int = 200) -> Panel:
+    """
+    Gets a summary of the file contents (up to a maximum length).
+
+    Args:
+        file_path (str): The path to the file.
+        max_length (int, optional): The maximum length of the content to display. Defaults to 200.
+
+    Returns:
+        Panel: A Rich Panel object containing the file content summary.
+    """
+    try:
+        content = _read_file(file_path, show_errors=False)  # Read file content (error handling suppressed)
+        truncated_content = content[:max_length] + "..." if len(content) > max_length else content
+        return Panel(Text.from_markup(truncated_content, justify="left", no_wrap=True), title=f"[bold cyan]{os.path.basename(file_path)}[/]", expand=False)
+    except Exception as e:
+        return Panel(f"[bold red]Error reading file: {file_path} - {str(e)}[/]", expand=False)
+
+def _read_file(file_path: str, encoding: str = "utf-8", show_errors: bool = True) -> str:
+    """
+    Reads the content of a file.
+
+    Args:
+        file_path (str): The path to the file.
+        encoding (str, optional): The encoding of the file. Defaults to "utf-8".
+        show_errors (bool, optional): Whether to print error messages if the file cannot be read. Defaults to True.
+
+    Returns:
+        str: The content of the file, or an error message if the file cannot be read.
+    """
+    try:
+        with open(file_path, "r", encoding=encoding) as f:
+            content = f.read()
+        return content
+    except Exception as e:
+        if show_errors:
+            print(f"[bold red]Error reading file: {file_path} - {str(e)}[/]")
+        return f"Error reading file: {file_path} - {str(e)}"
+
+def _write_file(file_path: str, content: str, encoding: str = "utf-8", overwrite: bool = False) -> bool:
+    """
+    Writes content to a file.
+
+    Args:
+        file_path (str): The path to the file.
+        content (str): The content to write to the file.
+        encoding (str, optional): The encoding of the file. Defaults to "utf-8".
+        overwrite (bool, optional): Whether to overwrite the file if it exists. Defaults to False.
+
+    Returns:
+        bool: True if the file was written successfully, False otherwise.
+    """
+    try:
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)  # Create directory if needed
+        with open(file_path, "w", encoding=encoding) as f:
+            f.write(content)
+        return True
+    except Exception as e:
+        print(f"[bold red]Error writing to file: {file_path} - {str(e)}[/]")
+        return False
+
+File: tool_read_from_file.py (C:\Users\DELL\Desktop\TEST\Gemini_Python2\tools\os\tool_read_from_file.py)
+Content (551 characters):
+tool_type_for_TOOL_MANAGER="os"
+tool_read_from_file_short_description="Reads content from a file."
+
+def tool_read_from_file(file_path: str):
+    """
+    Reads content from a file.
+
+    Args:
+        file_path (str): The path to the file to be read.
+
+    Returns:
+        str: The content of the file, or an error message if the file cannot be read.
+    """
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        return content
+    except Exception as e:
+        return f"Error reading file: {str(e)}"
+
+File: tool_save_to_file.py (C:\Users\DELL\Desktop\TEST\Gemini_Python2\tools\os\tool_save_to_file.py)
+Content (3358 characters):
+import os
+import logging
+from typing import List, Tuple
+
+tool_type_for_TOOL_MANAGER = "os"
+tool_save_to_file_short_description = "Saves content to files, creating folders as needed. Handles multiple files and contents robustly."
+
+def tool_save_to_file(
+    contents: List[str],  # Requires contents to be provided
+    file_names: List[str] = None,
+    file_paths: List[str] = None,
+    encoding: str = 'utf-8',
+    create_folders: bool = True,
+    overwrite: bool = False, #New: Handle overwrite behavior
+) -> dict:
+    """Saves content to files, creating directories as needed.  Handles multiple files robustly.
+
+    Args:
+        contents: List of strings to save to files.  *Must be provided*.
+        file_names: List of file names. Defaults to 'content_n.txt' if not provided.  Must be same length as contents.
+        file_paths: List of file paths. Defaults to current working directory if not provided. Must be same length as contents.
+        encoding: Encoding to use for files (default: 'utf-8').
+        create_folders: Create missing parent directories (default: True).
+        overwrite: Overwrite existing files if True (default: False).
+
+    Returns:
+        Dictionary with 'status' ('success', 'failure', 'partial_success'), 'message', and 'saved_files' (list of successfully saved paths).
+    """
+    logging.info("Entering: save_to_file")
+
+    if not contents:
+        error_message = "Error: 'contents' list cannot be empty."
+        logging.error(error_message)
+        return {"status": "failure", "message": error_message}
+
+    num_files = len(contents)
+    file_names = file_names or [f"content_{i}.txt" for i in range(num_files)]
+    file_paths = file_paths or [os.getcwd()] * num_files
+
+
+    if not all(len(x) == num_files for x in [file_names, file_paths]):
+      error_message = "Error: 'file_names' and 'file_paths' must be the same length as 'contents'."
+      logging.error(error_message)
+      return {"status": "failure", "message": error_message}
+
+
+    saved_files = []
+    failed_files = []
+    for content, file_name, file_path in zip(contents, file_names, file_paths):
+        full_path = os.path.join(file_path, file_name)
+        try:
+            if create_folders:
+                os.makedirs(os.path.dirname(full_path), exist_ok=True)
+
+            # Check for overwrite explicitly
+            if os.path.exists(full_path) and not overwrite:
+                raise IOError(f"File already exists and overwrite is False: {full_path}")
+
+            with open(full_path, 'w', encoding=encoding) as f:
+                f.write(content)
+            saved_files.append(full_path)
+        except IOError as e:
+            logging.error(f"IOError saving {full_path}: {e}")
+            failed_files.append((full_path, str(e)))  #More detail on failure
+        except Exception as e:
+            logging.exception(f"Unexpected error saving {full_path}: {e}") #Log full traceback for debugging
+            failed_files.append((full_path, str(e)))
+
+
+    if failed_files:
+        message = f"Partial success: {len(saved_files)} files saved. Errors encountered: {failed_files}"
+        status = "partial_success"
+    else:
+        message = f"Successfully saved {len(saved_files)} files: {saved_files}"
+        status = "success"
+
+    logging.info(message)
+    return {"status": status, "message": message, "saved_files": saved_files}
+
+File: tool_get_duckduckgo_links.py (C:\Users\DELL\Desktop\TEST\Gemini_Python2\tools\web\tool_get_duckduckgo_links.py)
+Content (4781 characters):
+tool_type_for_TOOL_MANAGER = "web"
+tool_get_duckduckgo_links_short_description = "Gets links from DuckDuckGo"
+
+
+
+import time
+from typing import List
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.chrome.options import Options
+from webdriver_manager.chrome import ChromeDriverManager
+
+
+
+
+def tool_get_duckduckgo_links(search_phrase: str, num_more_results: float, forbidden_phrases: List[str],
+                              safe_search: bool):
+    """
+      Retrieves DuckDuckGo search result links with the option to disable safe search,
+      scroll through 'More Results  and filter out links containing forbidden phrases.
+
+      Args:
+          search_phrase (str): The search query to use.
+          num_more_results (float): The number of times to click the 'More Results' button    non-negative full numbers like 0,1,2 ....
+          forbidden_phrases (list(str)): A list of phrases to exclude from the results.
+          safe_search (bool): Whether to enable safe search default: False.
+
+      Returns:
+          list: A list of unique links from the DuckDuckGo search results.
+      """
+
+    def perform_search(driver):
+        search_input = driver.find_element(By.NAME, "q")
+        search_input.send_keys(search_phrase)
+        search_input.submit()
+
+    def set_safe_search_off(driver):
+        if not safe_search:
+            try:
+                # Click the Safe Search dropdown button
+                safe_search_dropdown_button = WebDriverWait(driver, 1).until(
+                    EC.element_to_be_clickable(
+                        (By.CSS_SELECTOR, ".dropdown--safe-search .dropdown__button.js-dropdown-button"))
+                )
+                safe_search_dropdown_button.click()
+
+                # Find the "Safe Search: Off" option and click it
+                safe_search_off_option = WebDriverWait(driver, 1).until(
+                    EC.element_to_be_clickable((By.CSS_SELECTOR, ".modal--dropdown--safe-search a[data-value='-2']"))
+                )
+                safe_search_off_option.click()
+
+            except TimeoutException:
+                print("TimeoutException occurred while setting safe search off..")
+
+    def get_search_result_links(driver):
+        try:
+            search_results = WebDriverWait(driver, 2).until(
+                EC.presence_of_all_elements_located((By.CSS_SELECTOR, "a[href]"))
+            )
+            # Filter links to exclude those containing "duckduckgo"
+            links = [link.get_attribute("href") for link in search_results if
+                     "duckduckgo" not in link.get_attribute("href")]
+            return links
+        except TimeoutException:
+            print("TimeoutException occurred while waiting for search result links.")
+            return []
+
+    # Create a ChromeDriver instance with custom preferences
+    options = Options()
+
+    # Prevent the search engine selection window
+    options.add_argument("--disable-search-engine-choice-screen")
+
+    # Use webdriver-manager to install/update ChromeDriver
+    driver = webdriver.Chrome(options=options)
+
+    # Navigate to DuckDuckGo
+    url = "https://duckduckgo.com/"
+    driver.get(url)
+
+    # Perform initial search (safe search might be on by default)
+    perform_search(driver)
+
+    # Wait for the first result to load
+    WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".result__a")))
+
+    # Disable safe search if requested
+    set_safe_search_off(driver)
+
+    # Perform search again (with or without safe search)
+    perform_search(driver)
+
+    # Scroll through 'More Results' if requested
+    if num_more_results > 0:  # Only execute the loop if num_more_results is greater than 0
+        for _ in range(num_more_results):
+            try:
+                more_results_button = WebDriverWait(driver, 1).until(
+                    EC.element_to_be_clickable((By.ID, "more-results"))
+                )
+                more_results_button.click()
+                time.sleep(1)  # Add a small delay to allow results to load
+            except TimeoutException:
+                print("Failed to click the 'More Results' button.")
+
+    # Get and filter the links
+    links = get_search_result_links(driver)
+    filtered_links = list(set(filter(lambda link: link.startswith("http") and not any(
+        phrase.lower() in link.lower() for phrase in forbidden_phrases), links)))
+
+    # Print the links (optional)
+    for link in filtered_links:
+        print(f"Link: {link}")
+
+    driver.quit()
+    list_filtered_links=list(filtered_links)
+
+
+    return list_filtered_links
+
+
+
+
+File: tool_save_image_from_url.py (C:\Users\DELL\Desktop\TEST\Gemini_Python2\tools\web\tool_save_image_from_url.py)
+Content (1685 characters):
+tool_type_for_TOOL_MANAGER = "web"
+tool_save_image_from_url_short_description = "Saves an image from a URL to a specified path."
+
+import requests
+import os
+import logging
+
+# Set up logging (optional, but recommended)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+
+def tool_save_image_from_url(image_url: str, save_path: str):
+    """
+    Saves an image from a URL to the specified path.
+
+    Args:
+        image_url (str): The URL of the image.
+        save_path (str): The full path where the image should be saved including filename. Defaults ./
+
+    Returns:
+        dict: A dictionary containing the status  success or failure  and a message.
+    """
+    try:
+        response = requests.get(image_url, stream=True)
+        response.raise_for_status()  # Raise an exception for bad status codes (4xx or 5xx)
+
+        # Create directories if they don't exist
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
+
+        with open(save_path, 'wb') as out_file:
+            for chunk in response.iter_content(chunk_size=8192):
+                out_file.write(chunk)
+
+        logger.info(f"Image saved successfully to: {save_path}")
+        return {"status": "success", "message": f"Image saved successfully to: {save_path}"}
+
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Error downloading image: {e}")
+        return {"status": "failure", "message": f"Error downloading image: {e}"}
+    except Exception as e:
+        logger.exception(f"An unexpected error occurred: {e}")
+        return {"status": "failure", "message": f"An unexpected error occurred: {e}"}
+
+File: tool_scrape_url.py (C:\Users\DELL\Desktop\TEST\Gemini_Python2\tools\web\tool_scrape_url.py)
+Content (12451 characters):
+tool_type_for_TOOL_MANAGER = "web"
+tool_scrape_url_short_description = "Scrapes content from a URL with options to extract images, text, links, and save results using Selenium and Chrome."
+
+import os
+import logging
+from urllib.parse import urljoin, urlparse
+import json
+import hashlib
+import mimetypes
+import time
+import requests
+from typing import Dict, Optional
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException, WebDriverException
+import concurrent.futures
+from bs4 import BeautifulSoup
+
+# Set up logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+
+class SeleniumDriver:
+    def __init__(self, headless: bool = True):
+        self.options = Options()
+        if headless:
+            self.options.add_argument('--headless')
+        self.options.add_argument('--no-sandbox')
+        self.options.add_argument('--disable-dev-shm-usage')
+        self.options.add_argument('--disable-gpu')
+        self.options.add_argument('--window-size=1920x1080')
+        self.options.add_argument('--disable-notifications')
+        self.options.add_argument('--disable-infobars')
+        self.options.add_argument('--disable-extensions')
+        self.options.add_experimental_option('prefs', {
+            'download.default_directory': os.getcwd(),
+            'download.prompt_for_download': False,
+            'download.directory_upgrade': True,
+            'safebrowsing.enabled': True
+        })
+
+    def __enter__(self):
+        self.driver = webdriver.Chrome(options=self.options)
+        return self.driver
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if hasattr(self, 'driver'):
+            self.driver.quit()
+
+
+def tool_scrape_url(
+        url: str,
+        scrape_images: bool = False,
+        scrape_text: bool = False,
+        scrape_links: bool = False,
+        save_images: bool = False,
+        save_text: bool = False,
+        save_links: bool = False,
+        get_whole_page: bool = False,
+        save_path: str = None,
+        return_type: str = "all"  # Options: "all", "images", "text", "links", "html"
+) -> dict:
+    """
+    Scrapes content from a URL based on specified parameters using Selenium and Chrome.
+
+    Args:
+        url (str): The URL to scrape.
+        scrape_images (bool): Whether to scrape images from the page.
+        scrape_text (bool): Whether to scrape text content from the page.
+        scrape_links (bool): Whether to scrape links from the page.
+        save_images (bool): Whether to save scraped images locally.
+        save_text (bool): Whether to save scraped text locally.
+        save_links (bool): Whether to save scraped links locally.
+        get_whole_page (bool): Whether to get the entire HTML content.
+        save_path (str): Base path for saving files (default: current directory).
+        return_type (str): What type of content to return in the response. Options: "all", "images", "text", "links", "html"
+
+    Returns:
+        dict: A dictionary containing:
+            - status: "success" or "failure"
+            - message: Status message
+            - data: Dictionary containing scraped content based on return_type
+    """
+    try:
+        # Initialize result dictionary
+        result = {
+            "status": "success",
+            "message": "Scraping completed successfully",
+            "data": {}
+        }
+
+        # Set default save path if none provided
+        save_path = save_path or os.getcwd()
+        os.makedirs(save_path, exist_ok=True)
+
+        with SeleniumDriver() as driver:
+            # Navigate to the URL with timeout and wait for page load
+            driver.set_page_load_timeout(30)
+            driver.get(url)
+
+            # Wait for the page to be fully loaded
+            WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.TAG_NAME, "body"))
+            )
+
+            # Allow dynamic content to load
+            time.sleep(2)  # Adjust based on page characteristics
+
+            # Scroll to load lazy content
+            last_height = driver.execute_script("return document.body.scrollHeight")
+            while True:
+                driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+                time.sleep(1)
+                new_height = driver.execute_script("return document.body.scrollHeight")
+                if new_height == last_height:
+                    break
+                last_height = new_height
+
+            # Get the page source after JavaScript execution
+            page_source = driver.page_source
+            soup = BeautifulSoup(page_source, 'html.parser')
+
+            # Get whole page HTML if requested
+            if get_whole_page:
+                result["data"]["html"] = page_source
+                if save_text:
+                    html_path = os.path.join(save_path, "page.html")
+                    with open(html_path, 'w', encoding='utf-8') as f:
+                        f.write(page_source)
+                    logger.info(f"Saved HTML to {html_path}")
+
+            # Scrape images
+            if scrape_images:
+                images = []
+                image_elements = driver.find_elements(By.TAG_NAME, "img")
+
+                def process_image(element):
+                    try:
+                        img_url = element.get_attribute('src')
+                        if not img_url:
+                            return None
+
+                        img_data = {
+                            "url": img_url,
+                            "alt": element.get_attribute('alt') or '',
+                            "title": element.get_attribute('title') or '',
+                            "width": element.get_attribute('width') or '',
+                            "height": element.get_attribute('height') or '',
+                            "natural_width": element.get_property('naturalWidth'),
+                            "natural_height": element.get_property('naturalHeight'),
+                            "is_displayed": element.is_displayed()
+                        }
+
+                        if save_images and img_url.startswith(('http://', 'https://')):
+                            try:
+                                response = requests.get(img_url, timeout=10)
+                                if response.status_code == 200:
+                                    content_type = response.headers.get('content-type', '')
+                                    if content_type.startswith('image/'):
+                                        img_name = hashlib.md5(response.content).hexdigest()[:8]
+                                        ext = mimetypes.guess_extension(content_type) or '.jpg'
+                                        img_path = os.path.join(save_path, "images", f"{img_name}{ext}")
+                                        os.makedirs(os.path.dirname(img_path), exist_ok=True)
+
+                                        with open(img_path, 'wb') as f:
+                                            f.write(response.content)
+                                        img_data['saved_path'] = img_path
+                                        logger.info(f"Saved image to {img_path}")
+                            except Exception as e:
+                                logger.error(f"Failed to save image {img_url}: {str(e)}")
+
+                        return img_data
+                    except Exception as e:
+                        logger.error(f"Failed to process image element: {str(e)}")
+                        return None
+
+                # Process images concurrently
+                with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+                    image_data = list(filter(None, executor.map(process_image, image_elements)))
+                    images.extend(image_data)
+
+                result["data"]["images"] = images
+
+            # Scrape text with JavaScript-rendered content
+            if scrape_text:
+                text_content = []
+                for element in driver.find_elements(By.CSS_SELECTOR,
+                                                    'p, h1, h2, h3, h4, h5, h6, article, section, main, [role="main"], [role="article"]'):
+                    try:
+                        text = element.text.strip()
+                        if text:
+                            text_content.append({
+                                "type": element.tag_name,
+                                "content": text,
+                                "html_classes": element.get_attribute('class') or '',
+                                "id": element.get_attribute('id') or '',
+                                "is_visible": element.is_displayed(),
+                                "location": element.location
+                            })
+                    except Exception as e:
+                        logger.error(f"Failed to process text element: {str(e)}")
+
+                result["data"]["text"] = text_content
+
+                if save_text:
+                    text_path = os.path.join(save_path, "content.txt")
+                    with open(text_path, 'w', encoding='utf-8') as f:
+                        for item in text_content:
+                            f.write(f"{item['type'].upper()}:\n")
+                            if item['id']:
+                                f.write(f"ID: {item['id']}\n")
+                            if item['html_classes']:
+                                f.write(f"Classes: {item['html_classes']}\n")
+                            f.write(f"Content: {item['content']}\n")
+                            f.write(f"Visible: {item['is_visible']}\n\n")
+                    logger.info(f"Saved text content to {text_path}")
+
+            # Scrape links including JavaScript-generated ones
+            if scrape_links:
+                links = []
+                base_domain = urlparse(url).netloc
+                link_elements = driver.find_elements(By.TAG_NAME, "a")
+
+                for element in link_elements:
+                    try:
+                        href = element.get_attribute('href')
+                        if href:
+                            links.append({
+                                "url": href,
+                                "text": element.text.strip(),
+                                "title": element.get_attribute('title') or '',
+                                "is_internal": urlparse(href).netloc == base_domain,
+                                "rel": element.get_attribute('rel') or '',
+                                "target": element.get_attribute('target') or '',
+                                "is_visible": element.is_displayed(),
+                                "location": element.location
+                            })
+                    except Exception as e:
+                        logger.error(f"Failed to process link element: {str(e)}")
+
+                result["data"]["links"] = links
+
+                if save_links:
+                    links_path = os.path.join(save_path, "links.json")
+                    with open(links_path, 'w', encoding='utf-8') as f:
+                        json.dump(links, f, indent=2)
+                    logger.info(f"Saved links to {links_path}")
+
+            # Filter return data based on return_type
+            if return_type != "all":
+                if return_type in result["data"]:
+                    result["data"] = {return_type: result["data"][return_type]}
+                else:
+                    result["message"] += f" (Requested return_type '{return_type}' not found in scraped data)"
+
+        return result
+
+    except TimeoutException as e:
+        error_msg = f"Page load timeout: {str(e)}"
+        logger.error(error_msg)
+        return {"status": "failure", "message": error_msg, "data": {}}
+    except WebDriverException as e:
+        error_msg = f"Selenium WebDriver error: {str(e)}"
+        logger.error(error_msg)
+        return {"status": "failure", "message": error_msg, "data": {}}
+    except Exception as e:
+        error_msg = f"An unexpected error occurred: {str(e)}"
+        logger.error(error_msg)
+        return {"status": "failure", "message": error_msg, "data": {}}
+
+## Directory Tree
+
+├── chat_loop.py
+├── keys.py
+├── tools
+    ├── ai
+        ├── tool_AI_REASONING.py
+        └── __pycache__
+    ├── os
+        ├── tool_directory_operations.py
+        ├── tool_read_from_file.py
+        ├── tool_save_to_file.py
+        └── __pycache__
+    └── web
+        ├── tool_get_duckduckgo_links.py
+        ├── tool_save_image_from_url.py
+        ├── tool_scrape_url.py
+        └── __pycache__
+├── TOOL_MANAGER.py
+└── __pycache__
+

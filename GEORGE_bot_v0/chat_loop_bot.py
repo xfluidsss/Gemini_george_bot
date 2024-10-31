@@ -200,31 +200,38 @@ def process_turn(user_input):
     # Combine prompts for Input and Reasoning models
     combined_prompt = f"Input Model: Analyze the user input. Reasoning Model: Break down the task into steps. {user_input}\n{load_focus_data('focus/focus.json')}"
     response_input_reasoning = input_model.generate_content(combined_prompt)
+    print(response_input_reasoning)
     extracted_response = extract_text_from_response(response_input_reasoning)
     current_turn.append(f"Input/Reasoning Model Response: {extracted_response}")
     conversation_history.append(f"Input/Reasoning Model Response: {extracted_response}")
     tool_results = handle_tool_calls(response_input_reasoning)
+    print(tool_results)
     current_turn.extend(tool_results)
     conversation_history.extend(tool_results)
 
     response_action_taker = action_taker_model.generate_content(conversation_history)
+    print(response_action_taker)
     extracted_response = extract_text_from_response(response_action_taker)
     current_turn.append(f"Action Taker Model Response: {extracted_response}")
     conversation_history.append(f"Action Taker Model Response: {extracted_response}")
     tool_results = handle_tool_calls(response_action_taker)
+    print(tool_results)
     current_turn.extend(tool_results)
     conversation_history.extend(tool_results)
 
     response_evaluator = evaluator_model.generate_content(conversation_history)
+    print(response_evaluator )
     extracted_response = extract_text_from_response(response_evaluator)
     current_turn.append(f"Evaluator Model Response: {extracted_response}")
     conversation_history.append(f"Evaluator Model Response: {extracted_response}")
     tool_results = handle_tool_calls(response_evaluator)
+    print(tool_results)
     current_turn.extend(tool_results)
     conversation_history.extend(tool_results)
 
     # Prompt the memory model to decide what to store
     response_memory = memory_model.generate_content(f"Memory Model: Should we store any information from this turn? What is crucial for future turns? \n{current_turn}")
+    print(response_memory)
     extracted_memory = extract_text_from_response(response_memory)
     current_turn.append(f"Memory Model Response: {extracted_memory}")
     conversation_history.append(f"Memory Model Response: {extracted_memory}")
