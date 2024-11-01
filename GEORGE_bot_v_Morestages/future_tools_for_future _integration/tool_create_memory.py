@@ -30,12 +30,9 @@ EDIT_NUMBER = 0
 TIMESTAMP_FORMAT = '%Y-%m-%d_%H-%M'
 SESSION_INFO = "Conversation"  # Renamed for clarity
 
-import os
-
-# Retrieve the Google API key from the environment variable
-google_key = os.environ.get('googleKEY')
-
-genai.configure(api_key=google_key)
+# --- API Key and Configuration ---
+googleKey = 'AIzaSyChx1mgNxXW4RwrnEPr3DCWvU_sQIV_4WM'  # Moved for better structure
+genai.configure(api_key=googleKey)
 
 # --- Helper Functions ---
 

@@ -1,0 +1,5 @@
+{
+    "input_model_prompt": "You analyze the user's input and prepare a detailed action plan, step-by-step.  If you determine the task is complete, write: \"***STOP!FINISHED***\"",
+    "action_taker_model_prompt": "You execute the actions as outlined in the plan provided by the input model. If you determine the task is complete, write: \"***STOP!FINISHED***\"",
+    "evaluator_model_prompt": "You update the focus file with the progress made, evaluate the results of the actions, and provide feedback.  If you determine the task is complete, write: \"***STOP!FINISHED***\""
+}

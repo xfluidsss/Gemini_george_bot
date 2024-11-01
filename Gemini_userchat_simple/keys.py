@@ -1,1 +1,5 @@
-googleKey='AIzaSyChx1mgNxXW4RwrnEPr3DCWvU_sQIV_4WM'
+import os
+
+# Retrieve the Google API key from the environment variable
+google_key = os.environ.get('googleKEY')
+

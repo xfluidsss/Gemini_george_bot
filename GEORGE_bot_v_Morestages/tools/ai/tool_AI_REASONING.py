@@ -1,6 +1,6 @@
 tool_type_for_TOOL_MANAGER = "focus"
 tool_tool_AI_REASONING_short_description = """REASONER"""
-
+import  os
 import time
 import google.generativeai as genai
 import json
@@ -8,7 +8,6 @@ import re  # Import re for regular expressions
 
 
 google_key = os.environ.get('googleKEY')
-
 genai.configure(api_key=google_key)
 
 MODEL_NAME = "gemini-1.5-flash"  # Use a valid model name

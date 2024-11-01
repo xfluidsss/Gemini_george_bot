@@ -1,3 +1,6 @@
+tool_type_for_TOOL_MANAGER = "script_execution"
+tool_update_focust_short_description = "Updates the focus file with new focus information"
+
 import json
 import os
 import time

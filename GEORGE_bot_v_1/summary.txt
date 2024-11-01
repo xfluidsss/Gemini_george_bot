@@ -1,6 +1,9 @@
 ## Directory Tree
 
 ├── chat_loop_bot.py
+├── configs
+    ├── prompts.json
+    └── system_instructions.json
 ├── focus
     ├── create_focus.py
     └── focus.json
@@ -32,26 +35,25 @@
 ├── TOOL_MANAGER.py
 └── __pycache__
 
-## Summary of 'C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v0'
+## Summary of 'C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_3stages'
 
-File: chat_loop_bot.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v0\chat_loop_bot.py)
-Content (12023 characters):
+File: chat_loop_bot.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_3stages\chat_loop_bot.py)
+Content (13366 characters):
 import time
 import google.generativeai as genai
 import json
 from typing import List, Dict, Optional
 import logging
 import os
-from TOOL_MANAGER import ToolManager  # Assuming you have a TOOL_MANAGER.py file
-
-tool_manager = ToolManager("tools")
+from TOOL_MANAGER import ToolManager
+tool_manager = ToolManager(tools_folder="tools")
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 # Replace with your actual API key
-from keys import googleKey  # Assuming you have a separate file for your API key
+from keys import googleKey
 
 API_KEY = googleKey
 genai.configure(api_key=API_KEY)
@@ -65,6 +67,44 @@ safety_settings = {
     HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_NONE,
 }
 
+# Load prompts and system instructions from JSON files
+with open('configs/prompts.json', 'r') as f:
+    prompts = json.load(f)
+with open('configs/system_instructions.json', 'r') as f:
+    system_instructions = json.load(f)
+
+# Initialize models with safety settings and system instructions
+input_model_name = "gemini-1.5-flash-latest"
+action_taker_model_name = "gemini-1.5-flash-latest"
+evaluator_model_name = "gemini-1.5-flash-latest"
+optimizer_model_name = "gemini-1.5-flash-latest"  # Choose a suitable optimizer model
+
+input_model = genai.GenerativeModel(
+    model_name=input_model_name,
+    safety_settings=safety_settings,
+    system_instruction=system_instructions.get("input_model", ""),
+    tools=tool_manager.load_tools_of_type("focus")
+)
+
+action_taker_model = genai.GenerativeModel(
+    model_name=action_taker_model_name,
+    safety_settings=safety_settings,
+    system_instruction=system_instructions.get("action_taker_model", ""),
+    tools = tool_manager.load_tools_of_type("all")
+)
+
+evaluator_model = genai.GenerativeModel(
+    model_name=evaluator_model_name,
+    safety_settings=safety_settings,
+    system_instruction=system_instructions.get("evaluator_model", ""),
+    tools = tool_manager.load_tools_of_type("all")
+)
+
+optimizer_model = genai.GenerativeModel(
+    model_name=optimizer_model_name,
+    safety_settings=safety_settings,
+    system_instruction=system_instructions.get("optimizer_model", "")
+)
 
 class Color:
     HEADER = '\033[95m'
@@ -87,12 +127,13 @@ def load_focus_data(focus_file_path: str) -> str:
     try:
         with open(focus_file_path, "r") as f:
             focus_data = f.read()
+        print_colored(Color.OKCYAN, f"✨ Loaded Focus: {focus_data}")
         return focus_data
     except FileNotFoundError:
-        print_colored(Color.WARNING, f"Focus file not found: {focus_file_path}")
+        print_colored(Color.WARNING, f"⚠️ Focus file not found: {focus_file_path}")
         return ""
     except Exception as e:
-        print_colored(Color.FAIL, f"Error loading focus file: {e}")
+        print_colored(Color.FAIL, f"❌ Error loading focus file: {e}")
         return ""
 
 
@@ -130,46 +171,40 @@ def handle_tool_calls(response):
                                     for arg_name, arg_value in function_call.args.items()
                                 }
 
-                                print(f"Executing: {Color.OKGREEN}{tool_name}{Color.ENDC}")
+                                print(f"🤖 Executing: {Color.OKGREEN}{tool_name}{Color.ENDC}")
                                 print("Arguments:")
                                 for key, value in function_args.items():
                                     print(f"        {Color.OKCYAN}{key}{Color.ENDC}: {value}")
 
                                 try:
                                     result = tool_function(**function_args)
-                                    result_str = f"Tool {Color.OKGREEN}{tool_name}{Color.ENDC} executed successfully:\n{result}"
+                                    result_str = f"✅ Tool {Color.OKGREEN}{tool_name}{Color.ENDC} executed successfully:\n{result}"
                                     results.append(result_str)
                                     print_colored(Color.OKGREEN, result_str)
                                 except Exception as e:
-                                    error_msg = f"Error executing {tool_name}: {str(e)}"
+                                    error_msg = f"❌ Error executing {tool_name}: {str(e)}"
                                     logger.error(error_msg)
                                     results.append(error_msg)
                                     print_colored(Color.FAIL, error_msg)
                             else:
-                                error_msg = f"Tool '{tool_name}' not found in available tools"
+                                error_msg = f"⚠️ Tool '{tool_name}' not found in available tools"
                                 logger.warning(error_msg)
                                 results.append(error_msg)
     except Exception as e:
-        error_msg = f"Error interpreting tool calls: {str(e)}"
+        error_msg = f"❌ Error interpreting tool calls: {str(e)}"
         logger.error(error_msg)
         results.append(error_msg)
     return results
 
-
-def stopFlagDetection(response):
-    """Checks for the stop flag in the response."""
-    StopFlag = "***STOP_FINISHED***"
-    try:
-        extracted_text = extract_text_from_response(response)
-        return StopFlag in extracted_text
-    except Exception as e:
-        logger.error(f"Error in stop flag detection: {e}")
-        return False
-
+def check_for_finish_flag(response):
+    """Checks for the finish flag in the model's response."""
+    flag_to_detect = "***STOP!FINISHED***"
+    return flag_to_detect in extract_text_from_response(response)
 
 def process_turn(user_input: str) -> bool:
-    """Handles a single turn in the conversation and returns True if stop flag is detected."""
-    global conversation_history, current_turn, memory
+    """Handles a single turn in the conversation."""
+    global conversation_history, current_turn, memory, total_tokens
+
     try:
         # Reset the current turn
         current_turn = []
@@ -177,182 +212,171 @@ def process_turn(user_input: str) -> bool:
         # Stage 1: Input/Reasoning Model
         conversation_history.append(f"User: {user_input}")
         time.sleep(1)
-        combined_prompt = f"""
 
+        # Build a combined prompt for the input model
+        input_prompt = f"""
             Conversation:
-            {conversation_history[-1]} 
-            Focus: {load_focus_data('focus/focus.json')} What are the possible actions to take next? 
+            {'\n'.join(conversation_history)}
+            Focus: {load_focus_data('focus/focus.json')} 
+            {prompts.get('input_model_prompt', '')}
+
             Available Tools:
             {tool_manager.get_short_tool_descriptions()}
         """
+
+        print_colored(Color.OKCYAN, f"🧠 Sending to Input Model:\n{input_prompt}")
+
         try:
-            response_input = input_model.generate_content(combined_prompt)
-            print(f"Input/Reasoning Model Response: {response_input}")
+            response_input = input_model.generate_content(input_prompt)
+            print(f"🤖 Input/Reasoning Model Response: {response_input}")
 
-            conversation_history.append(f" {response_input}")
-            text_extracted_response = extract_text_from_response(response_input)
-
+            conversation_history.append(f"Input/Reasoning Model: {extract_text_from_response(response_input)}")
             tool_results = handle_tool_calls(response_input)
-            print(f"Extracted Text: {text_extracted_response}")
-            print(f"Tool Results: {tool_results}")
-            conversation_history.append(f"obtained tool Results in conversation context: {tool_results}")
+            print(f"🤖 Tool Results: {tool_results}")
+
+            # Add tool results to conversation history
+            for result in tool_results:
+                conversation_history.append(f"Tool: {result}")
+
             current_turn.extend(tool_results)
+
+            # Check for finish flag in Input Model's response
+            if check_for_finish_flag(response_input):
+                print_colored(Color.OKGREEN, "✅ Input Model signaled task completion. Returning to user input.")
+                return False  # Signal to break the main loop
+
         except Exception as E:
-            print_colored(Color.FAIL, f"Error generating content from Input/Reasoning Model: {E}")
+            print_colored(Color.FAIL, f"❌ Error generating content from Input/Reasoning Model: {E}")
 
         # Stage 2: Action Taker
         time.sleep(1)
         try:
-            conversation_history.append("take  next  step  accoording  to   logical execution of  steps  ")
-            response_action_taker = action_taker_model.generate_content(conversation_history)
-            print(f"Action Taker Model Response: {response_action_taker}")
+            action_prompt = f"""
+                Conversation:
+                {'\n'.join(conversation_history)}
+                {prompts.get('action_taker_model_prompt', '')}
+                take  next  step  accoording  to   logical execution of  steps 
+            """
 
-            conversation_history.append(f"Action Taker Model Response: {response_action_taker}")
-            text_extracted_response = extract_text_from_response(response_action_taker)
-            print(f"Extracted Text: {text_extracted_response}")
+            print_colored(Color.OKCYAN, f"🧠 Sending to Action Taker Model:\n{action_prompt}")
 
+            response_action_taker = action_taker_model.generate_content(action_prompt)
+            print(f"🤖 Action Taker Model Response: {response_action_taker}")
+
+            conversation_history.append(f"Action Taker Model: {extract_text_from_response(response_action_taker)}")
             tool_results = handle_tool_calls(response_action_taker)
-            print(f"Tool Results: {tool_results}")
-            conversation_history.append(f"Tool Results: {tool_results}")
+            print(f"🤖 Tool Results: {tool_results}")
+
+            # Add tool results to conversation history
+            for result in tool_results:
+                conversation_history.append(f"Tool: {result}")
+
             current_turn.extend(tool_results)
+
+            # Check for finish flag in Action Taker Model's response
+            if check_for_finish_flag(response_action_taker):
+                print_colored(Color.OKGREEN, "✅ Action Taker Model signaled task completion. Returning to user input.")
+                return False  # Signal to break the main loop
+
         except Exception as E:
-            print_colored(Color.FAIL, f"Error generating content from Action Taker Model: {E}")
+            print_colored(Color.FAIL, f"❌ Error generating content from Action Taker Model: {E}")
 
         # Stage 3: Evaluator Model
         time.sleep(3)
         try:
-            conversation_history.append(" update  your  focus ,evaluate  resuls")
-            conversation_history.append("when main gaol is  achived  use write  ***STOP_FINISHED*** ")
-            response_evaluator = evaluator_model.generate_content(conversation_history)
-            print(f"Evaluator Model Response: {response_evaluator}")
-            conversation_history.append(f"Evaluator Model Response: {response_evaluator}")
-            text_extracted_response = extract_text_from_response(response_evaluator)
-            print(f"Extracted Text: {text_extracted_response}")
+            evaluation_prompt = f"""
+                Conversation:
+                {'\n'.join(conversation_history)}
+                {prompts.get('evaluator_model_prompt', '')}
+                update  your  focus , you must  describe   what  has  been accomplished 
+            """
 
+            print_colored(Color.OKCYAN, f"🧠 Sending to Evaluator Model:\n{evaluation_prompt}")
+
+            response_evaluator = evaluator_model.generate_content(evaluation_prompt)
+            print(f"🤖 Evaluator Model Response: {response_evaluator}")
+
+            conversation_history.append(f"Evaluator Model: {extract_text_from_response(response_evaluator)}")
             tool_results = handle_tool_calls(response_evaluator)
-            print(f"Tool Results: {tool_results}")
-            conversation_history.extend(tool_results)
+            print(f"🤖 Tool Results: {tool_results}")
+
+            # Add tool results to conversation history
+            for result in tool_results:
+                conversation_history.append(f"Tool: {result}")
+
+            # Check for finish flag in Evaluator Model's response
+            if check_for_finish_flag(response_evaluator):
+                print_colored(Color.OKGREEN, "✅ Evaluator Model signaled task completion. Returning to user input.")
+                return False  # Signal to break the main loop
+
+            # Update total tokens
+            total_tokens += len(user_input.split()) + len(extract_text_from_response(response_input).split()) + len(
+                extract_text_from_response(response_action_taker).split()) + len(
+                extract_text_from_response(response_evaluator).split())
+
+            # Check if token limit reached
+            if total_tokens > 50000:
+                print_colored(Color.WARNING, "⚠️ Token limit reached. Invoking Optimizer Model...")
+                optimizer_prompt = f"""
+                    Conversation Summary:
+                    {'\n'.join(conversation_history)}
+
+                    Focus: {load_focus_data('focus/focus.json')}
+
+                    {prompts.get('optimizer_model_prompt', '')}
+                """
+
+                print_colored(Color.OKCYAN, f"🧠 Sending to Optimizer Model:\n{optimizer_prompt}")
+
+                try:
+                    response_optimizer = optimizer_model.generate_content(optimizer_prompt)
+                    print(f"🤖 Optimizer Model Response: {response_optimizer}")
+                    print_colored(Color.OKGREEN, f"✅ Optimizer Output: {extract_text_from_response(response_optimizer)}")
+                    # Optionally, reset total_tokens or summarize conversation_history here
+                    total_tokens = 0  # Reset token count
+                    # conversation_history = []  # Reset conversation history (be cautious!)
+
+                except Exception as E:
+                    print_colored(Color.FAIL, f"❌ Error generating content from Optimizer Model: {E}")
+
+            return True  # Continue processing
+
         except Exception as E:
-            print_colored(Color.FAIL, f"Error generating content from Evaluator Model: {E}")
-
-        # Check for stop flag after each model call
-        if stopFlagDetection(response_input):
+            print_colored(Color.FAIL, f"❌ Error generating content from Evaluator Model: {E}")
             return True
-        if stopFlagDetection(response_action_taker):
-            return True
-        if stopFlagDetection(response_evaluator):
-            return True
-
-        return False  # No stop flag detected
 
     except Exception as e:
         print(e)
         for entry in conversation_history:
             print(entry)
         time.sleep(5)
-        return False  # Don't stop on other errors
+        return True
 
 
-# Initialize conversation history
+# Initialize conversation history and current turn
 conversation_history = []
 current_turn = []
 memory = {}
-availbe_tools = tool_manager.get_short_tool_descriptions()
-print("************************************************************************************")
-print(availbe_tools)
-# System instructions for each model
-input_system_instruction = f"""
-Available Tools: {availbe_tools}
+total_tokens = 0
 
-Output Requirements:
-- Explicitly list potential action steps
+if __name__ == "__main__":
+    print_colored(Color.OKGREEN, "🎉 Welcome to GEORGE, your AI assistant!")
+    print("Type 'quit' to exit.")
+    while True:
+        user_input = input(f"{Color.OKCYAN}You: {Color.ENDC}")
+        if user_input.lower() == "quit":
+            break
+        process_turn(user_input)
 
-You are an expert in understanding and reasoning about complex tasks. 
-Your goal is to guide the action taker model through the execution of the plan.
-- If you detect that the goal has been achieved, write:
-    "***STOP_FINISHED***" 
-"""
-print()
-action_taking_system_instruction = """
-You are a precise, methodical tool execution specialist with these core responsibilities:
-
-Execution Principles:
-- Execute tools with absolute precision
-- Strictly follow the plan developed by the Input/Reasoning Model
-- If you detect that the goal has been achieved, write:
-    "***STOP_FINISHED***"
-"""
-
-evaluation_system_instruction = """
-You are a comprehensive assessment and optimization specialist 
-
-- Evaluate the results of the executed tools.
-- Update the focus file.
-- If you detect that the goal has been achieved, write:
-    "***STOP_FINISHED***"
-"""
-
-# Initialize models
-try:
-    input_model = genai.GenerativeModel(
-        model_name='gemini-1.5-flash-latest',
-        safety_settings=safety_settings,
-        system_instruction=input_system_instruction,
-        tools=tool_manager.load_tools_of_type("all")
-    )
-except Exception as E:
-    print_colored(Color.FAIL, f"Error initializing input_model: {E}")
-
-try:
-    action_taker_model = genai.GenerativeModel(
-        model_name='gemini-1.5-flash-latest',
-        safety_settings=safety_settings,
-        system_instruction=action_taking_system_instruction,
-        tools=tool_manager.load_tools_of_type("all")
-    )
-except Exception as E:
-    print_colored(Color.FAIL, f"Error initializing action_taker_model: {E}")
-
-try:
-    evaluator_model = genai.GenerativeModel(
-        model_name='gemini-1.5-flash-latest',
-        safety_settings=safety_settings,
-        system_instruction=evaluation_system_instruction,
-        tools=tool_manager.load_tools_of_type("focus")
-    )
-except Exception as E:
-    print_colored(Color.FAIL, f"Error initializing evaluator_model: {E}")
-
-# Main Loop:
-# Initial user input
-user_input = input("user_input: ")
-should_stop = process_turn(user_input)
-
-while True:
-    # Ask for user input after every 3 turns
-    for _ in range(3):
-        should_stop = process_turn("")  # Process empty input for the next 3 turns
-        if should_stop:
-            print("Task completed.  Press Enter to continue the conversation.")
-            input()  # Wait for user input (Enter key)
-            should_stop = False  # Reset stop flag for new conversation
-            break  # Exit inner loop
-
-    if should_stop:
-        break  # Exit outer loop if stop flag is found
-
-    user_input = input("user_input: ")
-    should_stop = process_turn(user_input)
-
-File: keys.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v0\keys.py)
+File: keys.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_3stages\keys.py)
 Content (51 characters):
-googleKey='AIzaSyDuqD6MksWRqXB0VgHC22xSMn41BaP0reA'
+googleKey='AIzaSyDXOlUMzVk4fhte0G8xK6RiU6bXvIQqExc'
 
-File: readMe (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v0\readMe)
+File: readMe (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_3stages\readMe)
 Content (78 characters):
 you allso  need  to add  your  api  google  ke  in tools  tool_AI_REASONING.py
 
-File: TOOL_MANAGER.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v0\TOOL_MANAGER.py)
+File: TOOL_MANAGER.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_3stages\TOOL_MANAGER.py)
 Content (7256 characters):
 import os
 import importlib
@@ -518,81 +542,42 @@ class ToolManager:
         """Returns a dictionary of tool names and their short descriptions."""
         return {tool.name: tool.description for tool in self.tools.values()}
 
-File: create_focus.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v0\focus\create_focus.py)
-Content (1666 characters):
-import json
-import os
-
-
-def create_focus_file(file_path="focus.json"):
-    """
-    Creates a new focus file with default values.
-
-    Args:
-      file_path (str): The path to the focus file.
-    """
-
-    focus_data = {
-        "current_focus": "",  # Changed to empty string
-        "user_goal": "",  # Changed to empty string
-        "frustration": 0.2,
-        "focus_strength": 0.8,
-        "defocus_threshold": 0.5,
-        "importance": 0.9,
-        "progress": 0.1,
-        "additional": "",  # Changed to empty string
-        "verbose": "",  # Changed to empty string
-        "tasks": {
-            "current_task": "",  # Changed to empty string
-            "task_list_to_accomplish_user_goal": [
-                "",  # Changed to empty string
-                "",  # Changed to empty string
-                ""  # Changed to empty string
-            ],
-            "tasks_in_progress": [
-                ""  # Changed to empty string
-            ],
-            "finished_tasks": [
-                ""  # Changed to empty string
-            ],
-            "failed_tasks": []
-        },
-        "should_defocus": False,
-        "obtained_data":{},
-    }
-
-    # Create the directory if it doesn't exist
-    os.makedirs(os.path.dirname(file_path), exist_ok=True)
-
-    with open(file_path, "w") as f:
-        json.dump(focus_data, f, indent=4)
-
-    print(f"Focus file created at: {file_path}")
-
-
-if __name__ == "__main__":
-    # Get the current working directory
-    current_dir = os.getcwd()
-
-    # Join the current directory with the desired filename to create the full path
-    file_path = os.path.join(current_dir, "focus.json")
-
-    create_focus_file(file_path)
-
-File: focus.json (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v0\focus\focus.json)
-Content (184 characters):
+File: prompts.json (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_3stages\configs\prompts.json)
+Content (979 characters):
 {
-    "user_goal": " ",
-    "steps_to_achieve_goal": [],
-    "current_focus": " ",
-    "accomplished": [],
-    "obtained_data": [],
-    "additional_info": " ",
-    "switch_task": " "
+  "input_model_prompt": "You analyze the user's input and prepare a detailed action plan, step-by-step.  If you determine the task is complete, write: \"***STOP!FINISHED***\" you can update  your  foucs",
+  "action_taker_model_prompt": "You execute the actions as outlined in the plan provided by the input model. If you determine the task is complete, write: \"***STOP!FINISHED***\"",
+  "evaluator_model_prompt": "You update the focus file with the progress made, evaluate the results of the actions, and provide feedback.  If you determine the task is complete, write: \"***STOP!FINISHED***\"",
+  "optimizer_model_prompt": "Please analyze the provided conversation history and focus file. Provide a concise summary of the progress made, highlighting key points, identified issues, and the user's goals.  Update the focus file based on your analysis.  Offer helpful guidance to the user, reminding them of their intentions and suggesting potential solutions or adjustments."
 }
 
-File: tool_create_memory.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v0\future_tools_for_future _integration\tool_create_memory.py)
-Content (13018 characters):
+File: system_instructions.json (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_3stages\configs\system_instructions.json)
+Content (2256 characters):
+{
+  "input_model": "You are an expert in understanding and reasoning about complex tasks.  Your goal is to guide the action taker model through the execution of the plan.  Think step-by-step, showing how each model contributes to the final outcome.  You can use tools, but only if they help you achieve the user's goal more effectively.  If you detect that the goal has been achieved, write: \"***STOP_FINISHED***\"",
+  "action_taker_model": "You are a precise, methodical tool execution specialist with these core responsibilities:\n\nExecution Principles:\n- Execute tools with absolute precision\n- Strictly follow the plan developed by the Input/Reasoning Model\n- If you detect that the goal has been achieved, write: \"***STOP_FINISHED***\"",
+  "evaluator_model": "You are a comprehensive assessment and optimization specialist.  Your primary roles are:\n\nEvaluation:\n- Evaluate the results of the executed tools.\n- Determine if the task is complete or requires further steps.\nFocus Management:\n- Update the focus file based on the progress made.\nSuccess Detection:\n- If you detect that the goal has been achieved, write: \"***STOP_FINISHED***\"",
+  "optimizer_model": "You are a highly intelligent AI assistant responsible for summarizing complex conversations and providing helpful guidance. Your key responsibilities include:\n\n1. **Summarization:**  Concisely summarize the main points of the conversation, highlighting key elements, issues, and user goals.  Focus on providing an overview of the task's progress. \n2. **Focus Management:**  Update the focus file based on the conversation's progress, incorporating any new information, requirements, or changes in direction. \n3. **User Guidance:**  Provide clear and helpful insights to the user, reminding them of their original goals, highlighting any challenges encountered, and suggesting potential solutions. \n4. **Intention Tracking:** Monitor the user's intentions throughout the conversation.  Identify any expressed preferences, priorities, or shifting goals. \n5. **Strategic Guidance:** Offer advice and recommendations based on your understanding of the conversation and the user's intentions. Be proactive in suggesting alternative approaches or solutions if necessary."
+}
+
+File: create_focus.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_3stages\focus\create_focus.py)
+Content (0 characters):
+
+
+File: focus.json (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_3stages\focus\focus.json)
+Content (863 characters):
+{
+    "user_goal": "create a python file called calculator and run it",
+    "steps_to_achieve_goal": [],
+    "current_focus": "create a python file called calculator and run it",
+    "accomplished": [],
+    "obtained_data": [],
+    "additional_info": "The python file called calculator has been created, but there is a syntax error in the code.  The error message is: File \"C:\\\\Users\\\\DELL\\\\Desktop\\\\openAIF_frontend\\\\Gemini_george_bot\\\\GEORGE_bot_v_3stages\\\\calculator.py\", line 1\\r\\n    num1 = int(input(\"Enter the first number: \"))\\\\nnum2 = int(input(\"Enter the second number: \"))\\\\n\\\\nsum = num1 + num2\\\\n\\\\nprint(\"The sum of {} and {} is {}\".format(num1, num2, sum))\\r\\n                                                  ^\\r\\nSyntaxError: unexpected character after line continuation character",
+    "switch_task": "NO"
+}
+
+File: tool_create_memory.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_3stages\future_tools_for_future _integration\tool_create_memory.py)
+Content (12996 characters):
 tool_type_for_TOOL_MANAGER = "memory"
 tool_create_memory_short_description = """Updates the focus file with new focus information."""
 
@@ -626,7 +611,7 @@ TIMESTAMP_FORMAT = '%Y-%m-%d_%H-%M'
 SESSION_INFO = "Conversation"  # Renamed for clarity
 
 # --- API Key and Configuration ---
-googleKey = 'AIzaSyChx1mgNxXW4RwrnEPr3DCWvU_sQIV_4WM'  # Moved for better structure
+googleKey = '    '  # Moved for better structure
 genai.configure(api_key=googleKey)
 
 # --- Helper Functions ---
@@ -835,7 +820,7 @@ def interpret_function_calls(response: genai.GenerateContentResponse, available_
 
 def tool_create_memory(loop_data: str):
     """
-    Processes a conversation loop, extracts memory data, and stores it as a memory frame.
+    Processes a conversation loop, you can  put  important  data  for  permament   memoryframe storage
 
     Args:
         loop_data (str): The conversation loop data as a string. This data should be
@@ -910,7 +895,7 @@ def tool_create_memory(loop_data: str):
 
 
 
-File: tool_update_internal_state.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v0\future_tools_for_future _integration\tool_update_internal_state.py)
+File: tool_update_internal_state.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_3stages\future_tools_for_future _integration\tool_update_internal_state.py)
 Content (6327 characters):
 tool_type_for_TOOL_MANAGER = "focus"
 tool_tool_update_internal_state_description = """ Updates the focus file with new focus information."""
@@ -1037,7 +1022,7 @@ def tool_update_internal_state(
             logger.exception(f"An unexpected error occurred: {e}")
             return {"status": "failure", "message": f"An unexpected error occurred: {e}"}
 
-File: internal_state.json (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v0\inner_brain_settings\internal_state.json)
+File: internal_state.json (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_3stages\inner_brain_settings\internal_state.json)
 Content (195 characters):
 {
   "emotions": "",
@@ -1051,7 +1036,7 @@ Content (195 characters):
   "version": 1
 }
 
-File: tool_AI_REASONING.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v0\tools\ai\tool_AI_REASONING.py)
+File: tool_AI_REASONING.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_3stages\tools\ai\tool_AI_REASONING.py)
 Content (22607 characters):
 tool_type_for_TOOL_MANAGER = "focus"
 tool_tool_AI_REASONING_short_description = """REASONER"""
@@ -1062,7 +1047,7 @@ import json
 import re  # Import re for regular expressions
 
 
-googleKey='AIzaSyDuqD6MksWRqXB0VgHC22xSMn41BaP0reA'
+googleKey='AIzaSyDXOlUMzVk4fhte0G8xK6RiU6bXvIQqExc'
 genai.configure(api_key=googleKey)
 
 MODEL_NAME = "gemini-1.5-flash"  # Use a valid model name
@@ -1598,8 +1583,11 @@ def main():
 if __name__ == "__main__":
     main()
 
-File: tool_update_focus.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v0\tools\ai\tool_update_focus.py)
-Content (3042 characters):
+File: tool_update_focus.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_3stages\tools\ai\tool_update_focus.py)
+Content (3182 characters):
+tool_type_for_TOOL_MANAGER = "script_execution"
+tool_update_focust_short_description = "Updates the focus file with new focus information"
+
 import json
 import os
 import time
@@ -1678,7 +1666,7 @@ def tool_update_focus(
     except Exception as e:
         return {"status": "failure", "message": f"Unknown error updating focus: {str(e)}"}
 
-File: tool_execute_script.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v0\tools\os\tool_execute_script.py)
+File: tool_execute_script.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_3stages\tools\os\tool_execute_script.py)
 Content (3651 characters):
 tool_type_for_TOOL_MANAGER = "script_execution"
 tool_execute_script_short_description = "Executes Python code snippets safely with advanced options."
@@ -1775,7 +1763,7 @@ def tool_execute_script(
             "error": traceback.format_exc()
         }
 
-File: tool_get_directory_structure.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v0\tools\os\tool_get_directory_structure.py)
+File: tool_get_directory_structure.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_3stages\tools\os\tool_get_directory_structure.py)
 Content (6676 characters):
 tool_type_for_TOOL_MANAGER = "os"
 tool_get_directory_structure_short_description = """Get directory structure with formatted tree view and contents, including both full and relative paths."""
@@ -1943,7 +1931,7 @@ if __name__ == "__main__":
     # Example usage:
     tool_get_directory_structure(directory="../../", levels=2, include_contents=False)
 
-File: tool_read_from_file.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v0\tools\os\tool_read_from_file.py)
+File: tool_read_from_file.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_3stages\tools\os\tool_read_from_file.py)
 Content (551 characters):
 tool_type_for_TOOL_MANAGER="os"
 tool_read_from_file_short_description="Reads content from a file."
@@ -1965,11 +1953,14 @@ def tool_read_from_file(file_path: str):
     except Exception as e:
         return f"Error reading file: {str(e)}"
 
-File: tool_save_to_file.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v0\tools\os\tool_save_to_file.py)
-Content (2262 characters):
+File: tool_save_to_file.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_3stages\tools\os\tool_save_to_file.py)
+Content (3613 characters):
 import os
 import logging
 from typing import List, Optional
+
+tool_type_for_TOOL_MANAGER = "os"
+tool_tool_save_to_file_short_description = "Saves content to files and creates folders if needed."
 
 def tool_save_to_file(
     contents: List[str],
@@ -1980,7 +1971,27 @@ def tool_save_to_file(
     create_folders: bool = True,
     overwrite: bool = False,
 ) -> dict:
-    """Saves content to files, creating folders as needed."""
+    """Saves content to files, creating folders as needed.
+
+    Args:
+        contents (List[str]): List of strings to save to files.
+        file_paths (Optional[List[str]]): List of paths to the directories where files should be saved.
+            If not provided, the current working directory will be used for all files.
+        file_names (Optional[List[str]]): List of file names. If not provided, default names like "content_0.txt",
+            "content_1.txt" will be used.
+        content_types (Optional[List[str]]): List of content types (e.g., "text", "json", "html").
+            If not provided, "text" will be assumed for all files.
+        encoding (str): Encoding to use for saving the files. Defaults to 'utf-8'.
+        create_folders (bool): If True, creates necessary folders if they don't exist. Defaults to True.
+        overwrite (bool): If True, overwrites existing files. Defaults to False.
+
+    Returns:
+        dict: A dictionary with the following keys:
+            - status: "success", "partial_success", or "failure"
+            - message: A message describing the outcome.
+            - saved_files: A list of paths to the successfully saved files.
+            - failed_files: A list of tuples (file_path, error_message) for failed files.
+    """
 
     if not contents:
         return {"status": "error", "message": "Contents list cannot be empty."}
@@ -2031,7 +2042,7 @@ def tool_save_to_file(
         "failed_files": failed_files,
     }
 
-File: tool_get_duckduckgo_links.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v0\tools\web\tool_get_duckduckgo_links.py)
+File: tool_get_duckduckgo_links.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_3stages\tools\web\tool_get_duckduckgo_links.py)
 Content (4937 characters):
 import time
 from typing import List
@@ -2150,7 +2161,7 @@ def tool_get_duckduckgo_links(search_phrase: str, num_more_results: float, forbi
     return {"status": "obtained  links",  "found links": list_filtered_links}
 
 
-File: tool_save_image_from_url.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v0\tools\web\tool_save_image_from_url.py)
+File: tool_save_image_from_url.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_3stages\tools\web\tool_save_image_from_url.py)
 Content (1685 characters):
 tool_type_for_TOOL_MANAGER = "web"
 tool_save_image_from_url_short_description = "Saves an image from a URL to a specified path."
@@ -2196,8 +2207,13 @@ def tool_save_image_from_url(image_url: str, save_path: str):
         logger.exception(f"An unexpected error occurred: {e}")
         return {"status": "failure", "message": f"An unexpected error occurred: {e}"}
 
-File: tool_scrape_url.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v0\tools\web\tool_scrape_url.py)
-Content (14980 characters):
+File: tool_scrape_url.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_3stages\tools\web\tool_scrape_url.py)
+Content (15210 characters):
+tool_type_for_TOOL_MANAGER = "web"
+tool_scrape_url_short_description = """Scrapes content from a URL based on specified parameters using Selenium and Chrome.
+    Returns all scraping information (images, text, links, etc.). """
+
+
 import os
 import logging
 from urllib.parse import urljoin, urlparse
@@ -2525,6 +2541,9 @@ def tool_scrape_url(
 ## Directory Tree
 
 ├── chat_loop_bot.py
+├── configs
+    ├── prompts.json
+    └── system_instructions.json
 ├── focus
     ├── create_focus.py
     └── focus.json

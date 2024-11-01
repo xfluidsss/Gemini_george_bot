@@ -5,6 +5,7 @@ from typing import List, Dict, Optional
 import logging
 import os
 from TOOL_MANAGER import ToolManager  # Assuming you have a TOOL_MANAGER.py file
+import datetime
 
 tool_manager = ToolManager("tools")
 
@@ -118,8 +119,19 @@ def handle_tool_calls(response):
     return results
 
 
-def process_turn(user_input: str) -> None:
-    """Handles a single turn in the conversation."""
+def stopFlagDetection(response):
+    """Checks for the stop flag in the response."""
+    StopFlag = "***STOP_FINISHED***"
+    try:
+        extracted_text = extract_text_from_response(response)
+        return StopFlag in extracted_text
+    except Exception as e:
+        logger.error(f"Error in stop flag detection: {e}")
+        return False
+
+
+def process_turn(user_input: str) -> bool:
+    """Handles a single turn in the conversation and returns True if stop flag is detected."""
     global conversation_history, current_turn, memory
     try:
         # Reset the current turn
@@ -172,7 +184,8 @@ def process_turn(user_input: str) -> None:
         # Stage 3: Evaluator Model
         time.sleep(3)
         try:
-            conversation_history.append(" update  your  focus , you must  describe   what  has  been accomplished ")
+            conversation_history.append(" update  your  focus ,evaluate  resuls")
+            conversation_history.append("when main gaol is  achived  use write  ***STOP_FINISHED*** ")
             response_evaluator = evaluator_model.generate_content(conversation_history)
             print(f"Evaluator Model Response: {response_evaluator}")
             conversation_history.append(f"Evaluator Model Response: {response_evaluator}")
@@ -185,11 +198,22 @@ def process_turn(user_input: str) -> None:
         except Exception as E:
             print_colored(Color.FAIL, f"Error generating content from Evaluator Model: {E}")
 
+        # Check for stop flag after each model call
+        if stopFlagDetection(response_input):
+            return True
+        if stopFlagDetection(response_action_taker):
+            return True
+        if stopFlagDetection(response_evaluator):
+            return True
+
+        return False  # No stop flag detected
+
     except Exception as e:
         print(e)
         for entry in conversation_history:
             print(entry)
         time.sleep(5)
+        return False  # Don't stop on other errors
 
 
 # Initialize conversation history
@@ -201,20 +225,34 @@ print("*************************************************************************
 print(availbe_tools)
 # System instructions for each model
 input_system_instruction = f"""
-You are a helpful AI assistant with a focus on completing the current task. 
-You can update your internal focus.
-You have access to these tools: {availbe_tools}
+Available Tools: {availbe_tools}
+
+Output Requirements:
+- Explicitly list potential action steps
+
+You are an expert in understanding and reasoning about complex tasks. 
+Your goal is to guide the action taker model through the execution of the plan.
+- If you detect that the goal has been achieved, write:
+    "***STOP_FINISHED***" 
 """
 print()
 action_taking_system_instruction = """
-You are a tool execution expert. Do not hallucinate! 
-Execute the following actions based on the identified focus and tool suggestions: [List the actions from the input model].
+You are a precise, methodical tool execution specialist with these core responsibilities:
 
+Execution Principles:
+- Execute tools with absolute precision
+- Strictly follow the plan developed by the Input/Reasoning Model
+- If you detect that the goal has been achieved, write:
+    "***STOP_FINISHED***"
 """
 
 evaluation_system_instruction = """
-Summarize results, identify issues, and suggest improvements.
-Explain your reasoning. Based on the results, update your focus  .
+You are a comprehensive assessment and optimization specialist 
+
+- Evaluate the results of the executed tools.
+- Update the focus file.
+- If you detect that the goal has been achieved, write:
+    "***STOP_FINISHED***"
 """
 
 # Initialize models
@@ -243,22 +281,53 @@ try:
         model_name='gemini-1.5-flash-latest',
         safety_settings=safety_settings,
         system_instruction=evaluation_system_instruction,
-        tools=tool_manager.load_tools_of_type("all")
+        tools=tool_manager.load_tools_of_type("focus")
     )
 except Exception as E:
     print_colored(Color.FAIL, f"Error initializing evaluator_model: {E}")
 
-
-
 # Main Loop:
 # Initial user input
 user_input = input("user_input: ")
-process_turn(user_input)
+should_stop = process_turn(user_input)
 
-while True:
-    # Ask for user input after every 3 turns
-    for _ in range(3):
-        process_turn("")  # Process empty input for the next 3 turns
+# Create a directory for session logs
+session_logs_dir = "session_logs"
+os.makedirs(session_logs_dir, exist_ok=True)
 
-    user_input = input("user_input: ")  # Get user input after 3 turns
-    process_turn(user_input)
+# Get the current date and time for the session log file
+log_time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+session_log_file = os.path.join(session_logs_dir, f"session_log_{log_time}.txt")
+
+# Open the session log file in append mode
+with open(session_log_file, "a") as session_log:
+    session_log.write(f"Session started at: {log_time}\n\n")
+
+    loop_count = 0  # Initialize loop count
+    while True:
+        # Ask for user input after every 3 turns
+        for _ in range(3):
+            loop_count += 1  # Increment loop count
+            should_stop = process_turn("")  # Process empty input for the next 3 turns
+            if should_stop:
+                print("Task completed.  Press Enter to continue the conversation.")
+                input()  # Wait for user input (Enter key)
+                should_stop = False  # Reset stop flag for new conversation
+                break  # Exit inner loop
+
+        if should_stop:
+            break  # Exit outer loop if stop flag is found
+
+        user_input = input("user_input: ")
+        should_stop = process_turn(user_input)
+
+        # Write the current loop to the session log with loop count
+        session_log.write(f"Loop {loop_count}: \n")
+        session_log.write(f"User: {user_input}\n")
+        for entry in conversation_history:
+            session_log.write(f"{entry}\n")
+        session_log.write("\n")
+
+    # Close the session log file
+    session_log.write(f"Session ended at: {datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}\n\n")
+    session_log.close()

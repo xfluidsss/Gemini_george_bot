@@ -10,8 +10,9 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 from keys import googleKey
 
-API_KEY = googleKey
-genai.configure(api_key=API_KEY)
+google_key = os.environ.get('googleKEY')
+
+genai.configure(api_key=google_key)
 from google.generativeai.types import HarmCategory, HarmBlockThreshold
 
 

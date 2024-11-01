@@ -30,12 +30,9 @@ EDIT_NUMBER = 0
 TIMESTAMP_FORMAT = '%Y-%m-%d_%H-%M'
 SESSION_INFO = "Conversation"  # Renamed for clarity
 
-import os
-
-# Retrieve the Google API key from the environment variable
-google_key = os.environ.get('googleKEY')
-
-genai.configure(api_key=google_key)
+# --- API Key and Configuration ---
+googleKey = '    '  # Moved for better structure
+genai.configure(api_key=googleKey)
 
 # --- Helper Functions ---
 
@@ -243,7 +240,7 @@ def interpret_function_calls(response: genai.GenerateContentResponse, available_
 
 def tool_create_memory(loop_data: str):
     """
-    Processes a conversation loop, extracts memory data, and stores it as a memory frame.
+    Processes a conversation loop, you can  put  important  data  for  permament   memoryframe storage
 
     Args:
         loop_data (str): The conversation loop data as a string. This data should be
