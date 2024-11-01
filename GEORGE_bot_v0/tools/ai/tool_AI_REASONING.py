@@ -5,9 +5,9 @@ import time
 import google.generativeai as genai
 import json
 import re  # Import re for regular expressions
-from ...keys import  googleKey
 
 
+googleKey='           '
 genai.configure(api_key=googleKey)
 
 MODEL_NAME = "gemini-pro"  # Use a valid model name

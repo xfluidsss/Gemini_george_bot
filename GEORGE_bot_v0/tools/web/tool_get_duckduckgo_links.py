@@ -112,4 +112,4 @@ def tool_get_duckduckgo_links(search_phrase: str, num_more_results: float, forbi
 
     driver.quit()
     list_filtered_links = list(filtered_links)
-    return {"status": "finished",  "found links": list_filtered_links}
+    return {"status": "obtained  links",  "found links": list_filtered_links}

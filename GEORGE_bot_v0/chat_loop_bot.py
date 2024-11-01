@@ -146,7 +146,7 @@ def process_turn(user_input: str) -> None:
             tool_results = handle_tool_calls(response_input)
             print(f"Extracted Text: {text_extracted_response}")
             print(f"Tool Results: {tool_results}")
-            conversation_history.append(f"Tool Results: {tool_results}")
+            conversation_history.append(f"obtained tool Results in conversation context: {tool_results}")
             current_turn.extend(tool_results)
         except Exception as E:
             print_colored(Color.FAIL, f"Error generating content from Input/Reasoning Model: {E}")
@@ -154,7 +154,7 @@ def process_turn(user_input: str) -> None:
         # Stage 2: Action Taker
         time.sleep(1)
         try:
-            conversation_history.append("based on  that  what  steps,actions can be taken, use  tools if nessesery")
+            conversation_history.append("take  next  step  accoording  to   logical execution of  steps  ")
             response_action_taker = action_taker_model.generate_content(conversation_history)
             print(f"Action Taker Model Response: {response_action_taker}")
 
@@ -172,7 +172,7 @@ def process_turn(user_input: str) -> None:
         # Stage 3: Evaluator Model
         time.sleep(3)
         try:
-            conversation_history.append("focus of evaluation of  results and propose  course of  acction, you must update  your  focus , you must  described  what  has  been accomplished ")
+            conversation_history.append(" update  your  focus , you must  describe   what  has  been accomplished ")
             response_evaluator = evaluator_model.generate_content(conversation_history)
             print(f"Evaluator Model Response: {response_evaluator}")
             conversation_history.append(f"Evaluator Model Response: {response_evaluator}")
