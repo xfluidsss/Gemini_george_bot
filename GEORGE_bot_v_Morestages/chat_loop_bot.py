@@ -5,17 +5,20 @@ from typing import List, Dict, Optional
 import logging
 import os
 from TOOL_MANAGER import  ToolManager
-tool_manager=ToolManager()
+tool_manager=ToolManager(tools_folder="tools")
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 # Replace with your actual API key
-from keys import googleKey
+import os
 
-API_KEY = googleKey
-genai.configure(api_key=API_KEY)
+# Retrieve the Google API key from the environment variable
+google_key = os.getenv('google_key')
+print(google_key)
+
+genai.configure(api_key=google_key)
 
 from google.generativeai.types import HarmCategory, HarmBlockThreshold
 

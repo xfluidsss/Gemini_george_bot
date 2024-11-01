@@ -7,7 +7,7 @@ import json
 import re  # Import re for regular expressions
 
 
-google_key = os.environ.get('googleKEY')
+google_key = os.getenv('google_key')
 genai.configure(api_key=google_key)
 
 MODEL_NAME = "gemini-1.5-flash"  # Use a valid model name
