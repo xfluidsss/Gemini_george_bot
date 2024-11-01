@@ -1,0 +1,6 @@
+{
+  "input_model": "You are a helpful AI assistant. Respond to user requests in a clear and informative way.",
+  "action_taker_model": "Based on the previous conversation, take the next logical step to complete the user's task.",
+  "evaluator_model": "Assess the progress of the task and update the conversation focus based on what has been achieved.",
+  "optimizer_model": "You are a summarizer.  Given the conversation summary and the current focus, provide a concise and helpful response to the user. "
+}

@@ -1,7 +1,5 @@
 ## Directory Tree
 
-├── calculator.py
-├── chat_loop_bot.py
 ├── configs
     ├── prompts.json
     └── system_instructions.json
@@ -11,7 +9,96 @@
 ├── future_tools_for_future _integration
     ├── tool_create_memory.py
     └── tool_update_internal_state.py
+├── George_chat_loop_bot.py
 ├── images
+    ├── 05bff63f.jpg
+    ├── 05fed844.jpg
+    ├── 165772fe.jpg
+    ├── 174d39f0.jpg
+    ├── 195ccbfa.jpg
+    ├── 1a8ea45e.jpg
+    ├── 1cf1f7fb.jpg
+    ├── 1f045d6c.jpg
+    ├── 21d71290.jpg
+    ├── 25aacbb3.jpg
+    ├── 26259b8a.png
+    ├── 2edc6941.jpg
+    ├── 2f5f3db2.png
+    ├── 3298663b.jpg
+    ├── 342e368b.jpg
+    ├── 374d4ad7.jpg
+    ├── 37768905.jpg
+    ├── 3b06106e.jpg
+    ├── 43b1b27c.jpg
+    ├── 44066661.jpg
+    ├── 47eeea58.jpg
+    ├── 4aa6dbc3.jpg
+    ├── 4b69a79b.jpg
+    ├── 4c7b437b.jpg
+    ├── 552d6e71.jpg
+    ├── 5b5e26b9.jpg
+    ├── 5bfc9f2f.jpg
+    ├── 5c3f57ef.jpg
+    ├── 5e759293.jpg
+    ├── 60fe58c1.jpg
+    ├── 63357460.jpg
+    ├── 6387d0e3.jpg
+    ├── 644c4e24.jpg
+    ├── 6a3deb26.jpg
+    ├── 735b019f.jpg
+    ├── 737ab168.jpg
+    ├── 739bb414.jpg
+    ├── 75af8e79.jpg
+    ├── 76bd8906.jpg
+    ├── 76cfd4fa.jpg
+    ├── 7b81f20c.png
+    ├── 823dc36a.jpg
+    ├── 82f992b0.jpg
+    ├── 83565e09.jpg
+    ├── 85a28c22.jpg
+    ├── 879d0195.jpg
+    ├── 8c03b91a.jpg
+    ├── 8ded24be.jpg
+    ├── 8efcdb14.jpg
+    ├── 9092e2bf.jpg
+    ├── 9290f2ca.jpg
+    ├── 949b632b.jpg
+    ├── 95d11648.jpg
+    ├── 9640aa53.jpg
+    ├── 9eca0331.jpg
+    ├── a22f1dbc.jpg
+    ├── a4f2b59b.jpg
+    ├── a7341984.jpg
+    ├── a8e0d25c.jpg
+    ├── ab4035ef.jpg
+    ├── abe367de.jpg
+    ├── b160302c.png
+    ├── b6d118f5.jpg
+    ├── b7b78db7.jpg
+    ├── b8109d77.jpg
+    ├── ba58c8b8.jpg
+    ├── bcc31f97.jpg
+    ├── beb7f5f3.jpg
+    ├── c2a2c55d.jpg
+    ├── c40af86e.jpg
+    ├── c6e6855a.jpg
+    ├── c6ea8127.jpg
+    ├── c7b4e880.jpg
+    ├── ca7c8a8e.jpg
+    ├── cb5d71db.jpg
+    ├── d3a50086.png
+    ├── d67b28bf.jpg
+    ├── d819e7ef.jpg
+    ├── d9c3eb53.jpg
+    ├── dd64e1c8.jpg
+    ├── e4cba43c.jpg
+    ├── e5d98727.jpg
+    ├── eb94c441.jpg
+    ├── ef29ea3a.jpg
+    ├── f9669d52.jpg
+    ├── fae57bb3.jpg
+    ├── fc91621f.png
+    └── fefcb7dd.jpg
 ├── inner_brain_settings
     └── internal_state.json
 ├── keys.py
@@ -19,55 +106,25 @@
 ├── tools
     ├── ai
         ├── tool_AI_REASONING.py
-        ├── tool_update_focus.py
-        └── __pycache__
+        └── tool_update_focus.py
+    ├── memory
     ├── os
+        ├── tool_display_images.py
         ├── tool_execute_script.py
         ├── tool_get_directory_structure.py
         ├── tool_read_from_file.py
-        ├── tool_save_to_file.py
-        └── __pycache__
+        └── tool_save_to_file.py
     └── web
+        ├── tool_depth_crowler.py
         ├── tool_get_duckduckgo_links.py
         ├── tool_save_image_from_url.py
-        ├── tool_scrape_url.py
-        └── __pycache__
-├── TOOL_MANAGER.py
-└── __pycache__
+        └── tool_scrape_url.py
+└── TOOL_MANAGER.py
 
-## Summary of 'C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_1'
+## Summary of 'C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3'
 
-File: calculator.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_1\calculator.py)
-Content (672 characters):
-# Define the main function
-def calculator():
-    # Get the operator from the user
-    operator = input("Enter an operator (+, -, *, /): ")
-
-    # Get the operands from the user
-    num1 = float(input("Enter the first number: "))
-    num2 = float(input("Enter the second number: "))
-
-    # Perform the calculation
-    if operator == "+":
-        result = num1 + num2
-    elif operator == "-":
-        result = num1 - num2
-    elif operator == "*":
-        result = num1 * num2
-    elif operator == "/":
-        result = num1 / num2
-    else:
-        print("Invalid operator")
-
-    # Print the result
-    print("Result:", result)
-
-# Call the calculator function
-calculator()
-
-File: chat_loop_bot.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_1\chat_loop_bot.py)
-Content (13364 characters):
+File: George_chat_loop_bot.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\George_chat_loop_bot.py)
+Content (13678 characters):
 import time
 import google.generativeai as genai
 import json
@@ -75,6 +132,7 @@ from typing import List, Dict, Optional
 import logging
 import os
 from TOOL_MANAGER import ToolManager
+
 tool_manager = ToolManager(tools_folder="tools")
 
 # Set up logging
@@ -82,10 +140,10 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 # Replace with your actual API key
-from keys import googleKey
+google_key = os.getenv('google_key')
 
-API_KEY = googleKey
-genai.configure(api_key=API_KEY)
+
+genai.configure(api_key=google_key)
 
 from google.generativeai.types import HarmCategory, HarmBlockThreshold
 
@@ -103,10 +161,10 @@ with open('configs/system_instructions.json', 'r') as f:
     system_instructions = json.load(f)
 
 # Initialize models with safety settings and system instructions
-input_model_name = "gemini-1.5-flash-latest"
-action_taker_model_name = "gemini-1.5-flash-latest"
-evaluator_model_name = "gemini-1.5-flash-latest"
-optimizer_model_name = "gemini-1.5-flash-latest"  # Choose a suitable optimizer model
+input_model_name = "gemini-1.5-flash-002"
+action_taker_model_name = "gemini-1.5-flash-002"
+evaluator_model_name = "gemini-1.5-flash-002"
+optimizer_model_name = "gemini-1.5-flash-002"  # Choose a suitable optimizer model
 
 input_model = genai.GenerativeModel(
     model_name=input_model_name,
@@ -391,21 +449,36 @@ total_tokens = 0
 if __name__ == "__main__":
     print_colored(Color.OKGREEN, "🎉 Welcome to GEORGE, your AI assistant!")
     print("Type 'quit' to exit.")
+    loop_count = 0
     while True:
         user_input = input(f"{Color.OKCYAN}You: {Color.ENDC}")
         if user_input.lower() == "quit":
             break
-        process_turn(user_input)
 
-File: keys.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_1\keys.py)
-Content (51 characters):
-googleKey='AIzaSyDXOlUMzVk4fhte0G8xK6RiU6bXvIQqExc'
+        # Only prompt for user input after 4 loops if no finish flag
+        if loop_count % 4 == 0 and not process_turn(user_input):
+            user_input = input(f"{Color.OKCYAN}You: {Color.ENDC}")
+            if user_input.lower() == "quit":
+                break
+        else:
+            process_turn(user_input)
 
-File: readMe (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_1\readMe)
+        loop_count += 1
+
+File: keys.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\keys.py)
+Content (126 characters):
+import os
+
+# Retrieve the Google API key from the environment variable
+google_key = os.getenv('google_key')
+
+print(google_key)
+
+File: readMe (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\readMe)
 Content (78 characters):
 you allso  need  to add  your  api  google  ke  in tools  tool_AI_REASONING.py
 
-File: TOOL_MANAGER.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_1\TOOL_MANAGER.py)
+File: TOOL_MANAGER.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\TOOL_MANAGER.py)
 Content (7256 characters):
 import os
 import importlib
@@ -571,38 +644,93 @@ class ToolManager:
         """Returns a dictionary of tool names and their short descriptions."""
         return {tool.name: tool.description for tool in self.tools.values()}
 
-File: prompts.json (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_1\configs\prompts.json)
-Content (979 characters):
+File: prompts.json (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\configs\prompts.json)
+Content (855 characters):
 {
-  "input_model_prompt": "You analyze the user's input and prepare a detailed action plan, step-by-step.  If you determine the task is complete, write: \"***STOP!FINISHED***\" you can update  your  foucs",
-  "action_taker_model_prompt": "You execute the actions as outlined in the plan provided by the input model. If you determine the task is complete, write: \"***STOP!FINISHED***\"",
-  "evaluator_model_prompt": "You update the focus file with the progress made, evaluate the results of the actions, and provide feedback.  If you determine the task is complete, write: \"***STOP!FINISHED***\"",
-  "optimizer_model_prompt": "Please analyze the provided conversation history and focus file. Provide a concise summary of the progress made, highlighting key points, identified issues, and the user's goals.  Update the focus file based on your analysis.  Offer helpful guidance to the user, reminding them of their intentions and suggesting potential solutions or adjustments."
+    "input_model_prompt": "If you determine the task is complete, write: \"***STOP!FINISHED***\"",
+    "action_taker_model_prompt": "You execute the actions as outlined in the plan provided by the input model. If you determine the task is complete, write: \"***STOP!FINISHED***\"",
+    "evaluator_model_prompt": "You update the focus file with the progress made, evaluate the results of the actions, and provide feedback.  If you determine the task is complete, write: \"***STOP!FINISHED***\"",
+    "optimizer_model_prompt": "Given the conversation summary and the current focus, provide a concise and helpful response to the user. Summarize the key points of the conversation and address any remaining questions or tasks. Use the available tools if needed to gather information.  If you determine the task is complete, write: \"***STOP!FINISHED***\""
 }
 
-File: system_instructions.json (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_1\configs\system_instructions.json)
-Content (2256 characters):
+File: system_instructions.json (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\configs\system_instructions.json)
+Content (507 characters):
 {
-  "input_model": "You are an expert in understanding and reasoning about complex tasks.  Your goal is to guide the action taker model through the execution of the plan.  Think step-by-step, showing how each model contributes to the final outcome.  You can use tools, but only if they help you achieve the user's goal more effectively.  If you detect that the goal has been achieved, write: \"***STOP_FINISHED***\"",
-  "action_taker_model": "You are a precise, methodical tool execution specialist with these core responsibilities:\n\nExecution Principles:\n- Execute tools with absolute precision\n- Strictly follow the plan developed by the Input/Reasoning Model\n- If you detect that the goal has been achieved, write: \"***STOP_FINISHED***\"",
-  "evaluator_model": "You are a comprehensive assessment and optimization specialist.  Your primary roles are:\n\nEvaluation:\n- Evaluate the results of the executed tools.\n- Determine if the task is complete or requires further steps.\nFocus Management:\n- Update the focus file based on the progress made.\nSuccess Detection:\n- If you detect that the goal has been achieved, write: \"***STOP_FINISHED***\"",
-  "optimizer_model": "You are a highly intelligent AI assistant responsible for summarizing complex conversations and providing helpful guidance. Your key responsibilities include:\n\n1. **Summarization:**  Concisely summarize the main points of the conversation, highlighting key elements, issues, and user goals.  Focus on providing an overview of the task's progress. \n2. **Focus Management:**  Update the focus file based on the conversation's progress, incorporating any new information, requirements, or changes in direction. \n3. **User Guidance:**  Provide clear and helpful insights to the user, reminding them of their original goals, highlighting any challenges encountered, and suggesting potential solutions. \n4. **Intention Tracking:** Monitor the user's intentions throughout the conversation.  Identify any expressed preferences, priorities, or shifting goals. \n5. **Strategic Guidance:** Offer advice and recommendations based on your understanding of the conversation and the user's intentions. Be proactive in suggesting alternative approaches or solutions if necessary."
+  "input_model": "You are a helpful AI assistant. Respond to user requests in a clear and informative way.",
+  "action_taker_model": "Based on the previous conversation, take the next logical step to complete the user's task.",
+  "evaluator_model": "Assess the progress of the task and update the conversation focus based on what has been achieved.",
+  "optimizer_model": "You are a summarizer.  Given the conversation summary and the current focus, provide a concise and helpful response to the user. "
 }
 
-File: create_focus.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_1\focus\create_focus.py)
-Content (0 characters):
+File: create_focus.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\focus\create_focus.py)
+Content (1666 characters):
+import json
+import os
 
 
-File: focus.json (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_1\focus\focus.json)
-Content (144 characters):
+def create_focus_file(file_path="focus.json"):
+    """
+    Creates a new focus file with default values.
+
+    Args:
+      file_path (str): The path to the focus file.
+    """
+
+    focus_data = {
+        "current_focus": "",  # Changed to empty string
+        "user_goal": "",  # Changed to empty string
+        "frustration": 0.2,
+        "focus_strength": 0.8,
+        "defocus_threshold": 0.5,
+        "importance": 0.9,
+        "progress": 0.1,
+        "additional": "",  # Changed to empty string
+        "verbose": "",  # Changed to empty string
+        "tasks": {
+            "current_task": "",  # Changed to empty string
+            "task_list_to_accomplish_user_goal": [
+                "",  # Changed to empty string
+                "",  # Changed to empty string
+                ""  # Changed to empty string
+            ],
+            "tasks_in_progress": [
+                ""  # Changed to empty string
+            ],
+            "finished_tasks": [
+                ""  # Changed to empty string
+            ],
+            "failed_tasks": []
+        },
+        "should_defocus": False,
+        "obtained_data":{},
+    }
+
+    # Create the directory if it doesn't exist
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+    with open(file_path, "w") as f:
+        json.dump(focus_data, f, indent=4)
+
+    print(f"Focus file created at: {file_path}")
+
+
+if __name__ == "__main__":
+    # Get the current working directory
+    current_dir = os.getcwd()
+
+    # Join the current directory with the desired filename to create the full path
+    file_path = os.path.join(current_dir, "focus.json")
+
+    create_focus_file(file_path)
+
+File: focus.json (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\focus\focus.json)
+Content (89 characters):
 {
-    "user_goal": "create python calculator",
-    "steps_to_achieve_goal": [],
-    "current_focus": "Save the calculator",
-    "accomplished": 
+    "user_goal": "Display images from a specific folder",
+    "steps_to_achieve_goal": 
 
-File: tool_create_memory.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_1\future_tools_for_future _integration\tool_create_memory.py)
-Content (12996 characters):
+File: tool_create_memory.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\future_tools_for_future _integration\tool_create_memory.py)
+Content (12955 characters):
 tool_type_for_TOOL_MANAGER = "memory"
 tool_create_memory_short_description = """Updates the focus file with new focus information."""
 
@@ -635,9 +763,10 @@ EDIT_NUMBER = 0
 TIMESTAMP_FORMAT = '%Y-%m-%d_%H-%M'
 SESSION_INFO = "Conversation"  # Renamed for clarity
 
-# --- API Key and Configuration ---
-googleKey = '    '  # Moved for better structure
-genai.configure(api_key=googleKey)
+google_key = os.getenv('google_key')
+print(google_key)
+
+genai.configure(api_key=google_key)
 
 # --- Helper Functions ---
 
@@ -845,7 +974,7 @@ def interpret_function_calls(response: genai.GenerateContentResponse, available_
 
 def tool_create_memory(loop_data: str):
     """
-    Processes a conversation loop, you can  put  important  data  for  permament   memoryframe storage
+    Processes a conversation loop, extracts memory data, and stores it as a memory frame.
 
     Args:
         loop_data (str): The conversation loop data as a string. This data should be
@@ -920,7 +1049,7 @@ def tool_create_memory(loop_data: str):
 
 
 
-File: tool_update_internal_state.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_1\future_tools_for_future _integration\tool_update_internal_state.py)
+File: tool_update_internal_state.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\future_tools_for_future _integration\tool_update_internal_state.py)
 Content (6327 characters):
 tool_type_for_TOOL_MANAGER = "focus"
 tool_tool_update_internal_state_description = """ Updates the focus file with new focus information."""
@@ -1047,7 +1176,271 @@ def tool_update_internal_state(
             logger.exception(f"An unexpected error occurred: {e}")
             return {"status": "failure", "message": f"An unexpected error occurred: {e}"}
 
-File: internal_state.json (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_1\inner_brain_settings\internal_state.json)
+File: 05bff63f.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\05bff63f.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: 05fed844.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\05fed844.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: 165772fe.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\165772fe.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: 174d39f0.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\174d39f0.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: 195ccbfa.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\195ccbfa.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: 1a8ea45e.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\1a8ea45e.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: 1cf1f7fb.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\1cf1f7fb.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: 1f045d6c.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\1f045d6c.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: 21d71290.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\21d71290.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: 25aacbb3.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\25aacbb3.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: 26259b8a.png (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\26259b8a.png)
+Decoding error: 'utf-8' codec can't decode byte 0x89 in position 0: invalid start byte
+
+File: 2edc6941.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\2edc6941.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: 2f5f3db2.png (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\2f5f3db2.png)
+Decoding error: 'utf-8' codec can't decode byte 0x89 in position 0: invalid start byte
+
+File: 3298663b.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\3298663b.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: 342e368b.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\342e368b.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: 374d4ad7.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\374d4ad7.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: 37768905.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\37768905.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: 3b06106e.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\3b06106e.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: 43b1b27c.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\43b1b27c.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: 44066661.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\44066661.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: 47eeea58.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\47eeea58.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: 4aa6dbc3.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\4aa6dbc3.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xb7 in position 27: invalid start byte
+
+File: 4b69a79b.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\4b69a79b.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: 4c7b437b.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\4c7b437b.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: 552d6e71.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\552d6e71.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: 5b5e26b9.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\5b5e26b9.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: 5bfc9f2f.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\5bfc9f2f.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: 5c3f57ef.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\5c3f57ef.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: 5e759293.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\5e759293.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: 60fe58c1.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\60fe58c1.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: 63357460.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\63357460.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: 6387d0e3.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\6387d0e3.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: 644c4e24.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\644c4e24.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: 6a3deb26.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\6a3deb26.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: 735b019f.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\735b019f.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: 737ab168.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\737ab168.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: 739bb414.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\739bb414.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: 75af8e79.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\75af8e79.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: 76bd8906.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\76bd8906.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: 76cfd4fa.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\76cfd4fa.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: 7b81f20c.png (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\7b81f20c.png)
+Decoding error: 'utf-8' codec can't decode byte 0x89 in position 0: invalid start byte
+
+File: 823dc36a.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\823dc36a.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: 82f992b0.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\82f992b0.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: 83565e09.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\83565e09.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: 85a28c22.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\85a28c22.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: 879d0195.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\879d0195.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: 8c03b91a.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\8c03b91a.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: 8ded24be.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\8ded24be.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: 8efcdb14.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\8efcdb14.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: 9092e2bf.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\9092e2bf.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: 9290f2ca.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\9290f2ca.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: 949b632b.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\949b632b.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: 95d11648.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\95d11648.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: 9640aa53.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\9640aa53.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: 9eca0331.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\9eca0331.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: a22f1dbc.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\a22f1dbc.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: a4f2b59b.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\a4f2b59b.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: a7341984.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\a7341984.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: a8e0d25c.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\a8e0d25c.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: ab4035ef.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\ab4035ef.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: abe367de.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\abe367de.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: b160302c.png (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\b160302c.png)
+Decoding error: 'utf-8' codec can't decode byte 0x89 in position 0: invalid start byte
+
+File: b6d118f5.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\b6d118f5.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: b7b78db7.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\b7b78db7.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: b8109d77.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\b8109d77.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: ba58c8b8.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\ba58c8b8.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: bcc31f97.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\bcc31f97.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: beb7f5f3.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\beb7f5f3.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: c2a2c55d.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\c2a2c55d.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: c40af86e.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\c40af86e.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: c6e6855a.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\c6e6855a.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: c6ea8127.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\c6ea8127.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: c7b4e880.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\c7b4e880.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: ca7c8a8e.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\ca7c8a8e.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: cb5d71db.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\cb5d71db.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: d3a50086.png (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\d3a50086.png)
+Decoding error: 'utf-8' codec can't decode byte 0x89 in position 0: invalid start byte
+
+File: d67b28bf.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\d67b28bf.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: d819e7ef.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\d819e7ef.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: d9c3eb53.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\d9c3eb53.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: dd64e1c8.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\dd64e1c8.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: e4cba43c.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\e4cba43c.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: e5d98727.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\e5d98727.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: eb94c441.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\eb94c441.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: ef29ea3a.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\ef29ea3a.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: f9669d52.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\f9669d52.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: fae57bb3.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\fae57bb3.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: fc91621f.png (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\fc91621f.png)
+Decoding error: 'utf-8' codec can't decode byte 0x89 in position 0: invalid start byte
+
+File: fefcb7dd.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\fefcb7dd.jpg)
+Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
+
+File: internal_state.json (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\inner_brain_settings\internal_state.json)
 Content (195 characters):
 {
   "emotions": "",
@@ -1061,19 +1454,19 @@ Content (195 characters):
   "version": 1
 }
 
-File: tool_AI_REASONING.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_1\tools\ai\tool_AI_REASONING.py)
-Content (22607 characters):
+File: tool_AI_REASONING.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\tools\ai\tool_AI_REASONING.py)
+Content (22603 characters):
 tool_type_for_TOOL_MANAGER = "focus"
 tool_tool_AI_REASONING_short_description = """REASONER"""
-
+import  os
 import time
 import google.generativeai as genai
 import json
 import re  # Import re for regular expressions
 
 
-googleKey='AIzaSyDXOlUMzVk4fhte0G8xK6RiU6bXvIQqExc'
-genai.configure(api_key=googleKey)
+google_key = os.getenv('google_key')
+genai.configure(api_key=google_key)
 
 MODEL_NAME = "gemini-1.5-flash"  # Use a valid model name
 SYSTEM_INSTRUCTION = "You are a helpful and informative AI assistant."
@@ -1608,11 +2001,8 @@ def main():
 if __name__ == "__main__":
     main()
 
-File: tool_update_focus.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_1\tools\ai\tool_update_focus.py)
-Content (3182 characters):
-tool_type_for_TOOL_MANAGER = "script_execution"
-tool_update_focust_short_description = "Updates the focus file with new focus information"
-
+File: tool_update_focus.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\tools\ai\tool_update_focus.py)
+Content (3042 characters):
 import json
 import os
 import time
@@ -1691,7 +2081,79 @@ def tool_update_focus(
     except Exception as e:
         return {"status": "failure", "message": f"Unknown error updating focus: {str(e)}"}
 
-File: tool_execute_script.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_1\tools\os\tool_execute_script.py)
+File: tool_display_images.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\tools\os\tool_display_images.py)
+Content (3021 characters):
+tool_type_for_TOOL_MANAGER = "web"
+tool_display_images_short_description = "Displays images one by one from a list of URLs or local file paths (full or relative) or from a given folder."
+import  requests
+import os
+import logging
+from typing import List, Dict, Any
+import time
+
+# Set up logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+def tool_display_images(image_paths_or_folder: str, delay: float = 1):
+    """
+    Displays images one by one from a list of URLs or local file paths (full or relative) or from a given folder.
+
+    Args:
+        image_paths_or_folder (str): A single string representing either:
+            - A list of image URLs or local file paths separated by commas (e.g., "http://example.com/image1.jpg, path/to/image2.png, ../../image3.jpg")
+            - A folder path containing images (e.g., "path/to/images").
+        delay (float, optional): The delay between displaying images in seconds. Defaults to 1.
+
+    Returns:
+        dict: A dictionary containing the status "success" or "failure" and a message.
+    """
+    try:
+        image_paths = []
+
+        # Check if the input is a folder path (exists and is a directory)
+        if os.path.isdir(image_paths_or_folder):
+            # Get all image files from the folder
+            for filename in os.listdir(image_paths_or_folder):
+                if filename.lower().endswith(('.jpg', '.jpeg', '.png', '.gif')):
+                    image_paths.append(os.path.join(image_paths_or_folder, filename))
+
+        # Otherwise, assume it's a comma-separated list of paths
+        else:
+            image_paths = [path.strip() for path in image_paths_or_folder.split(",")]
+
+        if not image_paths:
+            return {"status": "failure", "message": "No image paths or images found in the provided folder or list."}
+
+        # Display each image
+        for i, image_path in enumerate(image_paths):
+            print(f"Displaying image {i+1} of {len(image_paths)}: {image_path}")
+
+            # Check if the image path is a URL
+            if image_path.startswith(("http://", "https://")):
+                # Display from URL (using Pillow or OpenCV)
+                from PIL import Image
+                from io import BytesIO
+                response = requests.get(image_path)
+                img = Image.open(BytesIO(response.content))
+                img.show()
+            else:
+                # Display from local file path (full or relative)
+                # Resolve relative paths
+                image_path = os.path.abspath(image_path)
+                from PIL import Image
+                img = Image.open(image_path)
+                img.show()
+
+            time.sleep(delay)
+
+        return {"status": "success", "message": "All images displayed."}
+
+    except Exception as e:
+        logger.error(f"An error occurred while displaying images: {str(e)}")
+        return {"status": "failure", "message": f"Error displaying images: {str(e)}"}
+
+File: tool_execute_script.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\tools\os\tool_execute_script.py)
 Content (3651 characters):
 tool_type_for_TOOL_MANAGER = "script_execution"
 tool_execute_script_short_description = "Executes Python code snippets safely with advanced options."
@@ -1788,8 +2250,8 @@ def tool_execute_script(
             "error": traceback.format_exc()
         }
 
-File: tool_get_directory_structure.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_1\tools\os\tool_get_directory_structure.py)
-Content (7558 characters):
+File: tool_get_directory_structure.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\tools\os\tool_get_directory_structure.py)
+Content (6676 characters):
 tool_type_for_TOOL_MANAGER = "os"
 tool_get_directory_structure_short_description = """Get directory structure with formatted tree view and contents, including both full and relative paths."""
 
@@ -1799,26 +2261,24 @@ from pathlib import Path
 
 def tool_get_directory_structure(directory: str = "../../", levels: int = 2,
                                  include_contents: bool = False,
-                                 return_full_paths: bool = False,
                                  print_output: bool = True):
     """Gets directory structure and optionally prints or returns it.
 
     Args:
         directory (str, optional): The directory to analyze. Defaults to "../../".
-        levels (int, optional): The number of directory levels to show. Defaults to 3.
+        levels (int, optional): The number of directory levels to show. Defaults to 2.
         include_contents (bool, optional): Whether to include file contents. Defaults to False.
-        return_full_paths (bool, optional): Whether to return a list of all full file paths. Defaults to False.
         print_output (bool, optional): Whether to print the output or return it as a dictionary.
                                         Defaults to True.
     """
 
     def _format_size(size_bytes):
         """Format file size."""
-        for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
+        for unit in ['B', 'KB', 'MB', 'GB']:
             if size_bytes < 1024:
                 return f"{size_bytes:.1f} {unit}"
             size_bytes /= 1024
-        return f"{size_bytes:.1f} PB"  # Add PB for larger sizes
+        return f"{size_bytes:.1f} TB"
 
     def _get_relative_path(full_path, base_path):
         """Get relative path from base directory."""
@@ -1833,7 +2293,6 @@ def tool_get_directory_structure(directory: str = "../../", levels: int = 2,
             return ""
 
         output = ""
-        all_files = []  # Store all full file paths
         try:
             entries = sorted(os.scandir(dir_path), key=lambda e: (not e.is_dir(), e.name.lower()))
             for entry in entries:
@@ -1853,8 +2312,6 @@ def tool_get_directory_structure(directory: str = "../../", levels: int = 2,
                                f"{indent}  Relative path: {relative_path}\n"
                                f"{indent}  {modified_str}\n")
 
-                    all_files.append(entry.path)  # Add full file path to list
-
                     if include_contents:
                         try:
                             with open(entry.path, 'r', encoding='utf-8') as f:
@@ -1872,15 +2329,13 @@ def tool_get_directory_structure(directory: str = "../../", levels: int = 2,
                     output += (f"{indent}📁 {entry.name}/\n"
                                f"{indent}  Full path: {entry.path}\n"
                                f"{indent}  Relative path: {relative_path}\n")
-                    nested_output, nested_files = _walk_directory(entry.path, base_path, level + 1, indent + "  ")
-                    output += nested_output
-                    all_files.extend(nested_files)
+                    output += _walk_directory(entry.path, base_path, level + 1, indent + "  ")
         except PermissionError:
             output += f"{indent}⚠️ Permission denied: {dir_path}\n"
         except Exception as e:
             output += f"{indent}⚠️ Error accessing directory: {str(e)}\n"
 
-        return output, all_files  # Return both the output string and the file list
+        return output
 
     # Normalize and resolve the directory path
     directory = os.path.abspath(os.path.expanduser(directory))
@@ -1894,7 +2349,6 @@ def tool_get_directory_structure(directory: str = "../../", levels: int = 2,
     dir_count = 0
     file_types = {}
     largest_files = []
-    all_files = []  # Store all full file paths
 
     # Collect statistics
     for root, dirs, files in os.walk(directory):
@@ -1924,8 +2378,6 @@ def tool_get_directory_structure(directory: str = "../../", levels: int = 2,
                 largest_files.append((file_path, file_size))
                 largest_files.sort(key=lambda x: x[1], reverse=True)
                 largest_files = largest_files[:5]  # Keep only top 5
-
-                all_files.append(file_path)  # Add full file path to list
             except (OSError, PermissionError):
                 continue
 
@@ -1945,8 +2397,7 @@ def tool_get_directory_structure(directory: str = "../../", levels: int = 2,
 
     output += "\n📂 Directory Structure:\n"
     output += "=" * 30 + "\n"
-    output, nested_files = _walk_directory(directory, directory)
-    all_files.extend(nested_files)
+    output += _walk_directory(directory, directory)
 
     if print_output:
         print(output)
@@ -1959,17 +2410,15 @@ def tool_get_directory_structure(directory: str = "../../", levels: int = 2,
                 'total_size': total_size,
                 'file_types': file_types,
                 'largest_files': [(path, size) for path, size in largest_files]
-            },
-            'all_files': all_files if return_full_paths else []
+            }
         }
 
 
 if __name__ == "__main__":
     # Example usage:
-    results = tool_get_directory_structure(directory="../../", levels=2, include_contents=True, return_full_paths=True, print_output=False)
-    print(results['all_files'])  # Print the list of all full file paths
+    tool_get_directory_structure(directory="../../", levels=2, include_contents=False)
 
-File: tool_read_from_file.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_1\tools\os\tool_read_from_file.py)
+File: tool_read_from_file.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\tools\os\tool_read_from_file.py)
 Content (551 characters):
 tool_type_for_TOOL_MANAGER="os"
 tool_read_from_file_short_description="Reads content from a file."
@@ -1991,8 +2440,8 @@ def tool_read_from_file(file_path: str):
     except Exception as e:
         return f"Error reading file: {str(e)}"
 
-File: tool_save_to_file.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_1\tools\os\tool_save_to_file.py)
-Content (4076 characters):
+File: tool_save_to_file.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\tools\os\tool_save_to_file.py)
+Content (4075 characters):
 import os
 import logging
 from typing import List, Optional
@@ -2063,8 +2512,8 @@ def tool_save_to_file(
             mode = "w" if not append_mode else "a"  # 'w' for overwrite, 'a' for append
 
             with open(full_path, mode, encoding=encoding) as f:
-                # Correctly handle both \n and \\n
-                content = content.replace("\\n", "\n").replace("\\\\n", "\n")
+                # Correctly handle newline characters within the content
+                content = content.replace('\\n', '\n')
                 f.write(content)
 
             saved_files.append(full_path)
@@ -2084,8 +2533,284 @@ def tool_save_to_file(
         "failed_files": failed_files,
     }
 
-File: tool_get_duckduckgo_links.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_1\tools\web\tool_get_duckduckgo_links.py)
-Content (4937 characters):
+File: tool_depth_crowler.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\tools\web\tool_depth_crowler.py)
+Content (11600 characters):
+tool_type_for_TOOL_MANAGER = "web"
+tool_depth_crowler_short_description = "   Crawls web pages, extracts images and links, and optionally saves them to files.  "
+
+import json
+import urllib
+import requests
+from requests.exceptions import SSLError
+from bs4 import BeautifulSoup
+from urllib.parse import urljoin
+import time
+import re
+import os
+from PIL import Image
+
+# --- Configuration ---
+
+# Set of phrases to exclude from links
+EXCLUDED_PHRASES = {
+    "membership", "login", "sign up", "register", "account", "forgot password",
+    "user profile", "checkout", "shopping cart", "payment", "terms of service",
+    "privacy policy", "about us", "contact us", "error", "help", "support", "faq",
+    "careers", "blog", "forum", "community", "newsletter", "subscription",
+    "unsubscribe", "feedback", "feedback form", "feedback survey",
+    "feedback submission", "feedback response"
+}
+
+# --- Helper Functions ---
+
+def sanitize_filename(filename):
+    """Replaces invalid characters in a filename with underscores."""
+    safe_filename = re.sub(r'[\/:*?"<>|]', '_', filename)
+    return safe_filename
+
+
+def filter_link(link):
+    """Filters links based on excluded phrases and image extensions."""
+    if any(phrase.lower() in link.lower() for phrase in EXCLUDED_PHRASES):
+        return False
+
+    image_extensions = [".jpeg", ".jpg", ".gif", ".png"]
+    for extension in image_extensions:
+        if link.endswith(extension):
+            return False
+    return True
+
+
+# --- Crawler Functions ---
+
+def crawl_links(starting_links, visited_links=None, depth=1, max_depth=3, strategy="depth_first"):
+    """Crawls a set of links recursively, extracting images and links."""
+    if visited_links is None:
+        visited_links = set()
+
+    all_found_links = set()
+    extracted_images = []  # Changed to a list to store image data
+
+    # Depth-First Search (DFS)
+    if strategy == "depth_first":
+        for link in starting_links:
+            if link not in visited_links and depth <= max_depth:
+                try:
+                    response = requests.get(link)
+                    soup = BeautifulSoup(response.text, 'html.parser')
+                    new_links = set()
+                    images = []  # Changed to a list to store image data
+
+                    # Extract images with alt descriptions
+                    for tag in soup.find_all('img'):
+                        href = tag.get('src')
+                        if href:
+                            image_url = urljoin(link, href)
+                            alt_description = tag.get('alt', "no alt description")  # Default to "no alt description"
+                            image_source = "img"  # Indicate source as 'img'
+                            images.append(
+                                {
+                                    "url": image_url,
+                                    "alt": alt_description,
+                                    "source": image_source
+                                }
+                            )
+                            print(f"Found image: {image_url}  {alt_description}")
+
+                    # Extract links
+                    for link in soup.find_all('a'):
+                        href = link.get('href')
+                        if href and href.startswith('http'):
+                            if filter_link(href):
+                                new_links.add(href)
+                                if href not in visited_links:
+                                    with open(f"Layer{depth}.txt", "a", encoding="utf-8") as file:
+                                        print(f"Saving link {href} on layer {depth}")
+                                        file.write(href + '\n')
+                        else:
+                            full_link = urljoin(str(link), str(href))
+                            if full_link.startswith('http') and filter_link(full_link):
+                                new_links.add(full_link)
+                                if full_link not in visited_links:
+                                    with open(f"Layer{depth}.txt", "a", encoding="utf-8") as file:
+                                        print(f"Saving link {full_link} on layer {depth}")
+                                        file.write(full_link + '\n')
+
+                    all_found_links.update(new_links)
+                    extracted_images.extend(images)
+
+                    # Recursively crawl new links
+                    all_found_links, visited_links, extracted_images = crawl_links(
+                        new_links, visited_links, depth + 1, max_depth, strategy
+                    )
+
+                except requests.exceptions.RequestException as e:
+                    print(f"Error crawling link: {link}, Reason: {e}")
+                finally:
+                    visited_links.add(link)
+            else:
+                print("Link has already been visited or depth limit reached: Skipping...")
+
+    # Breadth-First Search (BFS)
+    elif strategy == "breadth_first":
+        links_to_visit = starting_links.copy()
+        while links_to_visit and depth <= max_depth:
+            current_links = links_to_visit.copy()
+            links_to_visit.clear()
+            for link in current_links:
+                if link not in visited_links:
+                    try:
+                        response = requests.get(link)
+                        soup = BeautifulSoup(response.text, 'html.parser')
+                        new_links = set()
+                        images = []  # Changed to a list to store image data
+
+                        # Extract images with alt descriptions
+                        for tag in soup.find_all('img'):
+                            href = tag.get('src')
+                            if href:
+                                image_url = urljoin(link, href)
+                                alt_description = tag.get('alt', "no alt description")
+                                image_source = "img"
+                                images.append(
+                                    {
+                                        "url": image_url,
+                                        "alt": alt_description,
+                                        "source": image_source
+                                    }
+                                )
+                                print(f"Found image: {image_url}  {alt_description}")
+
+                        # Extract links
+                        for link in soup.find_all('a'):
+                            href = link.get('href')
+                            if href and href.startswith('http'):
+                                if filter_link(href):
+                                    new_links.add(href)
+                                    if href not in visited_links:
+                                        with open(f"Layer{depth}.txt", "a", encoding="utf-8") as file:
+                                            print(f"Saving link {href} on layer {depth}")
+                                            file.write(href + '\n')
+                            else:
+                                full_link = urljoin(str(link), str(href))
+                                if full_link.startswith('http') and filter_link(full_link):
+                                    new_links.add(full_link)
+                                    if full_link not in visited_links:
+                                        with open(f"Layer{depth}.txt", "a", encoding="utf-8") as file:
+                                            print(f"Saving link {full_link} on layer {depth}")
+                                            file.write(full_link + '\n')
+
+                        all_found_links.update(new_links)
+                        extracted_images.extend(images)
+
+                        # Add new links to the list to be visited
+                        links_to_visit.update(new_links)
+
+                    except requests.exceptions.RequestException as e:
+                        print(f"Error crawling link: {link}, Reason: {e}")
+                    finally:
+                        visited_links.add(link)
+                else:
+                    print("Link has already been visited: Skipping...")
+            depth += 1
+    else:
+        print("Depth limit reached: Stopping crawling.")
+
+    print(f"Processing Layer: {depth}")
+    return all_found_links, visited_links, extracted_images
+
+# --- Tool Function ---
+
+def tool_depth_crowler(
+    links: list[str],
+    max_depth: int = 3,
+    strategy: str = "depth_first",
+    save_images: bool = False,
+    save_links: bool = False,
+    save_folder: str = "scraped_data",
+    return_found_links: bool = True,
+    return_found_images: bool = True,
+):
+    """
+    Crawls web pages, extracts images and links, and optionally saves them to files.
+
+    Args:
+        links (list[str]): List of starting URLs to crawl.
+        max_depth (int): The maximum depth to crawl.
+        strategy (str): Crawling strategy depth_first" or breadth_first
+        save_images (bool): Whether to save extracted images.
+        save_links (bool): Whether to save extracted links.
+        save_folder (str): The directory to save scraped data.
+        return_found_links (bool): Whether to return the list of found links.
+        return_found_images (bool): Whether to return the list of found images.
+
+    Returns:
+        dict: A dictionary containing the following keys:
+            - found_links: A list of found links at each depth level
+            - found_images: A list of found images at each depth level
+            - message: A message indicating the completion of crawling.
+    """
+    # Create text files for each layer if they don't exist
+    for i in range(1, max_depth + 1):
+        with open(f"Layer{i}.txt", "w") as file:
+            pass
+
+    # Create text files for extracted images from each layer
+    for i in range(1, max_depth + 1):
+        with open(f"Images_Layer{i}.txt", "w") as file:
+            pass
+
+    # Initialize sets to store links and visited links
+    all_found_links = set()
+    visited_links = set()
+
+    # Crawl links recursively through multiple layers
+    found_links = []
+    found_images = []
+    for depth in range(1, max_depth + 1):
+        links, visited_links, extracted_images = crawl_links(
+            links, visited_links, depth=depth, max_depth=max_depth, strategy=strategy
+        )
+
+        # Save links if requested
+        if save_links:
+            os.makedirs(save_folder, exist_ok=True)
+            with open(os.path.join(save_folder, f"Layer{depth}.txt"), "w", encoding="utf-8") as file:
+                for link in links:
+                    file.write(link + "\n")
+
+        # Save images if requested
+        if save_images:
+            os.makedirs(save_folder, exist_ok=True)
+            with open(os.path.join(save_folder, f"Images_Layer{depth}.txt"), "w", encoding="utf-8") as file:
+                for image_data in extracted_images:
+                    file.write(f"{image_data['url']} ****** {image_data['alt']} ****** {image_data['source']}\n")
+
+        # Store found links and images for return
+        if return_found_links:
+            found_links.append(list(links))
+        if return_found_images:
+            found_images.append(extracted_images)
+
+    # Create the response dictionary
+    response = {"message": "Web page crawling and image extraction completed."}
+
+    # Add found links and images to the response if requested
+    if return_found_links:
+        response["found_links"] = found_links
+    if return_found_images:
+        response["found_images"] = found_images
+
+    return response
+
+File: tool_get_duckduckgo_links.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\tools\web\tool_get_duckduckgo_links.py)
+Content (5264 characters):
+tool_type_for_TOOL_MANAGER = "web"
+tool_get_duckduckgoshort_description = """ Retrieves DuckDuckGo search result links with the option to disable safe search,
+    scroll through 'More Results' and filter out links containing forbidden phrases.
+    You will get links from DuckDuckGo, that you can scrape later on. this  can  be used to get links to websites"""
+
+
 import time
 from typing import List
 from selenium import webdriver
@@ -2105,10 +2830,9 @@ def tool_get_duckduckgo_links(search_phrase: str, num_more_results: float, forbi
     You will get links from DuckDuckGo, that you can scrape later on. this  can  be used to get links to websites
     Args:
         search_phrase (str): The search query to use.
-        num_more_results (float): The number of times to click the 'More Results' button,
-                                  non-negative full numbers like 0,1,2 ....
-        forbidden_phrases (list(str)): A list of phrases to exclude from the results.
-        safe_search (bool): Whether to enable safe search, default: False.
+        num_more_results (float): The number of times to click the More Results button, non-negative full numbers like 0,1,2 ....
+        forbidden_phrases (list[str]): A list of phrases to exclude from the results.
+        safe_search (bool): Whether to enable safe search, default  False.
     Returns:
         list: A list of unique links from the DuckDuckGo search results.
     """
@@ -2203,8 +2927,8 @@ def tool_get_duckduckgo_links(search_phrase: str, num_more_results: float, forbi
     return {"status": "obtained  links",  "found links": list_filtered_links}
 
 
-File: tool_save_image_from_url.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_1\tools\web\tool_save_image_from_url.py)
-Content (1685 characters):
+File: tool_save_image_from_url.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\tools\web\tool_save_image_from_url.py)
+Content (1715 characters):
 tool_type_for_TOOL_MANAGER = "web"
 tool_save_image_from_url_short_description = "Saves an image from a URL to a specified path."
 
@@ -2223,7 +2947,7 @@ def tool_save_image_from_url(image_url: str, save_path: str):
 
     Args:
         image_url (str): The URL of the image.
-        save_path (str): The full path where the image should be saved including filename. Defaults ./
+        save_path (str): The full path where the image should be saved including filename. Default folder to ../../DONWLOADED_IMAGES
 
     Returns:
         dict: A dictionary containing the status  success or failure  and a message.
@@ -2249,13 +2973,13 @@ def tool_save_image_from_url(image_url: str, save_path: str):
         logger.exception(f"An unexpected error occurred: {e}")
         return {"status": "failure", "message": f"An unexpected error occurred: {e}"}
 
-File: tool_scrape_url.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_1\tools\web\tool_scrape_url.py)
-Content (15210 characters):
+File: tool_scrape_url.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\tools\web\tool_scrape_url.py)
+Content (17196 characters):
 tool_type_for_TOOL_MANAGER = "web"
-tool_scrape_url_short_description = """Scrapes content from a URL based on specified parameters using Selenium and Chrome.
-    Returns all scraping information (images, text, links, etc.). """
+tool_scrape_url_short_description = "Saves an image from a URL to a specified path."
 
 
+import concurrent.futures
 import os
 import logging
 from urllib.parse import urljoin, urlparse
@@ -2274,7 +2998,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, WebDriverException
 import concurrent.futures
 
-# Set up logging
+
+
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
@@ -2282,7 +3007,7 @@ logger = logging.getLogger(__name__)
 class SeleniumDriver:
     def __init__(self):
         self.options = Options()
-        # Remove the --headless argument
+        # **Don't use headless mode**
         # self.options.add_argument('--headless')
         self.options.add_argument('--no-sandbox')
         self.options.add_argument('--disable-dev-shm-usage')
@@ -2320,11 +3045,17 @@ def tool_scrape_url(
         save_links: bool = False,
         get_whole_page: bool = False,
         save_path: str = None,
-        return_type: str = "all"  # Options: "all", "images", "text", "links", "html"
+        return_type: str = "all",  # Options: "all", "images", "text", "links", "html"
+        image_extensions: list[str]=["jpg","png"],  # List of image extensions to save
+        min_image_size_kb: int = 0,  # Minimum image size in KB to save
+        skip_thumbnails: bool = False,  # Skip images that look like thumbnails
+        get_alt_descriptions: bool = False,  # Get alt descriptions for images
+        prioritize_large_href: bool = False,  # Prioritize large images from href links
+        download_all: bool = False  # Download all images, regardless of size or type
 ) -> dict:
     """
     Scrapes content from a URL based on specified parameters using Selenium and Chrome.
-    Returns all scraping information (images, text, links, etc.).
+    Returns all scraping information images, text, links, etc
 
     Args:
         url (str): The URL to scrape.
@@ -2335,17 +3066,23 @@ def tool_scrape_url(
         save_text (bool): Whether to save scraped text locally.
         save_links (bool): Whether to save scraped links locally.
         get_whole_page (bool): Whether to get the entire HTML content.
-        save_path (str): Base path for saving files (default: current directory).
-        return_type (str): What type of content to return in the response. Options: "all", "images", "text", "links", "html"
+        save_path (str): Base path for saving files default current directory
+        return_type (str): What type of content to return in the response. Options: all, images, text, links, html
+        image_extensions (list[str]): List of image extensions to save  jpg, png
+        min_image_size_kb (int): Minimum image size in KB to save.
+        skip_thumbnails (bool): Skip images that look like thumbnails.
+        get_alt_descriptions (bool): Whether to get alt descriptions for images.
+        prioritize_large_href (bool): Whether to prioritize large images from href links.
+        download_all (bool): Whether to download all images, regardless of size or type.
 
     Returns:
         dict: A dictionary containing:
-            - status: "success" or "failure"
+            - status: success or failure
             - message: Status message
             - data: Dictionary containing scraped content based on return_type
-            - scraped_images: List of image data (URLs, alt text, etc.)
-            - scraped_text_elements: List of text element data (type, content, etc.)
-            - scraped_links: List of link data (URLs, text, etc.)
+            - scraped_images: List of image data URLs, alt text, etc
+            - scraped_text_elements: List of text element data type, content, etc.
+            - scraped_links: List of link data URLs, text, etc.
             - saved_images: List of saved image paths
             - saved_text: Whether text was saved to a file
             - saved_links: Whether links were saved to a file
@@ -2436,6 +3173,18 @@ def tool_scrape_url(
                             return None
 
                         if save_images and img_url.startswith(('http://', 'https://')):
+                            # Check if the image is a thumbnail (based on filename)
+                            if skip_thumbnails and any(
+                                    word in img_url.lower() for word in ["thumb", "thumbnail", "small", "tiny"]
+                            ):
+                                return None  # Skip if it's likely a thumbnail
+
+                            # Check image extension
+                            if image_extensions:
+                                ext = os.path.splitext(img_url)[1].lower()[1:]
+                                if ext not in image_extensions:
+                                    return None  # Skip if the extension is not allowed
+
                             try:
                                 response = requests.get(img_url, headers=headers, timeout=10)
                                 if response.status_code == 200:
@@ -2446,10 +3195,16 @@ def tool_scrape_url(
                                         img_path = os.path.join(save_path, "images", f"{img_name}{ext}")
                                         os.makedirs(os.path.dirname(img_path), exist_ok=True)
 
-                                        with open(img_path, 'wb') as f:
-                                            f.write(response.content)
-                                        result["saved_images"].append(img_path)
-                                        logger.info(f"Saved image to {img_path}")
+                                        # Check image size
+                                        image_size_kb = len(response.content) / 1024  # Size in KB
+                                        if download_all or (image_size_kb >= min_image_size_kb):
+                                            with open(img_path, 'wb') as f:
+                                                f.write(response.content)
+                                            result["saved_images"].append(img_path)
+                                            logger.info(f"Saved image to {img_path}")
+                                        else:
+                                            logger.info(f"Skipped image {img_url} (size: {image_size_kb:.2f}KB, below minimum)")
+
                             except Exception as e:
                                 logger.error(f"Failed to save image {img_url}: {str(e)}")
 
@@ -2582,8 +3337,6 @@ def tool_scrape_url(
 
 ## Directory Tree
 
-├── calculator.py
-├── chat_loop_bot.py
 ├── configs
     ├── prompts.json
     └── system_instructions.json
@@ -2593,7 +3346,96 @@ def tool_scrape_url(
 ├── future_tools_for_future _integration
     ├── tool_create_memory.py
     └── tool_update_internal_state.py
+├── George_chat_loop_bot.py
 ├── images
+    ├── 05bff63f.jpg
+    ├── 05fed844.jpg
+    ├── 165772fe.jpg
+    ├── 174d39f0.jpg
+    ├── 195ccbfa.jpg
+    ├── 1a8ea45e.jpg
+    ├── 1cf1f7fb.jpg
+    ├── 1f045d6c.jpg
+    ├── 21d71290.jpg
+    ├── 25aacbb3.jpg
+    ├── 26259b8a.png
+    ├── 2edc6941.jpg
+    ├── 2f5f3db2.png
+    ├── 3298663b.jpg
+    ├── 342e368b.jpg
+    ├── 374d4ad7.jpg
+    ├── 37768905.jpg
+    ├── 3b06106e.jpg
+    ├── 43b1b27c.jpg
+    ├── 44066661.jpg
+    ├── 47eeea58.jpg
+    ├── 4aa6dbc3.jpg
+    ├── 4b69a79b.jpg
+    ├── 4c7b437b.jpg
+    ├── 552d6e71.jpg
+    ├── 5b5e26b9.jpg
+    ├── 5bfc9f2f.jpg
+    ├── 5c3f57ef.jpg
+    ├── 5e759293.jpg
+    ├── 60fe58c1.jpg
+    ├── 63357460.jpg
+    ├── 6387d0e3.jpg
+    ├── 644c4e24.jpg
+    ├── 6a3deb26.jpg
+    ├── 735b019f.jpg
+    ├── 737ab168.jpg
+    ├── 739bb414.jpg
+    ├── 75af8e79.jpg
+    ├── 76bd8906.jpg
+    ├── 76cfd4fa.jpg
+    ├── 7b81f20c.png
+    ├── 823dc36a.jpg
+    ├── 82f992b0.jpg
+    ├── 83565e09.jpg
+    ├── 85a28c22.jpg
+    ├── 879d0195.jpg
+    ├── 8c03b91a.jpg
+    ├── 8ded24be.jpg
+    ├── 8efcdb14.jpg
+    ├── 9092e2bf.jpg
+    ├── 9290f2ca.jpg
+    ├── 949b632b.jpg
+    ├── 95d11648.jpg
+    ├── 9640aa53.jpg
+    ├── 9eca0331.jpg
+    ├── a22f1dbc.jpg
+    ├── a4f2b59b.jpg
+    ├── a7341984.jpg
+    ├── a8e0d25c.jpg
+    ├── ab4035ef.jpg
+    ├── abe367de.jpg
+    ├── b160302c.png
+    ├── b6d118f5.jpg
+    ├── b7b78db7.jpg
+    ├── b8109d77.jpg
+    ├── ba58c8b8.jpg
+    ├── bcc31f97.jpg
+    ├── beb7f5f3.jpg
+    ├── c2a2c55d.jpg
+    ├── c40af86e.jpg
+    ├── c6e6855a.jpg
+    ├── c6ea8127.jpg
+    ├── c7b4e880.jpg
+    ├── ca7c8a8e.jpg
+    ├── cb5d71db.jpg
+    ├── d3a50086.png
+    ├── d67b28bf.jpg
+    ├── d819e7ef.jpg
+    ├── d9c3eb53.jpg
+    ├── dd64e1c8.jpg
+    ├── e4cba43c.jpg
+    ├── e5d98727.jpg
+    ├── eb94c441.jpg
+    ├── ef29ea3a.jpg
+    ├── f9669d52.jpg
+    ├── fae57bb3.jpg
+    ├── fc91621f.png
+    └── fefcb7dd.jpg
 ├── inner_brain_settings
     └── internal_state.json
 ├── keys.py
@@ -2601,19 +3443,18 @@ def tool_scrape_url(
 ├── tools
     ├── ai
         ├── tool_AI_REASONING.py
-        ├── tool_update_focus.py
-        └── __pycache__
+        └── tool_update_focus.py
+    ├── memory
     ├── os
+        ├── tool_display_images.py
         ├── tool_execute_script.py
         ├── tool_get_directory_structure.py
         ├── tool_read_from_file.py
-        ├── tool_save_to_file.py
-        └── __pycache__
+        └── tool_save_to_file.py
     └── web
+        ├── tool_depth_crowler.py
         ├── tool_get_duckduckgo_links.py
         ├── tool_save_image_from_url.py
-        ├── tool_scrape_url.py
-        └── __pycache__
-├── TOOL_MANAGER.py
-└── __pycache__
+        └── tool_scrape_url.py
+└── TOOL_MANAGER.py
 

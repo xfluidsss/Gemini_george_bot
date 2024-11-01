@@ -7,26 +7,24 @@ from pathlib import Path
 
 def tool_get_directory_structure(directory: str = "../../", levels: int = 2,
                                  include_contents: bool = False,
-                                 return_full_paths: bool = False,
                                  print_output: bool = True):
     """Gets directory structure and optionally prints or returns it.
 
     Args:
         directory (str, optional): The directory to analyze. Defaults to "../../".
-        levels (int, optional): The number of directory levels to show. Defaults to 3.
+        levels (int, optional): The number of directory levels to show. Defaults to 2.
         include_contents (bool, optional): Whether to include file contents. Defaults to False.
-        return_full_paths (bool, optional): Whether to return a list of all full file paths. Defaults to False.
         print_output (bool, optional): Whether to print the output or return it as a dictionary.
                                         Defaults to True.
     """
 
     def _format_size(size_bytes):
         """Format file size."""
-        for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
+        for unit in ['B', 'KB', 'MB', 'GB']:
             if size_bytes < 1024:
                 return f"{size_bytes:.1f} {unit}"
             size_bytes /= 1024
-        return f"{size_bytes:.1f} PB"  # Add PB for larger sizes
+        return f"{size_bytes:.1f} TB"
 
     def _get_relative_path(full_path, base_path):
         """Get relative path from base directory."""
@@ -41,7 +39,6 @@ def tool_get_directory_structure(directory: str = "../../", levels: int = 2,
             return ""
 
         output = ""
-        all_files = []  # Store all full file paths
         try:
             entries = sorted(os.scandir(dir_path), key=lambda e: (not e.is_dir(), e.name.lower()))
             for entry in entries:
@@ -61,8 +58,6 @@ def tool_get_directory_structure(directory: str = "../../", levels: int = 2,
                                f"{indent}  Relative path: {relative_path}\n"
                                f"{indent}  {modified_str}\n")
 
-                    all_files.append(entry.path)  # Add full file path to list
-
                     if include_contents:
                         try:
                             with open(entry.path, 'r', encoding='utf-8') as f:
@@ -80,15 +75,13 @@ def tool_get_directory_structure(directory: str = "../../", levels: int = 2,
                     output += (f"{indent}📁 {entry.name}/\n"
                                f"{indent}  Full path: {entry.path}\n"
                                f"{indent}  Relative path: {relative_path}\n")
-                    nested_output, nested_files = _walk_directory(entry.path, base_path, level + 1, indent + "  ")
-                    output += nested_output
-                    all_files.extend(nested_files)
+                    output += _walk_directory(entry.path, base_path, level + 1, indent + "  ")
         except PermissionError:
             output += f"{indent}⚠️ Permission denied: {dir_path}\n"
         except Exception as e:
             output += f"{indent}⚠️ Error accessing directory: {str(e)}\n"
 
-        return output, all_files  # Return both the output string and the file list
+        return output
 
     # Normalize and resolve the directory path
     directory = os.path.abspath(os.path.expanduser(directory))
@@ -102,7 +95,6 @@ def tool_get_directory_structure(directory: str = "../../", levels: int = 2,
     dir_count = 0
     file_types = {}
     largest_files = []
-    all_files = []  # Store all full file paths
 
     # Collect statistics
     for root, dirs, files in os.walk(directory):
@@ -132,8 +124,6 @@ def tool_get_directory_structure(directory: str = "../../", levels: int = 2,
                 largest_files.append((file_path, file_size))
                 largest_files.sort(key=lambda x: x[1], reverse=True)
                 largest_files = largest_files[:5]  # Keep only top 5
-
-                all_files.append(file_path)  # Add full file path to list
             except (OSError, PermissionError):
                 continue
 
@@ -153,8 +143,7 @@ def tool_get_directory_structure(directory: str = "../../", levels: int = 2,
 
     output += "\n📂 Directory Structure:\n"
     output += "=" * 30 + "\n"
-    output, nested_files = _walk_directory(directory, directory)
-    all_files.extend(nested_files)
+    output += _walk_directory(directory, directory)
 
     if print_output:
         print(output)
@@ -167,12 +156,10 @@ def tool_get_directory_structure(directory: str = "../../", levels: int = 2,
                 'total_size': total_size,
                 'file_types': file_types,
                 'largest_files': [(path, size) for path, size in largest_files]
-            },
-            'all_files': all_files if return_full_paths else []
+            }
         }
 
 
 if __name__ == "__main__":
     # Example usage:
-    results = tool_get_directory_structure(directory="../../", levels=2, include_contents=True, return_full_paths=True, print_output=False)
-    print(results['all_files'])  # Print the list of all full file paths
+    tool_get_directory_structure(directory="../../", levels=2, include_contents=False)

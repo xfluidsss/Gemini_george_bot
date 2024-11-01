@@ -34,10 +34,10 @@ with open('configs/system_instructions.json', 'r') as f:
     system_instructions = json.load(f)
 
 # Initialize models with safety settings and system instructions
-input_model_name = "gemini-1.5-flash-latest"
-action_taker_model_name = "gemini-1.5-flash-latest"
-evaluator_model_name = "gemini-1.5-flash-latest"
-optimizer_model_name = "gemini-1.5-flash-latest"  # Choose a suitable optimizer model
+input_model_name = "gemini-1.5-flash-002"
+action_taker_model_name = "gemini-1.5-flash-002"
+evaluator_model_name = "gemini-1.5-flash-002"
+optimizer_model_name = "gemini-1.5-flash-002"  # Choose a suitable optimizer model
 
 input_model = genai.GenerativeModel(
     model_name=input_model_name,
