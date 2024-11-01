@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 # Replace with your actual API key
 google_key = os.getenv('google_key')
-
+google_key='AIzaSyAkwNdEruLbB72p56EHhwyCAyxImN8Nc5g'
 
 genai.configure(api_key=google_key)
 
@@ -34,16 +34,16 @@ with open('configs/system_instructions.json', 'r') as f:
     system_instructions = json.load(f)
 
 # Initialize models with safety settings and system instructions
-input_model_name = "gemini-1.5-flash-002"
-action_taker_model_name = "gemini-1.5-flash-002"
-evaluator_model_name = "gemini-1.5-flash-002"
-optimizer_model_name = "gemini-1.5-flash-002"  # Choose a suitable optimizer model
+input_model_name = "gemini-1.5-flash"
+action_taker_model_name = "gemini-1.5-flash"
+evaluator_model_name = "gemini-1.5-flash"
+optimizer_model_name = "gemini-1.5-flash"  # Choose a suitable optimizer model
 
 input_model = genai.GenerativeModel(
     model_name=input_model_name,
     safety_settings=safety_settings,
     system_instruction=system_instructions.get("input_model", ""),
-    tools=tool_manager.load_tools_of_type("all")
+    tools=tool_manager.load_tools_of_type("focus")
 )
 
 action_taker_model = genai.GenerativeModel(
@@ -329,7 +329,7 @@ if __name__ == "__main__":
             break
 
         # Only prompt for user input after 4 loops if no finish flag
-        if loop_count % 4 == 0 and not process_turn(user_input):
+        if loop_count % 10 == 0 and not process_turn(user_input):
             user_input = input(f"{Color.OKCYAN}You: {Color.ENDC}")
             if user_input.lower() == "quit":
                 break

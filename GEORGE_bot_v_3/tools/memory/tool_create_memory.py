@@ -1,5 +1,5 @@
-tool_type_for_TOOL_MANAGER = "memory"
-tool_create_memory_short_description = """creates  permament  memory frame"""
+tool_type_for_TOOL_MANAGER = "all"
+tool_create_memory_short_description = """creates memory frame"""
 
 import time
 import json
@@ -30,12 +30,11 @@ EDIT_NUMBER = 0
 TIMESTAMP_FORMAT = '%Y-%m-%d_%H-%M'
 SESSION_INFO = "Conversation"  # Renamed for clarity
 
+
+
 google_key = os.getenv('google_key')
-print(google_key)
-
+google_key='AIzaSyAkwNdEruLbB72p56EHhwyCAyxImN8Nc5g'
 genai.configure(api_key=google_key)
-
-# --- Helper Functions ---
 
 def sanitize_href(href: str, memories_folder_path: str) -> str:
     """Sanitizes a given href string by replacing spaces with %20."""

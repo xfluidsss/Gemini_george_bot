@@ -19,8 +19,8 @@ def tool_execute_script(
 
     Args:
         path (str): The path to the Python script file.
-        timeout (float, optional): Maximum execution time in seconds.  If None, no timeout is enforced.
-        max_memory (int, optional): Maximum memory usage in MB. If None, no memory limit is enforced.
+        timeout (float): Maximum execution time in seconds.  If None, no timeout is enforced.
+        max_memory (int): Maximum memory usage in MB. If None, no memory limit is enforced.
         return_type (str): Type of result to return:
             - "output": Only return the output of the executed code.
             - "error": Only return the error message (if any).

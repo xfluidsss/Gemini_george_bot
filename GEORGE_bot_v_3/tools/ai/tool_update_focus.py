@@ -16,10 +16,10 @@ focus_schema = {
 
 def tool_update_focus(
     user_goal: str = "",
-    steps_to_achieve_goal: Optional[List[str]] = None,
+    steps_to_achieve_goal:list[str] = None,
     current_focus: str = "",
-    accomplished: Optional[List[str]] = None,
-    obtained_data: Optional[List[str]] = None,
+    accomplished: list[str] = None,
+    obtained_data: list[str] = None,
     additional_info: str = "",
     switch_task: str = "NO"
 ) -> Dict[str, Any]:
@@ -29,12 +29,12 @@ def tool_update_focus(
 
     Args:
         user_goal (str): The overall goal the user wants to achieve. MANDATORY!
-        steps_to_achieve_goal (List[str], optional): List of steps to achieve the goal. 
+        steps_to_achieve_goal (List[str]): List of steps to achieve the goal.  MANDATORY!
         current_focus (str): The current focus. MANDATORY!
-        accomplished (List[str], optional): List of tasks that have been completed.
-        obtained_data (List[str], optional): List of data obtained during the focus session.
+        accomplished (List[str], optional): List of tasks that have been completed. MANDATORY!
+        obtained_data (List[str], optional): List of data obtained during the focus session. MANDATORY!
         additional_info (str): Additional information related to the focus. MANDATORY!
-        switch_task (str): Flag to indicate whether the user wants to switch tasks (YES/NO). MANDATORY!
+        switch_task_to (str): Flag to indicate whether the user wants to switch tasks  YES/NO . MANDATORY!
 
     Returns:
         dict: A dictionary containing the status ("success" or "failure") and a message.
@@ -57,7 +57,7 @@ def tool_update_focus(
         "accomplished": accomplished,
         "obtained_data": obtained_data,
         "additional_info": additional_info,
-        "switch_task": switch_task.upper()
+        "switch_task": switch_task
     }
 
     focus_file_path = "focus/focus.json"

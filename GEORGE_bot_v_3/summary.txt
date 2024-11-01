@@ -7,98 +7,8 @@
     ├── create_focus.py
     └── focus.json
 ├── future_tools_for_future _integration
-    ├── tool_create_memory.py
     └── tool_update_internal_state.py
 ├── George_chat_loop_bot.py
-├── images
-    ├── 05bff63f.jpg
-    ├── 05fed844.jpg
-    ├── 165772fe.jpg
-    ├── 174d39f0.jpg
-    ├── 195ccbfa.jpg
-    ├── 1a8ea45e.jpg
-    ├── 1cf1f7fb.jpg
-    ├── 1f045d6c.jpg
-    ├── 21d71290.jpg
-    ├── 25aacbb3.jpg
-    ├── 26259b8a.png
-    ├── 2edc6941.jpg
-    ├── 2f5f3db2.png
-    ├── 3298663b.jpg
-    ├── 342e368b.jpg
-    ├── 374d4ad7.jpg
-    ├── 37768905.jpg
-    ├── 3b06106e.jpg
-    ├── 43b1b27c.jpg
-    ├── 44066661.jpg
-    ├── 47eeea58.jpg
-    ├── 4aa6dbc3.jpg
-    ├── 4b69a79b.jpg
-    ├── 4c7b437b.jpg
-    ├── 552d6e71.jpg
-    ├── 5b5e26b9.jpg
-    ├── 5bfc9f2f.jpg
-    ├── 5c3f57ef.jpg
-    ├── 5e759293.jpg
-    ├── 60fe58c1.jpg
-    ├── 63357460.jpg
-    ├── 6387d0e3.jpg
-    ├── 644c4e24.jpg
-    ├── 6a3deb26.jpg
-    ├── 735b019f.jpg
-    ├── 737ab168.jpg
-    ├── 739bb414.jpg
-    ├── 75af8e79.jpg
-    ├── 76bd8906.jpg
-    ├── 76cfd4fa.jpg
-    ├── 7b81f20c.png
-    ├── 823dc36a.jpg
-    ├── 82f992b0.jpg
-    ├── 83565e09.jpg
-    ├── 85a28c22.jpg
-    ├── 879d0195.jpg
-    ├── 8c03b91a.jpg
-    ├── 8ded24be.jpg
-    ├── 8efcdb14.jpg
-    ├── 9092e2bf.jpg
-    ├── 9290f2ca.jpg
-    ├── 949b632b.jpg
-    ├── 95d11648.jpg
-    ├── 9640aa53.jpg
-    ├── 9eca0331.jpg
-    ├── a22f1dbc.jpg
-    ├── a4f2b59b.jpg
-    ├── a7341984.jpg
-    ├── a8e0d25c.jpg
-    ├── ab4035ef.jpg
-    ├── abe367de.jpg
-    ├── b160302c.png
-    ├── b6d118f5.jpg
-    ├── b7b78db7.jpg
-    ├── b8109d77.jpg
-    ├── ba58c8b8.jpg
-    ├── bcc31f97.jpg
-    ├── beb7f5f3.jpg
-    ├── c2a2c55d.jpg
-    ├── c40af86e.jpg
-    ├── c6e6855a.jpg
-    ├── c6ea8127.jpg
-    ├── c7b4e880.jpg
-    ├── ca7c8a8e.jpg
-    ├── cb5d71db.jpg
-    ├── d3a50086.png
-    ├── d67b28bf.jpg
-    ├── d819e7ef.jpg
-    ├── d9c3eb53.jpg
-    ├── dd64e1c8.jpg
-    ├── e4cba43c.jpg
-    ├── e5d98727.jpg
-    ├── eb94c441.jpg
-    ├── ef29ea3a.jpg
-    ├── f9669d52.jpg
-    ├── fae57bb3.jpg
-    ├── fc91621f.png
-    └── fefcb7dd.jpg
 ├── inner_brain_settings
     └── internal_state.json
 ├── keys.py
@@ -106,25 +16,31 @@
 ├── tools
     ├── ai
         ├── tool_AI_REASONING.py
-        └── tool_update_focus.py
+        ├── tool_update_focus.py
+        └── __pycache__
     ├── memory
+        ├── tool_create_memory.py
+        └── __pycache__
     ├── os
         ├── tool_display_images.py
         ├── tool_execute_script.py
         ├── tool_get_directory_structure.py
         ├── tool_read_from_file.py
-        └── tool_save_to_file.py
+        ├── tool_save_to_file.py
+        └── __pycache__
     └── web
         ├── tool_depth_crowler.py
         ├── tool_get_duckduckgo_links.py
         ├── tool_save_image_from_url.py
-        └── tool_scrape_url.py
-└── TOOL_MANAGER.py
+        ├── tool_scrape_url.py
+        └── __pycache__
+├── TOOL_MANAGER.py
+└── __pycache__
 
-## Summary of 'C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3'
+## Summary of 'C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_3'
 
-File: George_chat_loop_bot.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\George_chat_loop_bot.py)
-Content (13678 characters):
+File: George_chat_loop_bot.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_3\George_chat_loop_bot.py)
+Content (13717 characters):
 import time
 import google.generativeai as genai
 import json
@@ -141,7 +57,7 @@ logger = logging.getLogger(__name__)
 
 # Replace with your actual API key
 google_key = os.getenv('google_key')
-
+google_key='AIzaSyAkwNdEruLbB72p56EHhwyCAyxImN8Nc5g'
 
 genai.configure(api_key=google_key)
 
@@ -161,16 +77,16 @@ with open('configs/system_instructions.json', 'r') as f:
     system_instructions = json.load(f)
 
 # Initialize models with safety settings and system instructions
-input_model_name = "gemini-1.5-flash-002"
-action_taker_model_name = "gemini-1.5-flash-002"
-evaluator_model_name = "gemini-1.5-flash-002"
-optimizer_model_name = "gemini-1.5-flash-002"  # Choose a suitable optimizer model
+input_model_name = "gemini-1.5-flash"
+action_taker_model_name = "gemini-1.5-flash"
+evaluator_model_name = "gemini-1.5-flash"
+optimizer_model_name = "gemini-1.5-flash"  # Choose a suitable optimizer model
 
 input_model = genai.GenerativeModel(
     model_name=input_model_name,
     safety_settings=safety_settings,
     system_instruction=system_instructions.get("input_model", ""),
-    tools=tool_manager.load_tools_of_type("all")
+    tools=tool_manager.load_tools_of_type("focus")
 )
 
 action_taker_model = genai.GenerativeModel(
@@ -456,7 +372,7 @@ if __name__ == "__main__":
             break
 
         # Only prompt for user input after 4 loops if no finish flag
-        if loop_count % 4 == 0 and not process_turn(user_input):
+        if loop_count % 10 == 0 and not process_turn(user_input):
             user_input = input(f"{Color.OKCYAN}You: {Color.ENDC}")
             if user_input.lower() == "quit":
                 break
@@ -465,7 +381,7 @@ if __name__ == "__main__":
 
         loop_count += 1
 
-File: keys.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\keys.py)
+File: keys.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_3\keys.py)
 Content (126 characters):
 import os
 
@@ -474,11 +390,11 @@ google_key = os.getenv('google_key')
 
 print(google_key)
 
-File: readMe (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\readMe)
+File: readMe (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_3\readMe)
 Content (78 characters):
 you allso  need  to add  your  api  google  ke  in tools  tool_AI_REASONING.py
 
-File: TOOL_MANAGER.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\TOOL_MANAGER.py)
+File: TOOL_MANAGER.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_3\TOOL_MANAGER.py)
 Content (7256 characters):
 import os
 import importlib
@@ -644,16 +560,16 @@ class ToolManager:
         """Returns a dictionary of tool names and their short descriptions."""
         return {tool.name: tool.description for tool in self.tools.values()}
 
-File: prompts.json (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\configs\prompts.json)
-Content (855 characters):
+File: prompts.json (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_3\configs\prompts.json)
+Content (510 characters):
 {
     "input_model_prompt": "If you determine the task is complete, write: \"***STOP!FINISHED***\"",
-    "action_taker_model_prompt": "You execute the actions as outlined in the plan provided by the input model. If you determine the task is complete, write: \"***STOP!FINISHED***\"",
-    "evaluator_model_prompt": "You update the focus file with the progress made, evaluate the results of the actions, and provide feedback.  If you determine the task is complete, write: \"***STOP!FINISHED***\"",
-    "optimizer_model_prompt": "Given the conversation summary and the current focus, provide a concise and helpful response to the user. Summarize the key points of the conversation and address any remaining questions or tasks. Use the available tools if needed to gather information.  If you determine the task is complete, write: \"***STOP!FINISHED***\""
+    "action_taker_model_prompt": "You execute the actions as outlined in the plan provided by the input model.  ",
+    "evaluator_model_prompt": "You update the focus file with the progress made, evaluate the results of the actions, and provide feedback.  ",
+    "optimizer_model_prompt": "Given the conversation summary and the current focus, provide a concise and helpful sumarisation of  achinved things"
 }
 
-File: system_instructions.json (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\configs\system_instructions.json)
+File: system_instructions.json (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_3\configs\system_instructions.json)
 Content (507 characters):
 {
   "input_model": "You are a helpful AI assistant. Respond to user requests in a clear and informative way.",
@@ -662,7 +578,7 @@ Content (507 characters):
   "optimizer_model": "You are a summarizer.  Given the conversation summary and the current focus, provide a concise and helpful response to the user. "
 }
 
-File: create_focus.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\focus\create_focus.py)
+File: create_focus.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_3\focus\create_focus.py)
 Content (1666 characters):
 import json
 import os
@@ -723,333 +639,13 @@ if __name__ == "__main__":
 
     create_focus_file(file_path)
 
-File: focus.json (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\focus\focus.json)
-Content (89 characters):
+File: focus.json (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_3\focus\focus.json)
+Content (72 characters):
 {
-    "user_goal": "Display images from a specific folder",
+    "user_goal": "Become more powerful",
     "steps_to_achieve_goal": 
 
-File: tool_create_memory.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\future_tools_for_future _integration\tool_create_memory.py)
-Content (12955 characters):
-tool_type_for_TOOL_MANAGER = "memory"
-tool_create_memory_short_description = """Updates the focus file with new focus information."""
-
-import time
-import json
-import os
-import logging
-import google.generativeai as genai
-from typing import List, Dict, Any
-from datetime import datetime
-import re
-
-# --- Color and Configuration Settings ---
-BLACK = "\033[30m"
-RED = "\033[31m"
-GREEN = "\033[32m"
-YELLOW = "\033[33m"
-BLUE = "\033[34m"
-MAGENTA = "\033[35m"
-CYAN = "\033[36m"
-WHITE = "\033[37m"
-RESET = "\033[0m"
-BOLD = "\033[1m"
-UNDERLINE = "\033[4m"
-REVERSE = "\033[7m"
-
-# --- Global Variables ---
-MEMORY_FRAME_NUMBER = 1
-EDIT_NUMBER = 0
-TIMESTAMP_FORMAT = '%Y-%m-%d_%H-%M'
-SESSION_INFO = "Conversation"  # Renamed for clarity
-
-google_key = os.getenv('google_key')
-print(google_key)
-
-genai.configure(api_key=google_key)
-
-# --- Helper Functions ---
-
-def sanitize_href(href: str, memories_folder_path: str) -> str:
-    """Sanitizes a given href string by replacing spaces with %20."""
-    href = href.replace(" ", "%20")
-    return href
-
-
-def get_memories_folder_path() -> str:
-    """Returns the absolute path to the 'memory' folder."""
-    current_dir = os.path.abspath(os.path.dirname(__file__))
-    memories_path = os.path.join(current_dir, "memory")
-    return memories_path
-
-
-def process_user_input() -> str:
-    """Gets user input from the console."""
-    user_input = input(f"{GREEN}Enter input: {RESET}")
-    print(f"{MAGENTA}User input received: {user_input}{RESET}")
-    return user_input
-
-
-def call_interaction_model(user_input: str, timestamp: str) -> genai.GenerateContentResponse:
-    """Calls the interaction model with the provided user input and timestamp."""
-    print(f"\n{CYAN}--- Calling Interaction Model ---{RESET}")
-    try:
-        interaction_model = genai.GenerativeModel(
-            model_name='gemini-1.5-flash-latest',
-            safety_settings={'HARASSMENT': 'block_none'},
-            system_instruction='You follow orders and generate creative text interactions'
-        )
-        chat = interaction_model.start_chat(history=[])
-        response = chat.send_message(f"currentTime: {timestamp} create {user_input}")
-        print(f"AI Response: {response.text}")
-        return response
-    except Exception as e:
-        print(f"Error in Interaction Model: {e}")
-        return None
-
-
-def call_memory_model(loop_conversation: str) -> genai.GenerateContentResponse:
-    """Calls the memory model to analyze and summarize the provided conversation loop."""
-    print(f"\n{CYAN}--- Calling Memory Model ---{RESET}")
-    try:
-        memory_model = genai.GenerativeModel(
-            model_name='gemini-1.5-flash-latest',
-            safety_settings={'HARASSMENT': 'block_none'},
-            system_instruction="""You are a sophisticated AI assistant helping to organize memory. 
-            Analyze and summarize the provided conversation, focusing on elements that would be most useful for storing and retrieving this memory later. Don't hallucinate. 
-            Use the provided JSON schema for your response and fill in all fields with relevant information.
-            You can omit entries if they don't seem appropriate for memory storage and would be empty.
-            Never omit the "memory_folders_storage" entry.
-
-            **JSON Schema:** 
-            {
-                "naming_suggestion": {
-                    "memory_frame_name": "A descriptive name for the memory frame" 
-                },
-                "storage": {
-                    "memory_folders_storage": [
-                        {
-                            "folder_path": "path/to/folder", 
-                            "probability": 5 
-                        }
-                    ]
-                },
-                "interaction": {
-                    "interaction_type": [], 
-                    "people": [], 
-                    "objects": [], 
-                    "animals": [], 
-                    "actions": [], 
-                    "observed_interactions": [] 
-                },
-                "impact": {
-                    "obtained_knowledge": "", 
-                    "positive_impact": "", 
-                    "negative_impact": "", 
-                    "expectations": "", 
-                    "strength_of_experience": "" 
-                },
-                "importance": {
-                    "reason": "", 
-                    "potential_uses": [], 
-                    "importance_level": "0-100" 
-                },
-                "technical_details": {
-                    "problem_solved": "", 
-                    "concept_definition": "", 
-                    "implementation_steps": [], 
-                    "tools_and_technologies": [], 
-                    "example_projects": [], 
-                    "best_practices": [], 
-                    "common_challenges": [], 
-                    "debugging_tips": [], 
-                    "related_concepts": [], 
-                    "resources": [], 
-                    "code_examples": [] 
-                }
-            }
-
-            Here you have existing folder structure for memory_folders_storage:
-            memory/NewGeneratedbyAI/
-
-            **Memory Storage Suggestions:**
-            Provide your suggestions for where this memory frame should be stored using the following format within the "memory_folders_storage" field:
-
-            * **"folder_path":** The relative path for storing the memory frame (use '/' as the path separator).
-            * **"probability":** The strength of probability (from 0 to 10) that the memory frame should be stored in the suggested folder. Use a scale from 0 (least likely) to 10 (most likely) to express your confidence. 
-        """
-        )
-        chat = memory_model.start_chat(history=[])
-        create_memory_prompt = f"Loop {loop_conversation}"
-        response = chat.send_message(create_memory_prompt)
-        print(f"Memory Model Response:\n{response.text}")
-        return response
-    except Exception as e:
-        print(f"Error in Memory Model: {e}")
-        return None
-
-
-def extract_entries_smart(response_message: str) -> List[Dict[str, Any]]:
-    """Extracts structured JSON entries from the AI response message."""
-    print("\n--- Extracting Structured Entries ---")
-    entries = []
-    json_match = re.search(r"```json\n(.*?)\n```", response_message, re.DOTALL)
-    if json_match:
-        print("Found JSON data in the response.")
-        try:
-            json_data = json_match.group(1)
-            print("Parsing JSON data...")
-            response_data = json.loads(json_data)
-            print("JSON data parsed successfully.")
-
-            if isinstance(response_data, list):
-                entries.extend(response_data)
-            elif isinstance(response_data, dict):
-                entries.append(response_data)
-            else:
-                print(f"Warning: Unexpected data type: {type(response_data)}")
-                print("Skipping data.")
-
-        except json.JSONDecodeError as e:
-            print(f"Error: Invalid JSON in the AI response: {e}")
-        except Exception as e:
-            print(f"Error extracting entry: {e}")
-    return entries
-
-
-def save_to_file(content: str, file_name: str, file_path: str, encoding: str = 'utf-8', create_folders: bool = True) -> \
-Dict[str, Any]:
-    """Saves content to a file with error handling and folder creation."""
-    logging.info("Entering: save_to_file")
-    full_path = os.path.join(file_path, file_name)
-
-    try:
-        if create_folders:
-            os.makedirs(file_path, exist_ok=True)
-        with open(full_path, 'w', encoding=encoding) as f:
-            f.write(content)
-        success_message = f"File saved successfully at: {full_path}"
-        logging.info(success_message)
-        return {"status": "success", "message": success_message, "file_path": full_path}
-    except IOError as e:
-        error_message = f"IOError: Failed to save file: {str(e)}"
-        logging.error(error_message)
-        return {"status": "failure", "message": error_message}
-    except Exception as e:
-        error_message = f"Unexpected error: Failed to save file: {str(e)}"
-        logging.error(error_message)
-        return {"status": "failure", "message": error_message}
-    finally:
-        logging.info("Exiting: save_to_file")
-
-
-def interpret_function_calls(response: genai.GenerateContentResponse, available_tools: Dict[str, Any]) -> List[
-    Dict[str, Any]]:
-    """Interprets function calls within the AI response and executes them."""
-    results = []
-    if response.candidates:
-        for candidate in response.candidates:
-            if hasattr(candidate, 'function_call'):
-                function_call = candidate.function_call
-                tool_name = function_call.name
-                if tool_name in available_tools:
-                    tool_function = available_tools[tool_name]
-                    function_args = {}
-                    for arg_name, arg_value in function_call.args.items():
-                        function_args[arg_name] = arg_value
-                    try:
-                        print(f"Calling tool: {tool_name} with args: {function_args}")
-                        result = tool_function(**function_args)
-                        results.append(result)
-                    except Exception as e:
-                        logger = logging.getLogger(__name__)
-                        logger.error(f"Error calling {tool_name}: {e}")
-                        results.append({"status": "failure", "message": f"Error calling {tool_name}: {e}"})
-                else:
-                    results.append({"status": "failure", "message": f"Tool '{tool_name}' not found."})
-            else:
-                results.append({"status": "failure", "message": "No function call found."})
-    return results
-
-
-def tool_create_memory(loop_data: str):
-    """
-    Processes a conversation loop, extracts memory data, and stores it as a memory frame.
-
-    Args:
-        loop_data (str): The conversation loop data as a string. This data should be
-                         in a format that the memory model can understand and process.
-
-    Returns:
-        None: This function does not return any values. It directly saves the memory frame
-              to a file if successful.
-    """
-    timestamp = datetime.now().strftime(TIMESTAMP_FORMAT)
-    memories_folder_path = get_memories_folder_path()  # Use the function to get the path
-
-    memory_response = call_memory_model(loop_data)
-    if memory_response is None:
-        print("Error: Memory model call failed. Exiting.")
-        return
-
-    memory_entries = extract_entries_smart(memory_response.text)
-
-    if not memory_entries:
-        print(f"{RED}Warning: No memory entries returned by the memory model. Skipping memory frame storage.{RESET}")
-        return
-
-    available_tools = {"save_to_file": save_to_file}
-    session_info = "0000"  # Assuming this is a placeholder, adjust as needed
-    for entry in memory_entries:
-        memory_frame_data = {
-            "timestamp": timestamp,
-            "edit_number": EDIT_NUMBER,
-            "session_info": session_info,
-            "naming_suggestion": entry.get("naming_suggestion", {}),
-            "storage": entry.get("storage", {}),
-            "interaction": entry.get("interaction", {}),
-            "impact": entry.get("impact", {}),
-            "importance": entry.get("importance", {}),
-            "technical_details": entry.get("technical_details", {})
-        }
-
-        try:
-            file_name = entry["naming_suggestion"]["memory_frame_name"].replace(" ", "_") + ".json"
-            folder_path = entry["storage"]["memory_folders_storage"][0]["folder_path"]
-            file_path = os.path.join(memories_folder_path, "NewGeneratedbyAI", folder_path)
-
-            save_args = {
-                "content": json.dumps(memory_frame_data, indent=4),
-                "file_name": file_name,
-                "file_path": file_path,
-                "create_folders": True
-            }
-
-            class DummyCandidate:
-                def __init__(self, args):
-                    self.function_call = DummyFunctionCall(args)
-
-            class DummyFunctionCall:
-                def __init__(self, args):
-                    self.name = "save_to_file"
-                    self.args = args
-
-            dummy_response = genai.GenerateContentResponse()
-            dummy_response.candidates = [DummyCandidate(save_args)]
-
-            save_results = interpret_function_calls(dummy_response, available_tools)
-            if save_results and save_results[0]['status'] == 'success':
-                print(f"{GREEN}Memory frame saved successfully: {save_results[0]['message']}{RESET}")
-            else:
-                print(f"{RED}Error saving memory frame: {save_results[0]['message']}{RESET}")
-
-        except (KeyError, IndexError, TypeError) as e:
-            print(f"{RED}Error processing memory entry. Check JSON structure: {e}{RESET}")
-            continue
-
-
-
-File: tool_update_internal_state.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\future_tools_for_future _integration\tool_update_internal_state.py)
+File: tool_update_internal_state.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_3\future_tools_for_future _integration\tool_update_internal_state.py)
 Content (6327 characters):
 tool_type_for_TOOL_MANAGER = "focus"
 tool_tool_update_internal_state_description = """ Updates the focus file with new focus information."""
@@ -1176,271 +772,7 @@ def tool_update_internal_state(
             logger.exception(f"An unexpected error occurred: {e}")
             return {"status": "failure", "message": f"An unexpected error occurred: {e}"}
 
-File: 05bff63f.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\05bff63f.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: 05fed844.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\05fed844.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: 165772fe.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\165772fe.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: 174d39f0.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\174d39f0.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: 195ccbfa.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\195ccbfa.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: 1a8ea45e.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\1a8ea45e.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: 1cf1f7fb.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\1cf1f7fb.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: 1f045d6c.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\1f045d6c.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: 21d71290.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\21d71290.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: 25aacbb3.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\25aacbb3.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: 26259b8a.png (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\26259b8a.png)
-Decoding error: 'utf-8' codec can't decode byte 0x89 in position 0: invalid start byte
-
-File: 2edc6941.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\2edc6941.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: 2f5f3db2.png (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\2f5f3db2.png)
-Decoding error: 'utf-8' codec can't decode byte 0x89 in position 0: invalid start byte
-
-File: 3298663b.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\3298663b.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: 342e368b.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\342e368b.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: 374d4ad7.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\374d4ad7.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: 37768905.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\37768905.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: 3b06106e.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\3b06106e.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: 43b1b27c.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\43b1b27c.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: 44066661.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\44066661.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: 47eeea58.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\47eeea58.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: 4aa6dbc3.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\4aa6dbc3.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xb7 in position 27: invalid start byte
-
-File: 4b69a79b.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\4b69a79b.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: 4c7b437b.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\4c7b437b.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: 552d6e71.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\552d6e71.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: 5b5e26b9.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\5b5e26b9.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: 5bfc9f2f.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\5bfc9f2f.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: 5c3f57ef.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\5c3f57ef.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: 5e759293.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\5e759293.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: 60fe58c1.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\60fe58c1.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: 63357460.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\63357460.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: 6387d0e3.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\6387d0e3.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: 644c4e24.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\644c4e24.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: 6a3deb26.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\6a3deb26.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: 735b019f.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\735b019f.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: 737ab168.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\737ab168.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: 739bb414.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\739bb414.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: 75af8e79.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\75af8e79.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: 76bd8906.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\76bd8906.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: 76cfd4fa.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\76cfd4fa.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: 7b81f20c.png (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\7b81f20c.png)
-Decoding error: 'utf-8' codec can't decode byte 0x89 in position 0: invalid start byte
-
-File: 823dc36a.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\823dc36a.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: 82f992b0.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\82f992b0.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: 83565e09.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\83565e09.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: 85a28c22.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\85a28c22.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: 879d0195.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\879d0195.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: 8c03b91a.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\8c03b91a.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: 8ded24be.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\8ded24be.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: 8efcdb14.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\8efcdb14.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: 9092e2bf.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\9092e2bf.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: 9290f2ca.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\9290f2ca.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: 949b632b.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\949b632b.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: 95d11648.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\95d11648.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: 9640aa53.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\9640aa53.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: 9eca0331.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\9eca0331.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: a22f1dbc.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\a22f1dbc.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: a4f2b59b.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\a4f2b59b.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: a7341984.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\a7341984.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: a8e0d25c.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\a8e0d25c.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: ab4035ef.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\ab4035ef.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: abe367de.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\abe367de.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: b160302c.png (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\b160302c.png)
-Decoding error: 'utf-8' codec can't decode byte 0x89 in position 0: invalid start byte
-
-File: b6d118f5.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\b6d118f5.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: b7b78db7.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\b7b78db7.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: b8109d77.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\b8109d77.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: ba58c8b8.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\ba58c8b8.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: bcc31f97.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\bcc31f97.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: beb7f5f3.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\beb7f5f3.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: c2a2c55d.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\c2a2c55d.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: c40af86e.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\c40af86e.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: c6e6855a.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\c6e6855a.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: c6ea8127.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\c6ea8127.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: c7b4e880.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\c7b4e880.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: ca7c8a8e.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\ca7c8a8e.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: cb5d71db.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\cb5d71db.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: d3a50086.png (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\d3a50086.png)
-Decoding error: 'utf-8' codec can't decode byte 0x89 in position 0: invalid start byte
-
-File: d67b28bf.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\d67b28bf.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: d819e7ef.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\d819e7ef.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: d9c3eb53.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\d9c3eb53.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: dd64e1c8.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\dd64e1c8.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: e4cba43c.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\e4cba43c.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: e5d98727.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\e5d98727.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: eb94c441.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\eb94c441.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: ef29ea3a.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\ef29ea3a.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: f9669d52.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\f9669d52.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: fae57bb3.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\fae57bb3.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: fc91621f.png (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\fc91621f.png)
-Decoding error: 'utf-8' codec can't decode byte 0x89 in position 0: invalid start byte
-
-File: fefcb7dd.jpg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\images\fefcb7dd.jpg)
-Decoding error: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte
-
-File: internal_state.json (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\inner_brain_settings\internal_state.json)
+File: internal_state.json (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_3\inner_brain_settings\internal_state.json)
 Content (195 characters):
 {
   "emotions": "",
@@ -1454,10 +786,10 @@ Content (195 characters):
   "version": 1
 }
 
-File: tool_AI_REASONING.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\tools\ai\tool_AI_REASONING.py)
-Content (22603 characters):
+File: tool_AI_REASONING.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_3\tools\ai\tool_AI_REASONING.py)
+Content (22709 characters):
 tool_type_for_TOOL_MANAGER = "focus"
-tool_tool_AI_REASONING_short_description = """REASONER"""
+tool_tool_AI_REASONING_short_description = """ this  tool spawns  mutiple ai models for  reasoning purposes"""
 import  os
 import time
 import google.generativeai as genai
@@ -1466,6 +798,7 @@ import re  # Import re for regular expressions
 
 
 google_key = os.getenv('google_key')
+google_key='AIzaSyAkwNdEruLbB72p56EHhwyCAyxImN8Nc5g'
 genai.configure(api_key=google_key)
 
 MODEL_NAME = "gemini-1.5-flash"  # Use a valid model name
@@ -2001,8 +1334,8 @@ def main():
 if __name__ == "__main__":
     main()
 
-File: tool_update_focus.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\tools\ai\tool_update_focus.py)
-Content (3042 characters):
+File: tool_update_focus.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_3\tools\ai\tool_update_focus.py)
+Content (3060 characters):
 import json
 import os
 import time
@@ -2034,12 +1367,12 @@ def tool_update_focus(
 
     Args:
         user_goal (str): The overall goal the user wants to achieve. MANDATORY!
-        steps_to_achieve_goal (List[str], optional): List of steps to achieve the goal. 
+        steps_to_achieve_goal (List[str]): List of steps to achieve the goal.  MANDATORY!
         current_focus (str): The current focus. MANDATORY!
-        accomplished (List[str], optional): List of tasks that have been completed.
-        obtained_data (List[str], optional): List of data obtained during the focus session.
+        accomplished (List[str], optional): List of tasks that have been completed. MANDATORY!
+        obtained_data (List[str], optional): List of data obtained during the focus session. MANDATORY!
         additional_info (str): Additional information related to the focus. MANDATORY!
-        switch_task (str): Flag to indicate whether the user wants to switch tasks (YES/NO). MANDATORY!
+        switch_task_to (str): Flag to indicate whether the user wants to switch tasks  YES/NO . MANDATORY!
 
     Returns:
         dict: A dictionary containing the status ("success" or "failure") and a message.
@@ -2062,7 +1395,7 @@ def tool_update_focus(
         "accomplished": accomplished,
         "obtained_data": obtained_data,
         "additional_info": additional_info,
-        "switch_task": switch_task.upper()
+        "switch_task": switch_task
     }
 
     focus_file_path = "focus/focus.json"
@@ -2081,7 +1414,326 @@ def tool_update_focus(
     except Exception as e:
         return {"status": "failure", "message": f"Unknown error updating focus: {str(e)}"}
 
-File: tool_display_images.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\tools\os\tool_display_images.py)
+File: tool_create_memory.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_3\tools\memory\tool_create_memory.py)
+Content (12930 characters):
+tool_type_for_TOOL_MANAGER = "all"
+tool_create_memory_short_description = """creates memory frame"""
+
+import time
+import json
+import os
+import logging
+import google.generativeai as genai
+from typing import List, Dict, Any
+from datetime import datetime
+import re
+
+# --- Color and Configuration Settings ---
+BLACK = "\033[30m"
+RED = "\033[31m"
+GREEN = "\033[32m"
+YELLOW = "\033[33m"
+BLUE = "\033[34m"
+MAGENTA = "\033[35m"
+CYAN = "\033[36m"
+WHITE = "\033[37m"
+RESET = "\033[0m"
+BOLD = "\033[1m"
+UNDERLINE = "\033[4m"
+REVERSE = "\033[7m"
+
+# --- Global Variables ---
+MEMORY_FRAME_NUMBER = 1
+EDIT_NUMBER = 0
+TIMESTAMP_FORMAT = '%Y-%m-%d_%H-%M'
+SESSION_INFO = "Conversation"  # Renamed for clarity
+
+
+
+google_key = os.getenv('google_key')
+google_key='AIzaSyAkwNdEruLbB72p56EHhwyCAyxImN8Nc5g'
+genai.configure(api_key=google_key)
+
+def sanitize_href(href: str, memories_folder_path: str) -> str:
+    """Sanitizes a given href string by replacing spaces with %20."""
+    href = href.replace(" ", "%20")
+    return href
+
+
+def get_memories_folder_path() -> str:
+    """Returns the absolute path to the 'memory' folder."""
+    current_dir = os.path.abspath(os.path.dirname(__file__))
+    memories_path = os.path.join(current_dir, "memory")
+    return memories_path
+
+
+def process_user_input() -> str:
+    """Gets user input from the console."""
+    user_input = input(f"{GREEN}Enter input: {RESET}")
+    print(f"{MAGENTA}User input received: {user_input}{RESET}")
+    return user_input
+
+
+def call_interaction_model(user_input: str, timestamp: str) -> genai.GenerateContentResponse:
+    """Calls the interaction model with the provided user input and timestamp."""
+    print(f"\n{CYAN}--- Calling Interaction Model ---{RESET}")
+    try:
+        interaction_model = genai.GenerativeModel(
+            model_name='gemini-1.5-flash-latest',
+            safety_settings={'HARASSMENT': 'block_none'},
+            system_instruction='You follow orders and generate creative text interactions'
+        )
+        chat = interaction_model.start_chat(history=[])
+        response = chat.send_message(f"currentTime: {timestamp} create {user_input}")
+        print(f"AI Response: {response.text}")
+        return response
+    except Exception as e:
+        print(f"Error in Interaction Model: {e}")
+        return None
+
+
+def call_memory_model(loop_conversation: str) -> genai.GenerateContentResponse:
+    """Calls the memory model to analyze and summarize the provided conversation loop."""
+    print(f"\n{CYAN}--- Calling Memory Model ---{RESET}")
+    try:
+        memory_model = genai.GenerativeModel(
+            model_name='gemini-1.5-flash-latest',
+            safety_settings={'HARASSMENT': 'block_none'},
+            system_instruction="""You are a sophisticated AI assistant helping to organize memory. 
+            Analyze and summarize the provided conversation, focusing on elements that would be most useful for storing and retrieving this memory later. Don't hallucinate. 
+            Use the provided JSON schema for your response and fill in all fields with relevant information.
+            You can omit entries if they don't seem appropriate for memory storage and would be empty.
+            Never omit the "memory_folders_storage" entry.
+
+            **JSON Schema:** 
+            {
+                "naming_suggestion": {
+                    "memory_frame_name": "A descriptive name for the memory frame" 
+                },
+                "storage": {
+                    "memory_folders_storage": [
+                        {
+                            "folder_path": "path/to/folder", 
+                            "probability": 5 
+                        }
+                    ]
+                },
+                "interaction": {
+                    "interaction_type": [], 
+                    "people": [], 
+                    "objects": [], 
+                    "animals": [], 
+                    "actions": [], 
+                    "observed_interactions": [] 
+                },
+                "impact": {
+                    "obtained_knowledge": "", 
+                    "positive_impact": "", 
+                    "negative_impact": "", 
+                    "expectations": "", 
+                    "strength_of_experience": "" 
+                },
+                "importance": {
+                    "reason": "", 
+                    "potential_uses": [], 
+                    "importance_level": "0-100" 
+                },
+                "technical_details": {
+                    "problem_solved": "", 
+                    "concept_definition": "", 
+                    "implementation_steps": [], 
+                    "tools_and_technologies": [], 
+                    "example_projects": [], 
+                    "best_practices": [], 
+                    "common_challenges": [], 
+                    "debugging_tips": [], 
+                    "related_concepts": [], 
+                    "resources": [], 
+                    "code_examples": [] 
+                }
+            }
+
+            Here you have existing folder structure for memory_folders_storage:
+            memory/NewGeneratedbyAI/
+
+            **Memory Storage Suggestions:**
+            Provide your suggestions for where this memory frame should be stored using the following format within the "memory_folders_storage" field:
+
+            * **"folder_path":** The relative path for storing the memory frame (use '/' as the path separator).
+            * **"probability":** The strength of probability (from 0 to 10) that the memory frame should be stored in the suggested folder. Use a scale from 0 (least likely) to 10 (most likely) to express your confidence. 
+        """
+        )
+        chat = memory_model.start_chat(history=[])
+        create_memory_prompt = f"Loop {loop_conversation}"
+        response = chat.send_message(create_memory_prompt)
+        print(f"Memory Model Response:\n{response.text}")
+        return response
+    except Exception as e:
+        print(f"Error in Memory Model: {e}")
+        return None
+
+
+def extract_entries_smart(response_message: str) -> List[Dict[str, Any]]:
+    """Extracts structured JSON entries from the AI response message."""
+    print("\n--- Extracting Structured Entries ---")
+    entries = []
+    json_match = re.search(r"```json\n(.*?)\n```", response_message, re.DOTALL)
+    if json_match:
+        print("Found JSON data in the response.")
+        try:
+            json_data = json_match.group(1)
+            print("Parsing JSON data...")
+            response_data = json.loads(json_data)
+            print("JSON data parsed successfully.")
+
+            if isinstance(response_data, list):
+                entries.extend(response_data)
+            elif isinstance(response_data, dict):
+                entries.append(response_data)
+            else:
+                print(f"Warning: Unexpected data type: {type(response_data)}")
+                print("Skipping data.")
+
+        except json.JSONDecodeError as e:
+            print(f"Error: Invalid JSON in the AI response: {e}")
+        except Exception as e:
+            print(f"Error extracting entry: {e}")
+    return entries
+
+
+def save_to_file(content: str, file_name: str, file_path: str, encoding: str = 'utf-8', create_folders: bool = True) -> \
+Dict[str, Any]:
+    """Saves content to a file with error handling and folder creation."""
+    logging.info("Entering: save_to_file")
+    full_path = os.path.join(file_path, file_name)
+
+    try:
+        if create_folders:
+            os.makedirs(file_path, exist_ok=True)
+        with open(full_path, 'w', encoding=encoding) as f:
+            f.write(content)
+        success_message = f"File saved successfully at: {full_path}"
+        logging.info(success_message)
+        return {"status": "success", "message": success_message, "file_path": full_path}
+    except IOError as e:
+        error_message = f"IOError: Failed to save file: {str(e)}"
+        logging.error(error_message)
+        return {"status": "failure", "message": error_message}
+    except Exception as e:
+        error_message = f"Unexpected error: Failed to save file: {str(e)}"
+        logging.error(error_message)
+        return {"status": "failure", "message": error_message}
+    finally:
+        logging.info("Exiting: save_to_file")
+
+
+def interpret_function_calls(response: genai.GenerateContentResponse, available_tools: Dict[str, Any]) -> List[
+    Dict[str, Any]]:
+    """Interprets function calls within the AI response and executes them."""
+    results = []
+    if response.candidates:
+        for candidate in response.candidates:
+            if hasattr(candidate, 'function_call'):
+                function_call = candidate.function_call
+                tool_name = function_call.name
+                if tool_name in available_tools:
+                    tool_function = available_tools[tool_name]
+                    function_args = {}
+                    for arg_name, arg_value in function_call.args.items():
+                        function_args[arg_name] = arg_value
+                    try:
+                        print(f"Calling tool: {tool_name} with args: {function_args}")
+                        result = tool_function(**function_args)
+                        results.append(result)
+                    except Exception as e:
+                        logger = logging.getLogger(__name__)
+                        logger.error(f"Error calling {tool_name}: {e}")
+                        results.append({"status": "failure", "message": f"Error calling {tool_name}: {e}"})
+                else:
+                    results.append({"status": "failure", "message": f"Tool '{tool_name}' not found."})
+            else:
+                results.append({"status": "failure", "message": "No function call found."})
+    return results
+
+
+def tool_create_memory(loop_data: str):
+    """
+    Processes a conversation loop, extracts memory data, and stores it as a memory frame.
+
+    Args:
+        loop_data (str): The conversation loop data as a string. This data should be
+                         in a format that the memory model can understand and process.
+
+    Returns:
+        None: This function does not return any values. It directly saves the memory frame
+              to a file if successful.
+    """
+    timestamp = datetime.now().strftime(TIMESTAMP_FORMAT)
+    memories_folder_path = get_memories_folder_path()  # Use the function to get the path
+
+    memory_response = call_memory_model(loop_data)
+    if memory_response is None:
+        print("Error: Memory model call failed. Exiting.")
+        return
+
+    memory_entries = extract_entries_smart(memory_response.text)
+
+    if not memory_entries:
+        print(f"{RED}Warning: No memory entries returned by the memory model. Skipping memory frame storage.{RESET}")
+        return
+
+    available_tools = {"save_to_file": save_to_file}
+    session_info = "0000"  # Assuming this is a placeholder, adjust as needed
+    for entry in memory_entries:
+        memory_frame_data = {
+            "timestamp": timestamp,
+            "edit_number": EDIT_NUMBER,
+            "session_info": session_info,
+            "naming_suggestion": entry.get("naming_suggestion", {}),
+            "storage": entry.get("storage", {}),
+            "interaction": entry.get("interaction", {}),
+            "impact": entry.get("impact", {}),
+            "importance": entry.get("importance", {}),
+            "technical_details": entry.get("technical_details", {})
+        }
+
+        try:
+            file_name = entry["naming_suggestion"]["memory_frame_name"].replace(" ", "_") + ".json"
+            folder_path = entry["storage"]["memory_folders_storage"][0]["folder_path"]
+            file_path = os.path.join(memories_folder_path, "NewGeneratedbyAI", folder_path)
+
+            save_args = {
+                "content": json.dumps(memory_frame_data, indent=4),
+                "file_name": file_name,
+                "file_path": file_path,
+                "create_folders": True
+            }
+
+            class DummyCandidate:
+                def __init__(self, args):
+                    self.function_call = DummyFunctionCall(args)
+
+            class DummyFunctionCall:
+                def __init__(self, args):
+                    self.name = "save_to_file"
+                    self.args = args
+
+            dummy_response = genai.GenerateContentResponse()
+            dummy_response.candidates = [DummyCandidate(save_args)]
+
+            save_results = interpret_function_calls(dummy_response, available_tools)
+            if save_results and save_results[0]['status'] == 'success':
+                print(f"{GREEN}Memory frame saved successfully: {save_results[0]['message']}{RESET}")
+            else:
+                print(f"{RED}Error saving memory frame: {save_results[0]['message']}{RESET}")
+
+        except (KeyError, IndexError, TypeError) as e:
+            print(f"{RED}Error processing memory entry. Check JSON structure: {e}{RESET}")
+            continue
+
+
+
+File: tool_display_images.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_3\tools\os\tool_display_images.py)
 Content (3021 characters):
 tool_type_for_TOOL_MANAGER = "web"
 tool_display_images_short_description = "Displays images one by one from a list of URLs or local file paths (full or relative) or from a given folder."
@@ -2153,7 +1805,7 @@ def tool_display_images(image_paths_or_folder: str, delay: float = 1):
         logger.error(f"An error occurred while displaying images: {str(e)}")
         return {"status": "failure", "message": f"Error displaying images: {str(e)}"}
 
-File: tool_execute_script.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\tools\os\tool_execute_script.py)
+File: tool_execute_script.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_3\tools\os\tool_execute_script.py)
 Content (3651 characters):
 tool_type_for_TOOL_MANAGER = "script_execution"
 tool_execute_script_short_description = "Executes Python code snippets safely with advanced options."
@@ -2250,7 +1902,7 @@ def tool_execute_script(
             "error": traceback.format_exc()
         }
 
-File: tool_get_directory_structure.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\tools\os\tool_get_directory_structure.py)
+File: tool_get_directory_structure.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_3\tools\os\tool_get_directory_structure.py)
 Content (6676 characters):
 tool_type_for_TOOL_MANAGER = "os"
 tool_get_directory_structure_short_description = """Get directory structure with formatted tree view and contents, including both full and relative paths."""
@@ -2418,7 +2070,7 @@ if __name__ == "__main__":
     # Example usage:
     tool_get_directory_structure(directory="../../", levels=2, include_contents=False)
 
-File: tool_read_from_file.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\tools\os\tool_read_from_file.py)
+File: tool_read_from_file.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_3\tools\os\tool_read_from_file.py)
 Content (551 characters):
 tool_type_for_TOOL_MANAGER="os"
 tool_read_from_file_short_description="Reads content from a file."
@@ -2440,7 +2092,7 @@ def tool_read_from_file(file_path: str):
     except Exception as e:
         return f"Error reading file: {str(e)}"
 
-File: tool_save_to_file.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\tools\os\tool_save_to_file.py)
+File: tool_save_to_file.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_3\tools\os\tool_save_to_file.py)
 Content (4075 characters):
 import os
 import logging
@@ -2533,7 +2185,7 @@ def tool_save_to_file(
         "failed_files": failed_files,
     }
 
-File: tool_depth_crowler.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\tools\web\tool_depth_crowler.py)
+File: tool_depth_crowler.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_3\tools\web\tool_depth_crowler.py)
 Content (11600 characters):
 tool_type_for_TOOL_MANAGER = "web"
 tool_depth_crowler_short_description = "   Crawls web pages, extracts images and links, and optionally saves them to files.  "
@@ -2803,7 +2455,7 @@ def tool_depth_crowler(
 
     return response
 
-File: tool_get_duckduckgo_links.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\tools\web\tool_get_duckduckgo_links.py)
+File: tool_get_duckduckgo_links.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_3\tools\web\tool_get_duckduckgo_links.py)
 Content (5264 characters):
 tool_type_for_TOOL_MANAGER = "web"
 tool_get_duckduckgoshort_description = """ Retrieves DuckDuckGo search result links with the option to disable safe search,
@@ -2927,7 +2579,7 @@ def tool_get_duckduckgo_links(search_phrase: str, num_more_results: float, forbi
     return {"status": "obtained  links",  "found links": list_filtered_links}
 
 
-File: tool_save_image_from_url.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\tools\web\tool_save_image_from_url.py)
+File: tool_save_image_from_url.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_3\tools\web\tool_save_image_from_url.py)
 Content (1715 characters):
 tool_type_for_TOOL_MANAGER = "web"
 tool_save_image_from_url_short_description = "Saves an image from a URL to a specified path."
@@ -2973,7 +2625,7 @@ def tool_save_image_from_url(image_url: str, save_path: str):
         logger.exception(f"An unexpected error occurred: {e}")
         return {"status": "failure", "message": f"An unexpected error occurred: {e}"}
 
-File: tool_scrape_url.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages3\tools\web\tool_scrape_url.py)
+File: tool_scrape_url.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_3\tools\web\tool_scrape_url.py)
 Content (17196 characters):
 tool_type_for_TOOL_MANAGER = "web"
 tool_scrape_url_short_description = "Saves an image from a URL to a specified path."
@@ -3344,98 +2996,8 @@ def tool_scrape_url(
     ├── create_focus.py
     └── focus.json
 ├── future_tools_for_future _integration
-    ├── tool_create_memory.py
     └── tool_update_internal_state.py
 ├── George_chat_loop_bot.py
-├── images
-    ├── 05bff63f.jpg
-    ├── 05fed844.jpg
-    ├── 165772fe.jpg
-    ├── 174d39f0.jpg
-    ├── 195ccbfa.jpg
-    ├── 1a8ea45e.jpg
-    ├── 1cf1f7fb.jpg
-    ├── 1f045d6c.jpg
-    ├── 21d71290.jpg
-    ├── 25aacbb3.jpg
-    ├── 26259b8a.png
-    ├── 2edc6941.jpg
-    ├── 2f5f3db2.png
-    ├── 3298663b.jpg
-    ├── 342e368b.jpg
-    ├── 374d4ad7.jpg
-    ├── 37768905.jpg
-    ├── 3b06106e.jpg
-    ├── 43b1b27c.jpg
-    ├── 44066661.jpg
-    ├── 47eeea58.jpg
-    ├── 4aa6dbc3.jpg
-    ├── 4b69a79b.jpg
-    ├── 4c7b437b.jpg
-    ├── 552d6e71.jpg
-    ├── 5b5e26b9.jpg
-    ├── 5bfc9f2f.jpg
-    ├── 5c3f57ef.jpg
-    ├── 5e759293.jpg
-    ├── 60fe58c1.jpg
-    ├── 63357460.jpg
-    ├── 6387d0e3.jpg
-    ├── 644c4e24.jpg
-    ├── 6a3deb26.jpg
-    ├── 735b019f.jpg
-    ├── 737ab168.jpg
-    ├── 739bb414.jpg
-    ├── 75af8e79.jpg
-    ├── 76bd8906.jpg
-    ├── 76cfd4fa.jpg
-    ├── 7b81f20c.png
-    ├── 823dc36a.jpg
-    ├── 82f992b0.jpg
-    ├── 83565e09.jpg
-    ├── 85a28c22.jpg
-    ├── 879d0195.jpg
-    ├── 8c03b91a.jpg
-    ├── 8ded24be.jpg
-    ├── 8efcdb14.jpg
-    ├── 9092e2bf.jpg
-    ├── 9290f2ca.jpg
-    ├── 949b632b.jpg
-    ├── 95d11648.jpg
-    ├── 9640aa53.jpg
-    ├── 9eca0331.jpg
-    ├── a22f1dbc.jpg
-    ├── a4f2b59b.jpg
-    ├── a7341984.jpg
-    ├── a8e0d25c.jpg
-    ├── ab4035ef.jpg
-    ├── abe367de.jpg
-    ├── b160302c.png
-    ├── b6d118f5.jpg
-    ├── b7b78db7.jpg
-    ├── b8109d77.jpg
-    ├── ba58c8b8.jpg
-    ├── bcc31f97.jpg
-    ├── beb7f5f3.jpg
-    ├── c2a2c55d.jpg
-    ├── c40af86e.jpg
-    ├── c6e6855a.jpg
-    ├── c6ea8127.jpg
-    ├── c7b4e880.jpg
-    ├── ca7c8a8e.jpg
-    ├── cb5d71db.jpg
-    ├── d3a50086.png
-    ├── d67b28bf.jpg
-    ├── d819e7ef.jpg
-    ├── d9c3eb53.jpg
-    ├── dd64e1c8.jpg
-    ├── e4cba43c.jpg
-    ├── e5d98727.jpg
-    ├── eb94c441.jpg
-    ├── ef29ea3a.jpg
-    ├── f9669d52.jpg
-    ├── fae57bb3.jpg
-    ├── fc91621f.png
-    └── fefcb7dd.jpg
 ├── inner_brain_settings
     └── internal_state.json
 ├── keys.py
@@ -3443,18 +3005,24 @@ def tool_scrape_url(
 ├── tools
     ├── ai
         ├── tool_AI_REASONING.py
-        └── tool_update_focus.py
+        ├── tool_update_focus.py
+        └── __pycache__
     ├── memory
+        ├── tool_create_memory.py
+        └── __pycache__
     ├── os
         ├── tool_display_images.py
         ├── tool_execute_script.py
         ├── tool_get_directory_structure.py
         ├── tool_read_from_file.py
-        └── tool_save_to_file.py
+        ├── tool_save_to_file.py
+        └── __pycache__
     └── web
         ├── tool_depth_crowler.py
         ├── tool_get_duckduckgo_links.py
         ├── tool_save_image_from_url.py
-        └── tool_scrape_url.py
-└── TOOL_MANAGER.py
+        ├── tool_scrape_url.py
+        └── __pycache__
+├── TOOL_MANAGER.py
+└── __pycache__
 
