@@ -6,7 +6,26 @@ import logging
 import os
 from TOOL_MANAGER import ToolManager  # Assuming you have a TOOL_MANAGER.py file
 
-tool_manager = ToolManager("tools")
+# Color class (enhanced for more colors and easier use)
+class Color:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+    YELLOW = '\033[33m' # Added yellow
+    PURPLE = '\033[35m' # Added purple
+
+    def __init__(self, text, color):
+        self.text = text
+        self.color = color
+
+    def __str__(self):
+        return self.color + self.text + Color.ENDC
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -28,17 +47,7 @@ safety_settings = {
 }
 
 
-class Color:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKCYAN = '\033[96m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
-
+tool_manager = ToolManager("tools")
 
 def print_colored(color: str, text: str):
     print(color + str(text) + Color.ENDC)
@@ -119,71 +128,60 @@ def handle_tool_calls(response):
 
 
 def process_turn(user_input: str) -> None:
-    """Handles a single turn in the conversation."""
     global conversation_history, current_turn, memory
     try:
         # Reset the current turn
         current_turn = []
 
-        # Stage 1: Input/Reasoning Model
-        conversation_history.append(f"User: {user_input}")
+        # --- Stage 0: Input ---
+        print(Color("---- Stage 0: Input ----", Color.HEADER))  # Colorful header
+        conversation_history.append(f"User: {user_input}")  # Store plain text
         time.sleep(1)
-        combined_prompt = f"""
 
-            Conversation:
-            {conversation_history[-1]} 
-            Focus: {load_focus_data('focus/focus.json')} What are the possible actions to take next? 
-            Available Tools:
-            {tool_manager.get_short_tool_descriptions()}
-        """
+        # --- Stage 1: Reasoner/Planner ---
+        print(Color("---- Stage 1: Reasoner/Planner ----", Color.YELLOW))
         try:
-            response_input = input_model.generate_content(combined_prompt)
-            print(f"Input/Reasoning Model Response: {response_input}")
-
-            conversation_history.append(f" {response_input}")
-            text_extracted_response = extract_text_from_response(response_input)
-
-            tool_results = handle_tool_calls(response_input)
-            print(f"Extracted Text: {text_extracted_response}")
-            print(f"Tool Results: {tool_results}")
-            conversation_history.append(f"Tool Results: {tool_results}")
-            current_turn.extend(tool_results)
+            reasoner_planner_prompt = f"User Input: {user_input}\nCurrent Focus: {load_focus_data('focus/focus.json')}"
+            reasoner_planner_response = reasoner_planner_model.generate_content(reasoner_planner_prompt)
+            plan = extract_text_from_response(reasoner_planner_response)
+            conversation_history.append(f"Reasoner/Planner: {plan}  update  your  focus")  # Store plain text
+            print(Color(f"Plan: {plan}", Color.YELLOW))  # Print the plan
         except Exception as E:
-            print_colored(Color.FAIL, f"Error generating content from Input/Reasoning Model: {E}")
+            print_colored(Color.FAIL, f"Error in Reasoner/Planner: {E}")
 
-        # Stage 2: Action Taker
-        time.sleep(1)
+        # --- Stage 2: Action Taker ---
+        print(Color("---- Stage 2: Action Taker ----", Color.OKGREEN))
         try:
-            conversation_history.append("based on  that  what  steps,actions can be taken, use  tools if nessesery")
-            response_action_taker = action_taker_model.generate_content(conversation_history)
-            print(f"Action Taker Model Response: {response_action_taker}")
+            action_taker_prompt = f"{action_taking_system_instruction.replace('[Plan will be inserted here]', plan)}"
+            response_action_taker = action_taker_model.generate_content(action_taker_prompt)
 
-            conversation_history.append(f"Action Taker Model Response: {response_action_taker}")
+            conversation_history.append(f"Action Taker: {response_action_taker}")  # Store plain text
             text_extracted_response = extract_text_from_response(response_action_taker)
-            print(f"Extracted Text: {text_extracted_response}")
-
+            print(Color(f"Extracted Text: {text_extracted_response}", Color.OKGREEN))
             tool_results = handle_tool_calls(response_action_taker)
-            print(f"Tool Results: {tool_results}")
-            conversation_history.append(f"Tool Results: {tool_results}")
+            conversation_history.extend(tool_results)  # Store plain text
             current_turn.extend(tool_results)
-        except Exception as E:
-            print_colored(Color.FAIL, f"Error generating content from Action Taker Model: {E}")
 
-        # Stage 3: Evaluator Model
-        time.sleep(3)
+        except Exception as E:
+            print_colored(Color.FAIL, f"Error in Action Taker: {E}")
+
+        # --- Stage 3: Evaluator ---
+        print(Color("---- Stage 3: Evaluator ----", Color.PURPLE))
         try:
-            conversation_history.append("focus of evaluation of  results and propose  course of  acction, you must update  your  focus , you must  described  what  has  been accomplished ")
+            conversation_history.append(
+                "focus of evaluation of results and propose course of action, you must update your focus, you must described what has been accomplished"
+            )
             response_evaluator = evaluator_model.generate_content(conversation_history)
-            print(f"Evaluator Model Response: {response_evaluator}")
-            conversation_history.append(f"Evaluator Model Response: {response_evaluator}")
+
+            conversation_history.append(f"Evaluator: {response_evaluator}")  # Store plain text
             text_extracted_response = extract_text_from_response(response_evaluator)
-            print(f"Extracted Text: {text_extracted_response}")
+            print(Color(f"Extracted Text: {text_extracted_response}", Color.PURPLE))
 
             tool_results = handle_tool_calls(response_evaluator)
-            print(f"Tool Results: {tool_results}")
-            conversation_history.extend(tool_results)
+            conversation_history.extend(tool_results)  # Store plain text
+
         except Exception as E:
-            print_colored(Color.FAIL, f"Error generating content from Evaluator Model: {E}")
+            print_colored(Color.FAIL, f"Error in Evaluator: {E}")
 
     except Exception as e:
         print(e)
@@ -248,6 +246,18 @@ try:
 except Exception as E:
     print_colored(Color.FAIL, f"Error initializing evaluator_model: {E}")
 
+reasoner_planner_system_instruction = """
+You are a strategic planner. Based on the user input and the current focus, create a plan of action. DO NOT use tools.  Your output should be a concise plan.
+"""
+try:
+    reasoner_planner_model = genai.GenerativeModel(
+        model_name='gemini-1.5-flash-latest',
+        safety_settings=safety_settings,
+        system_instruction=reasoner_planner_system_instruction
+        # Notice: No tools provided here
+    )
+except Exception as E:
+    print_colored(Color.FAIL, f"Error initializing reasoner_planner_model: {E}")
 
 
 # Main Loop:

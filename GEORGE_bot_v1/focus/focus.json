@@ -1,0 +1,28 @@
+{
+    "current_focus": "",
+    "user_goal": "",
+    "frustration": 0.2,
+    "focus_strength": 0.8,
+    "defocus_threshold": 0.5,
+    "importance": 0.9,
+    "progress": 0.1,
+    "additional": "",
+    "verbose": "",
+    "tasks": {
+        "current_task": "",
+        "task_list_to_accomplish_user_goal": [
+            "",
+            "",
+            ""
+        ],
+        "tasks_in_progress": [
+            ""
+        ],
+        "finished_tasks": [
+            ""
+        ],
+        "failed_tasks": []
+    },
+    "should_defocus": false,
+    "obtained_data": {}
+}

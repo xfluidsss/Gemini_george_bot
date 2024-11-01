@@ -1,13 +1,19 @@
 {
-    "current_focus": "Download 10 images about Dragon Ball",
-    "user_goal": "Download 10 images about Dragon Ball",
-    "frustration": 0.2,
-    "focus_strength": 0.8,
-    "defocus_threshold": 0.5,
-    "importance": 0.9,
-    "progress": 0.1,
+    "current_focus": "",
+    "user_goal": "Download 10 images of Dragon Ball in 4K",
+    "frustration": 0.0,
+    "focus_strength": 0.9,
+    "defocus_threshold": 0.0,
+    "importance": 1.0,
+    "progress": 0.0,
     "additional": "",
-    "verbose": "Downloading images from a website",
+    "verbose": "",
     "tasks": {
-        "current_task": "Download images about Dragon Ball",
-        "task_list_to_accomplish_user_goal": 
+        "current_task": "",
+        "task_list_to_accomplish_user_goal": "Finding URLs for Dragon Ball images in 4K, Evaluating URLs for quality and relevance, Downloading the images, Saving images to a specified folder",
+        "tasks_in_progress": "Finding URLs for Dragon Ball images in 4K, Evaluating URLs for quality and relevance",
+        "finished_tasks": "",
+        "failed_tasks": ""
+    },
+    "should_defocus": false
+}

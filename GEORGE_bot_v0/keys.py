@@ -1,1 +1,1 @@
-googleKey='your  key'
+googleKey='    '
