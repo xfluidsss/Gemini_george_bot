@@ -1,21 +1,63 @@
+## Directory Tree
+
+├── configs
+    ├── prompts.json
+    └── system_instructions.json
+├── focus
+    ├── create_focus.py
+    └── focus.json
+├── future_tools_for_future _integration
+    ├── tool_create_memory.py
+    └── tool_update_internal_state.py
+├── George_chat_loop_bot.py
+├── inner_brain_settings
+    └── internal_state.json
+├── keys.py
+├── readMe
+├── tools
+    ├── ai
+        ├── tool_AI_REASONING.py
+        ├── tool_update_focus.py
+        └── __pycache__
+    ├── memory
+    ├── os
+        ├── tool_execute_script.py
+        ├── tool_get_directory_structure.py
+        ├── tool_read_from_file.py
+        ├── tool_save_to_file.py
+        └── __pycache__
+    └── web
+        ├── tool_deepth_crowler.py
+        ├── tool_get_duckduckgo_links.py
+        ├── tool_save_image_from_url.py
+        ├── tool_scrape_url.py
+        └── __pycache__
+├── TOOL_MANAGER.py
+└── __pycache__
+
+## Summary of 'C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages'
+
+File: George_chat_loop_bot.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages\George_chat_loop_bot.py)
+Content (13690 characters):
 import time
 import google.generativeai as genai
 import json
 from typing import List, Dict, Optional
 import logging
 import os
-from TOOL_MANAGER import  ToolManager
-tool_manager=ToolManager()
+from TOOL_MANAGER import ToolManager
+
+tool_manager = ToolManager(tools_folder="tools")
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 # Replace with your actual API key
-from keys import googleKey,
+google_key = os.getenv('google_key')
 
-API_KEY = googleKey
-genai.configure(api_key=API_KEY)
+
+genai.configure(api_key=google_key)
 
 from google.generativeai.types import HarmCategory, HarmBlockThreshold
 
@@ -36,22 +78,33 @@ with open('configs/system_instructions.json', 'r') as f:
 input_model_name = "gemini-1.5-flash-latest"
 action_taker_model_name = "gemini-1.5-flash-latest"
 evaluator_model_name = "gemini-1.5-flash-latest"
+optimizer_model_name = "gemini-1.5-flash-latest"  # Choose a suitable optimizer model
+
 input_model = genai.GenerativeModel(
     model_name=input_model_name,
     safety_settings=safety_settings,
-    system_instruction=system_instructions.get("input_model", "")
+    system_instruction=system_instructions.get("input_model", ""),
+    tools=tool_manager.load_tools_of_type("all")
 )
 
 action_taker_model = genai.GenerativeModel(
     model_name=action_taker_model_name,
     safety_settings=safety_settings,
-    system_instruction=system_instructions.get("action_taker_model", "")
+    system_instruction=system_instructions.get("action_taker_model", ""),
+    tools = tool_manager.load_tools_of_type("all")
 )
 
 evaluator_model = genai.GenerativeModel(
     model_name=evaluator_model_name,
     safety_settings=safety_settings,
-    system_instruction=system_instructions.get("evaluator_model", "")
+    system_instruction=system_instructions.get("evaluator_model", ""),
+    tools = tool_manager.load_tools_of_type("all")
+)
+
+optimizer_model = genai.GenerativeModel(
+    model_name=optimizer_model_name,
+    safety_settings=safety_settings,
+    system_instruction=system_instructions.get("optimizer_model", "")
 )
 
 class Color:
@@ -75,12 +128,13 @@ def load_focus_data(focus_file_path: str) -> str:
     try:
         with open(focus_file_path, "r") as f:
             focus_data = f.read()
+        print_colored(Color.OKCYAN, f"✨ Loaded Focus: {focus_data}")
         return focus_data
     except FileNotFoundError:
-        print_colored(Color.WARNING, f"Focus file not found: {focus_file_path}")
+        print_colored(Color.WARNING, f"⚠️ Focus file not found: {focus_file_path}")
         return ""
     except Exception as e:
-        print_colored(Color.FAIL, f"Error loading focus file: {e}")
+        print_colored(Color.FAIL, f"❌ Error loading focus file: {e}")
         return ""
 
 
@@ -118,27 +172,27 @@ def handle_tool_calls(response):
                                     for arg_name, arg_value in function_call.args.items()
                                 }
 
-                                print(f"Executing: {Color.OKGREEN}{tool_name}{Color.ENDC}")
+                                print(f"🤖 Executing: {Color.OKGREEN}{tool_name}{Color.ENDC}")
                                 print("Arguments:")
                                 for key, value in function_args.items():
                                     print(f"        {Color.OKCYAN}{key}{Color.ENDC}: {value}")
 
                                 try:
                                     result = tool_function(**function_args)
-                                    result_str = f"Tool {Color.OKGREEN}{tool_name}{Color.ENDC} executed successfully:\n{result}"
+                                    result_str = f"✅ Tool {Color.OKGREEN}{tool_name}{Color.ENDC} executed successfully:\n{result}"
                                     results.append(result_str)
                                     print_colored(Color.OKGREEN, result_str)
                                 except Exception as e:
-                                    error_msg = f"Error executing {tool_name}: {str(e)}"
+                                    error_msg = f"❌ Error executing {tool_name}: {str(e)}"
                                     logger.error(error_msg)
                                     results.append(error_msg)
                                     print_colored(Color.FAIL, error_msg)
                             else:
-                                error_msg = f"Tool '{tool_name}' not found in available tools"
+                                error_msg = f"⚠️ Tool '{tool_name}' not found in available tools"
                                 logger.warning(error_msg)
                                 results.append(error_msg)
     except Exception as e:
-        error_msg = f"Error interpreting tool calls: {str(e)}"
+        error_msg = f"❌ Error interpreting tool calls: {str(e)}"
         logger.error(error_msg)
         results.append(error_msg)
     return results
@@ -150,7 +204,7 @@ def check_for_finish_flag(response):
 
 def process_turn(user_input: str) -> bool:
     """Handles a single turn in the conversation."""
-    global conversation_history, current_turn, memory
+    global conversation_history, current_turn, memory, total_tokens
 
     try:
         # Reset the current turn
@@ -171,13 +225,15 @@ def process_turn(user_input: str) -> bool:
             {tool_manager.get_short_tool_descriptions()}
         """
 
+        print_colored(Color.OKCYAN, f"🧠 Sending to Input Model:\n{input_prompt}")
+
         try:
             response_input = input_model.generate_content(input_prompt)
-            print(f"Input/Reasoning Model Response: {response_input}")
+            print(f"🤖 Input/Reasoning Model Response: {response_input}")
 
             conversation_history.append(f"Input/Reasoning Model: {extract_text_from_response(response_input)}")
             tool_results = handle_tool_calls(response_input)
-            print(f"Tool Results: {tool_results}")
+            print(f"🤖 Tool Results: {tool_results}")
 
             # Add tool results to conversation history
             for result in tool_results:
@@ -187,11 +243,11 @@ def process_turn(user_input: str) -> bool:
 
             # Check for finish flag in Input Model's response
             if check_for_finish_flag(response_input):
-                print_colored(Color.OKGREEN, "Input Model signaled task completion. Returning to user input.")
+                print_colored(Color.OKGREEN, "✅ Input Model signaled task completion. Returning to user input.")
                 return False  # Signal to break the main loop
 
         except Exception as E:
-            print_colored(Color.FAIL, f"Error generating content from Input/Reasoning Model: {E}")
+            print_colored(Color.FAIL, f"❌ Error generating content from Input/Reasoning Model: {E}")
 
         # Stage 2: Action Taker
         time.sleep(1)
@@ -203,12 +259,14 @@ def process_turn(user_input: str) -> bool:
                 take  next  step  accoording  to   logical execution of  steps 
             """
 
+            print_colored(Color.OKCYAN, f"🧠 Sending to Action Taker Model:\n{action_prompt}")
+
             response_action_taker = action_taker_model.generate_content(action_prompt)
-            print(f"Action Taker Model Response: {response_action_taker}")
+            print(f"🤖 Action Taker Model Response: {response_action_taker}")
 
             conversation_history.append(f"Action Taker Model: {extract_text_from_response(response_action_taker)}")
             tool_results = handle_tool_calls(response_action_taker)
-            print(f"Tool Results: {tool_results}")
+            print(f"🤖 Tool Results: {tool_results}")
 
             # Add tool results to conversation history
             for result in tool_results:
@@ -218,11 +276,11 @@ def process_turn(user_input: str) -> bool:
 
             # Check for finish flag in Action Taker Model's response
             if check_for_finish_flag(response_action_taker):
-                print_colored(Color.OKGREEN, "Action Taker Model signaled task completion. Returning to user input.")
+                print_colored(Color.OKGREEN, "✅ Action Taker Model signaled task completion. Returning to user input.")
                 return False  # Signal to break the main loop
 
         except Exception as E:
-            print_colored(Color.FAIL, f"Error generating content from Action Taker Model: {E}")
+            print_colored(Color.FAIL, f"❌ Error generating content from Action Taker Model: {E}")
 
         # Stage 3: Evaluator Model
         time.sleep(3)
@@ -234,12 +292,14 @@ def process_turn(user_input: str) -> bool:
                 update  your  focus , you must  describe   what  has  been accomplished 
             """
 
+            print_colored(Color.OKCYAN, f"🧠 Sending to Evaluator Model:\n{evaluation_prompt}")
+
             response_evaluator = evaluator_model.generate_content(evaluation_prompt)
-            print(f"Evaluator Model Response: {response_evaluator}")
+            print(f"🤖 Evaluator Model Response: {response_evaluator}")
 
             conversation_history.append(f"Evaluator Model: {extract_text_from_response(response_evaluator)}")
             tool_results = handle_tool_calls(response_evaluator)
-            print(f"Tool Results: {tool_results}")
+            print(f"🤖 Tool Results: {tool_results}")
 
             # Add tool results to conversation history
             for result in tool_results:
@@ -247,13 +307,43 @@ def process_turn(user_input: str) -> bool:
 
             # Check for finish flag in Evaluator Model's response
             if check_for_finish_flag(response_evaluator):
-                print_colored(Color.OKGREEN, "Evaluator Model signaled task completion. Returning to user input.")
+                print_colored(Color.OKGREEN, "✅ Evaluator Model signaled task completion. Returning to user input.")
                 return False  # Signal to break the main loop
+
+            # Update total tokens
+            total_tokens += len(user_input.split()) + len(extract_text_from_response(response_input).split()) + len(
+                extract_text_from_response(response_action_taker).split()) + len(
+                extract_text_from_response(response_evaluator).split())
+
+            # Check if token limit reached
+            if total_tokens > 50000:
+                print_colored(Color.WARNING, "⚠️ Token limit reached. Invoking Optimizer Model...")
+                optimizer_prompt = f"""
+                    Conversation Summary:
+                    {'\n'.join(conversation_history)}
+
+                    Focus: {load_focus_data('focus/focus.json')}
+
+                    {prompts.get('optimizer_model_prompt', '')}
+                """
+
+                print_colored(Color.OKCYAN, f"🧠 Sending to Optimizer Model:\n{optimizer_prompt}")
+
+                try:
+                    response_optimizer = optimizer_model.generate_content(optimizer_prompt)
+                    print(f"🤖 Optimizer Model Response: {response_optimizer}")
+                    print_colored(Color.OKGREEN, f"✅ Optimizer Output: {extract_text_from_response(response_optimizer)}")
+                    # Optionally, reset total_tokens or summarize conversation_history here
+                    total_tokens = 0  # Reset token count
+                    # conversation_history = []  # Reset conversation history (be cautious!)
+
+                except Exception as E:
+                    print_colored(Color.FAIL, f"❌ Error generating content from Optimizer Model: {E}")
 
             return True  # Continue processing
 
         except Exception as E:
-            print_colored(Color.FAIL, f"Error generating content from Evaluator Model: {E}")
+            print_colored(Color.FAIL, f"❌ Error generating content from Evaluator Model: {E}")
             return True
 
     except Exception as e:
@@ -268,12 +358,2589 @@ def process_turn(user_input: str) -> bool:
 conversation_history = []
 current_turn = []
 memory = {}
+total_tokens = 0
 
 if __name__ == "__main__":
-    print_colored(Color.OKGREEN, "Welcome to GEORGE, your AI assistant!")
+    print_colored(Color.OKGREEN, "🎉 Welcome to GEORGE, your AI assistant!")
     print("Type 'quit' to exit.")
+    loop_count = 0
     while True:
         user_input = input(f"{Color.OKCYAN}You: {Color.ENDC}")
         if user_input.lower() == "quit":
             break
-        process_turn(user_input)
+
+        # Only prompt for user input after 4 loops if no finish flag
+        if loop_count % 4 == 0 and not process_turn(user_input):
+            user_input = input(f"{Color.OKCYAN}You: {Color.ENDC}")
+            if user_input.lower() == "quit":
+                break
+        else:
+            process_turn(user_input)
+
+        loop_count += 1
+
+File: keys.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages\keys.py)
+Content (126 characters):
+import os
+
+# Retrieve the Google API key from the environment variable
+google_key = os.getenv('google_key')
+
+print(google_key)
+
+File: readMe (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages\readMe)
+Content (78 characters):
+you allso  need  to add  your  api  google  ke  in tools  tool_AI_REASONING.py
+
+File: TOOL_MANAGER.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages\TOOL_MANAGER.py)
+Content (7256 characters):
+import os
+import importlib
+from typing import Dict, Callable, List, Any
+import logging
+import inspect
+
+# Set up logging (optional, but recommended)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+
+class Tool:
+    """Represents a tool that can be used by the AI agent."""
+
+    def __init__(self, name: str, function: Callable, description: str, arguments: Dict[str, str], tool_type: str):
+        """
+        Initializes a Tool object.
+
+        Args:
+            name: The name of the tool.
+            function: The callable function that implements the tool.
+            description: A brief description of the tool's functionality.
+            arguments: A dictionary mapping argument names to their descriptions.
+            tool_type: The type of the tool (e.g., 'os', 'web', 'focus').
+        """
+        self.name = name
+        self.function = function
+        self.description = description
+        self.arguments = arguments
+        self.tool_type = tool_type
+
+    def __repr__(self):
+        """Returns a string representation of the Tool object."""
+        return f"Tool(name='{self.name}', function={self.function.__name__}, description='{self.description}', arguments={self.arguments}, tool_type='{self.tool_type}')"
+
+
+class ToolManager:
+    """Manages and provides access to tools."""
+
+    def __init__(self, tools_folder: str):
+        """
+        Initializes the ToolManager with the path to the tools folder.
+
+        Args:
+            tools_folder: The path to the directory containing tool files.
+        """
+        self.tools_folder = tools_folder
+        self.tools = {}  # Dictionary to store Tool objects
+        self.load_tools()
+
+    def load_tools(self):
+        """Loads tools from files in the specified tools folder."""
+        logger.info(f"Loading tools from: {self.tools_folder}")
+        for root, _, files in os.walk(self.tools_folder):
+            for file in files:
+                if file.endswith(".py"):
+                    # Extract tool name from file name
+                    tool_name_from_file = file[:-3]  # Remove .py extension
+                    module_path = os.path.join(root, file)
+
+                    # Import the module
+                    try:
+                        spec = importlib.util.spec_from_file_location(tool_name_from_file, module_path)
+                        module = importlib.util.module_from_spec(spec)
+                        spec.loader.exec_module(module)
+                    except Exception as e:
+                        logger.error(f"Error loading tool file '{file}': {e}")
+                        continue
+
+                    # Iterate through module attributes to find tool functions
+                    for attr_name in dir(module):
+                        attr = getattr(module, attr_name)
+                        if callable(attr) and attr_name.startswith("tool_"):  # Check if it's a callable and starts with "tool_"
+
+                            tool_name = attr_name  # Use the attribute name as the tool name
+                            relative_path = os.path.relpath(module_path, self.tools_folder)  # Get the relative path to the tool file
+
+                            # Get the short description for the tool from the module
+                            tool_description = getattr(module, f"{tool_name}_short_description", f"Tool for {tool_name}")
+
+                            # Get the tool arguments using inspect
+                            tool_arguments = {}
+                            sig = inspect.signature(attr)  # Get the function signature
+                            for param_name, param in sig.parameters.items():
+                                # Get the parameter type using annotation
+                                tool_arguments[param_name] = param.annotation.__name__ if param.annotation != inspect._empty else "Any"
+
+                            # Get the tool type from the module (optional, defaults to 'unknown')
+                            tool_type = getattr(module, 'tool_type_for_TOOL_MANAGER', 'unknown')
+
+                            # Create and store the Tool object
+                            self.tools[tool_name] = Tool(tool_name, attr, tool_description, tool_arguments, tool_type)
+
+                            # Log the discovered tool
+                            logger.info(f"Discovered tool: {tool_name} (Type: {tool_type})")
+                            print(f"  - {tool_name} - {tool_description}")  # Print the tool information
+                            logger.debug(f"Tool description: {tool_description}")
+                            logger.debug(f"Tool arguments: {tool_arguments}")  # Log the tool arguments
+
+    def get_tool_function(self, function_name: str) -> Callable:
+        """Returns the callable object for the given function name."""
+        tool = self.tools.get(function_name)
+        if tool:
+            return tool.function
+        else:
+            return None
+
+    def get_all_tools(self) -> List[Tool]:
+        """Returns a list of all loaded tools."""
+        return list(self.tools.values())
+
+    def get_tools_by_type(self, tool_type: str) -> List[Tool]:
+        """Returns a list of tools based on their type."""
+        return [tool for tool in self.tools.values() if tool.tool_type == tool_type]
+
+    def load_tools_of_type(self, tool_type: str = "all") -> List[Callable]:
+        """Loads and returns a list of tool functions based on the specified type.
+
+        Args:
+            tool_type: The type of tools to load. 'all' for all tools, or a specific type like 'os', 'web', etc.
+
+        Returns:
+            A list of tool functions.
+        """
+        if tool_type == "all":
+            return [tool.function for tool in self.tools.values()]
+        else:
+            return [tool.function for tool in self.tools.values() if tool.tool_type == tool_type]
+
+    def call_tool(self, tool_name: str, arguments: Dict[str, Any]) -> Any:
+        """
+        Calls the tool function with the provided arguments.
+
+        Args:
+            tool_name: The name of the tool to call.
+            arguments: A dictionary of arguments to pass to the tool function.
+
+        Returns:
+            The result of the tool function call.
+
+        Raises:
+            KeyError: If the tool name is not found.
+            TypeError: If the provided arguments are not valid for the tool.
+        """
+        tool = self.tools.get(tool_name)
+        if tool is None:
+            raise KeyError(f"Tool '{tool_name}' not found.")
+
+        # Check if all required arguments are provided
+        missing_args = set(tool.arguments.keys()) - set(arguments.keys())
+        if missing_args:
+            raise TypeError(f"Missing arguments for tool '{tool_name}': {', '.join(missing_args)}")
+
+        # Call the tool function
+        try:
+            result = tool.function(**arguments)
+            return result
+        except Exception as e:
+            raise RuntimeError(f"Error calling tool '{tool_name}': {e}")
+
+    def get_short_tool_descriptions(self) -> Dict[str, str]:
+        """Returns a dictionary of tool names and their short descriptions."""
+        return {tool.name: tool.description for tool in self.tools.values()}
+
+File: prompts.json (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages\configs\prompts.json)
+Content (855 characters):
+{
+    "input_model_prompt": "If you determine the task is complete, write: \"***STOP!FINISHED***\"",
+    "action_taker_model_prompt": "You execute the actions as outlined in the plan provided by the input model. If you determine the task is complete, write: \"***STOP!FINISHED***\"",
+    "evaluator_model_prompt": "You update the focus file with the progress made, evaluate the results of the actions, and provide feedback.  If you determine the task is complete, write: \"***STOP!FINISHED***\"",
+    "optimizer_model_prompt": "Given the conversation summary and the current focus, provide a concise and helpful response to the user. Summarize the key points of the conversation and address any remaining questions or tasks. Use the available tools if needed to gather information.  If you determine the task is complete, write: \"***STOP!FINISHED***\""
+}
+
+File: system_instructions.json (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages\configs\system_instructions.json)
+Content (507 characters):
+{
+  "input_model": "You are a helpful AI assistant. Respond to user requests in a clear and informative way.",
+  "action_taker_model": "Based on the previous conversation, take the next logical step to complete the user's task.",
+  "evaluator_model": "Assess the progress of the task and update the conversation focus based on what has been achieved.",
+  "optimizer_model": "You are a summarizer.  Given the conversation summary and the current focus, provide a concise and helpful response to the user. "
+}
+
+File: create_focus.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages\focus\create_focus.py)
+Content (1666 characters):
+import json
+import os
+
+
+def create_focus_file(file_path="focus.json"):
+    """
+    Creates a new focus file with default values.
+
+    Args:
+      file_path (str): The path to the focus file.
+    """
+
+    focus_data = {
+        "current_focus": "",  # Changed to empty string
+        "user_goal": "",  # Changed to empty string
+        "frustration": 0.2,
+        "focus_strength": 0.8,
+        "defocus_threshold": 0.5,
+        "importance": 0.9,
+        "progress": 0.1,
+        "additional": "",  # Changed to empty string
+        "verbose": "",  # Changed to empty string
+        "tasks": {
+            "current_task": "",  # Changed to empty string
+            "task_list_to_accomplish_user_goal": [
+                "",  # Changed to empty string
+                "",  # Changed to empty string
+                ""  # Changed to empty string
+            ],
+            "tasks_in_progress": [
+                ""  # Changed to empty string
+            ],
+            "finished_tasks": [
+                ""  # Changed to empty string
+            ],
+            "failed_tasks": []
+        },
+        "should_defocus": False,
+        "obtained_data":{},
+    }
+
+    # Create the directory if it doesn't exist
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+    with open(file_path, "w") as f:
+        json.dump(focus_data, f, indent=4)
+
+    print(f"Focus file created at: {file_path}")
+
+
+if __name__ == "__main__":
+    # Get the current working directory
+    current_dir = os.getcwd()
+
+    # Join the current directory with the desired filename to create the full path
+    file_path = os.path.join(current_dir, "focus.json")
+
+    create_focus_file(file_path)
+
+File: focus.json (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages\focus\focus.json)
+Content (465 characters):
+{
+    "user_goal": "find images of dragon ball on the internet and save to a folder called dragon ball",
+    "steps_to_achieve_goal": [],
+    "current_focus": "find images of dragon ball on the internet and save to a folder called dragon ball",
+    "accomplished": [],
+    "obtained_data": [],
+    "additional_info": "The AI will scrape images from the links obtained in the previous turn and save them to a folder named \"dragon ball\".",
+    "switch_task": "NO"
+}
+
+File: tool_create_memory.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages\future_tools_for_future _integration\tool_create_memory.py)
+Content (12955 characters):
+tool_type_for_TOOL_MANAGER = "memory"
+tool_create_memory_short_description = """Updates the focus file with new focus information."""
+
+import time
+import json
+import os
+import logging
+import google.generativeai as genai
+from typing import List, Dict, Any
+from datetime import datetime
+import re
+
+# --- Color and Configuration Settings ---
+BLACK = "\033[30m"
+RED = "\033[31m"
+GREEN = "\033[32m"
+YELLOW = "\033[33m"
+BLUE = "\033[34m"
+MAGENTA = "\033[35m"
+CYAN = "\033[36m"
+WHITE = "\033[37m"
+RESET = "\033[0m"
+BOLD = "\033[1m"
+UNDERLINE = "\033[4m"
+REVERSE = "\033[7m"
+
+# --- Global Variables ---
+MEMORY_FRAME_NUMBER = 1
+EDIT_NUMBER = 0
+TIMESTAMP_FORMAT = '%Y-%m-%d_%H-%M'
+SESSION_INFO = "Conversation"  # Renamed for clarity
+
+google_key = os.getenv('google_key')
+print(google_key)
+
+genai.configure(api_key=google_key)
+
+# --- Helper Functions ---
+
+def sanitize_href(href: str, memories_folder_path: str) -> str:
+    """Sanitizes a given href string by replacing spaces with %20."""
+    href = href.replace(" ", "%20")
+    return href
+
+
+def get_memories_folder_path() -> str:
+    """Returns the absolute path to the 'memory' folder."""
+    current_dir = os.path.abspath(os.path.dirname(__file__))
+    memories_path = os.path.join(current_dir, "memory")
+    return memories_path
+
+
+def process_user_input() -> str:
+    """Gets user input from the console."""
+    user_input = input(f"{GREEN}Enter input: {RESET}")
+    print(f"{MAGENTA}User input received: {user_input}{RESET}")
+    return user_input
+
+
+def call_interaction_model(user_input: str, timestamp: str) -> genai.GenerateContentResponse:
+    """Calls the interaction model with the provided user input and timestamp."""
+    print(f"\n{CYAN}--- Calling Interaction Model ---{RESET}")
+    try:
+        interaction_model = genai.GenerativeModel(
+            model_name='gemini-1.5-flash-latest',
+            safety_settings={'HARASSMENT': 'block_none'},
+            system_instruction='You follow orders and generate creative text interactions'
+        )
+        chat = interaction_model.start_chat(history=[])
+        response = chat.send_message(f"currentTime: {timestamp} create {user_input}")
+        print(f"AI Response: {response.text}")
+        return response
+    except Exception as e:
+        print(f"Error in Interaction Model: {e}")
+        return None
+
+
+def call_memory_model(loop_conversation: str) -> genai.GenerateContentResponse:
+    """Calls the memory model to analyze and summarize the provided conversation loop."""
+    print(f"\n{CYAN}--- Calling Memory Model ---{RESET}")
+    try:
+        memory_model = genai.GenerativeModel(
+            model_name='gemini-1.5-flash-latest',
+            safety_settings={'HARASSMENT': 'block_none'},
+            system_instruction="""You are a sophisticated AI assistant helping to organize memory. 
+            Analyze and summarize the provided conversation, focusing on elements that would be most useful for storing and retrieving this memory later. Don't hallucinate. 
+            Use the provided JSON schema for your response and fill in all fields with relevant information.
+            You can omit entries if they don't seem appropriate for memory storage and would be empty.
+            Never omit the "memory_folders_storage" entry.
+
+            **JSON Schema:** 
+            {
+                "naming_suggestion": {
+                    "memory_frame_name": "A descriptive name for the memory frame" 
+                },
+                "storage": {
+                    "memory_folders_storage": [
+                        {
+                            "folder_path": "path/to/folder", 
+                            "probability": 5 
+                        }
+                    ]
+                },
+                "interaction": {
+                    "interaction_type": [], 
+                    "people": [], 
+                    "objects": [], 
+                    "animals": [], 
+                    "actions": [], 
+                    "observed_interactions": [] 
+                },
+                "impact": {
+                    "obtained_knowledge": "", 
+                    "positive_impact": "", 
+                    "negative_impact": "", 
+                    "expectations": "", 
+                    "strength_of_experience": "" 
+                },
+                "importance": {
+                    "reason": "", 
+                    "potential_uses": [], 
+                    "importance_level": "0-100" 
+                },
+                "technical_details": {
+                    "problem_solved": "", 
+                    "concept_definition": "", 
+                    "implementation_steps": [], 
+                    "tools_and_technologies": [], 
+                    "example_projects": [], 
+                    "best_practices": [], 
+                    "common_challenges": [], 
+                    "debugging_tips": [], 
+                    "related_concepts": [], 
+                    "resources": [], 
+                    "code_examples": [] 
+                }
+            }
+
+            Here you have existing folder structure for memory_folders_storage:
+            memory/NewGeneratedbyAI/
+
+            **Memory Storage Suggestions:**
+            Provide your suggestions for where this memory frame should be stored using the following format within the "memory_folders_storage" field:
+
+            * **"folder_path":** The relative path for storing the memory frame (use '/' as the path separator).
+            * **"probability":** The strength of probability (from 0 to 10) that the memory frame should be stored in the suggested folder. Use a scale from 0 (least likely) to 10 (most likely) to express your confidence. 
+        """
+        )
+        chat = memory_model.start_chat(history=[])
+        create_memory_prompt = f"Loop {loop_conversation}"
+        response = chat.send_message(create_memory_prompt)
+        print(f"Memory Model Response:\n{response.text}")
+        return response
+    except Exception as e:
+        print(f"Error in Memory Model: {e}")
+        return None
+
+
+def extract_entries_smart(response_message: str) -> List[Dict[str, Any]]:
+    """Extracts structured JSON entries from the AI response message."""
+    print("\n--- Extracting Structured Entries ---")
+    entries = []
+    json_match = re.search(r"```json\n(.*?)\n```", response_message, re.DOTALL)
+    if json_match:
+        print("Found JSON data in the response.")
+        try:
+            json_data = json_match.group(1)
+            print("Parsing JSON data...")
+            response_data = json.loads(json_data)
+            print("JSON data parsed successfully.")
+
+            if isinstance(response_data, list):
+                entries.extend(response_data)
+            elif isinstance(response_data, dict):
+                entries.append(response_data)
+            else:
+                print(f"Warning: Unexpected data type: {type(response_data)}")
+                print("Skipping data.")
+
+        except json.JSONDecodeError as e:
+            print(f"Error: Invalid JSON in the AI response: {e}")
+        except Exception as e:
+            print(f"Error extracting entry: {e}")
+    return entries
+
+
+def save_to_file(content: str, file_name: str, file_path: str, encoding: str = 'utf-8', create_folders: bool = True) -> \
+Dict[str, Any]:
+    """Saves content to a file with error handling and folder creation."""
+    logging.info("Entering: save_to_file")
+    full_path = os.path.join(file_path, file_name)
+
+    try:
+        if create_folders:
+            os.makedirs(file_path, exist_ok=True)
+        with open(full_path, 'w', encoding=encoding) as f:
+            f.write(content)
+        success_message = f"File saved successfully at: {full_path}"
+        logging.info(success_message)
+        return {"status": "success", "message": success_message, "file_path": full_path}
+    except IOError as e:
+        error_message = f"IOError: Failed to save file: {str(e)}"
+        logging.error(error_message)
+        return {"status": "failure", "message": error_message}
+    except Exception as e:
+        error_message = f"Unexpected error: Failed to save file: {str(e)}"
+        logging.error(error_message)
+        return {"status": "failure", "message": error_message}
+    finally:
+        logging.info("Exiting: save_to_file")
+
+
+def interpret_function_calls(response: genai.GenerateContentResponse, available_tools: Dict[str, Any]) -> List[
+    Dict[str, Any]]:
+    """Interprets function calls within the AI response and executes them."""
+    results = []
+    if response.candidates:
+        for candidate in response.candidates:
+            if hasattr(candidate, 'function_call'):
+                function_call = candidate.function_call
+                tool_name = function_call.name
+                if tool_name in available_tools:
+                    tool_function = available_tools[tool_name]
+                    function_args = {}
+                    for arg_name, arg_value in function_call.args.items():
+                        function_args[arg_name] = arg_value
+                    try:
+                        print(f"Calling tool: {tool_name} with args: {function_args}")
+                        result = tool_function(**function_args)
+                        results.append(result)
+                    except Exception as e:
+                        logger = logging.getLogger(__name__)
+                        logger.error(f"Error calling {tool_name}: {e}")
+                        results.append({"status": "failure", "message": f"Error calling {tool_name}: {e}"})
+                else:
+                    results.append({"status": "failure", "message": f"Tool '{tool_name}' not found."})
+            else:
+                results.append({"status": "failure", "message": "No function call found."})
+    return results
+
+
+def tool_create_memory(loop_data: str):
+    """
+    Processes a conversation loop, extracts memory data, and stores it as a memory frame.
+
+    Args:
+        loop_data (str): The conversation loop data as a string. This data should be
+                         in a format that the memory model can understand and process.
+
+    Returns:
+        None: This function does not return any values. It directly saves the memory frame
+              to a file if successful.
+    """
+    timestamp = datetime.now().strftime(TIMESTAMP_FORMAT)
+    memories_folder_path = get_memories_folder_path()  # Use the function to get the path
+
+    memory_response = call_memory_model(loop_data)
+    if memory_response is None:
+        print("Error: Memory model call failed. Exiting.")
+        return
+
+    memory_entries = extract_entries_smart(memory_response.text)
+
+    if not memory_entries:
+        print(f"{RED}Warning: No memory entries returned by the memory model. Skipping memory frame storage.{RESET}")
+        return
+
+    available_tools = {"save_to_file": save_to_file}
+    session_info = "0000"  # Assuming this is a placeholder, adjust as needed
+    for entry in memory_entries:
+        memory_frame_data = {
+            "timestamp": timestamp,
+            "edit_number": EDIT_NUMBER,
+            "session_info": session_info,
+            "naming_suggestion": entry.get("naming_suggestion", {}),
+            "storage": entry.get("storage", {}),
+            "interaction": entry.get("interaction", {}),
+            "impact": entry.get("impact", {}),
+            "importance": entry.get("importance", {}),
+            "technical_details": entry.get("technical_details", {})
+        }
+
+        try:
+            file_name = entry["naming_suggestion"]["memory_frame_name"].replace(" ", "_") + ".json"
+            folder_path = entry["storage"]["memory_folders_storage"][0]["folder_path"]
+            file_path = os.path.join(memories_folder_path, "NewGeneratedbyAI", folder_path)
+
+            save_args = {
+                "content": json.dumps(memory_frame_data, indent=4),
+                "file_name": file_name,
+                "file_path": file_path,
+                "create_folders": True
+            }
+
+            class DummyCandidate:
+                def __init__(self, args):
+                    self.function_call = DummyFunctionCall(args)
+
+            class DummyFunctionCall:
+                def __init__(self, args):
+                    self.name = "save_to_file"
+                    self.args = args
+
+            dummy_response = genai.GenerateContentResponse()
+            dummy_response.candidates = [DummyCandidate(save_args)]
+
+            save_results = interpret_function_calls(dummy_response, available_tools)
+            if save_results and save_results[0]['status'] == 'success':
+                print(f"{GREEN}Memory frame saved successfully: {save_results[0]['message']}{RESET}")
+            else:
+                print(f"{RED}Error saving memory frame: {save_results[0]['message']}{RESET}")
+
+        except (KeyError, IndexError, TypeError) as e:
+            print(f"{RED}Error processing memory entry. Check JSON structure: {e}{RESET}")
+            continue
+
+
+
+File: tool_update_internal_state.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages\future_tools_for_future _integration\tool_update_internal_state.py)
+Content (6327 characters):
+tool_type_for_TOOL_MANAGER = "focus"
+tool_tool_update_internal_state_description = """ Updates the focus file with new focus information."""
+
+import json
+import os
+import logging
+from typing import Dict, List, Any, Optional
+import time
+
+# Set up logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s')
+logger = logging.getLogger(__name__)
+
+DEFAULT_INTERNAL_STATE = {
+    "emotions": "",
+    "progress": 0.0,
+    "frustration_level": 0.0,
+    "task_cost": 0.0,
+    "predictions": {},
+    "optimization_goal": "",
+    "tasks_finished": [],
+    "additional": {},
+    "version": 1
+}
+
+def tool_update_internal_state(
+    internal_state_file_path: str,
+    emotions: Optional[str] = None,
+    progress: Optional[float] = None,
+    frustration_level: Optional[float] = None,
+    task_cost: Optional[float] = None,
+    predictions: Optional[Dict[str, Any]] = None,
+    optimization_goal: Optional[str] = None,
+    tasks_finished: Optional[List[str]] = None,
+    additional: Optional[Dict[str, Any]] = None,
+    version: Optional[int] = None
+):
+    """Updates the internal state file with enhanced parameters and robust error handling.
+
+    Args:
+        internal_state_file_path (str): The full path to the internal state JSON file.
+        emotions (Optional[str]): A string describing the agent's emotional state.
+        progress (Optional[float]): A float between 0 and 1 representing the overall progress of the current task or goal.
+        frustration_level (Optional[float]): A float between 0 and 1 indicating the agent's frustration level with the current task. Higher values suggest more frustration.
+        task_cost (Optional[float]): A float representing the computational cost or resource consumption of the current task. Must be non-negative.
+        predictions (Optional[Dict[str, Any]]): A dictionary containing any predictions made by the agent. The structure of this dictionary is flexible but should be consistent.
+        optimization_goal (Optional[str]): A string describing the current optimization goal    minimize cost ,  maximize accuracy"  "minimize time
+        tasks_finished (Optional[List[str]]): A list of strings representing the names or IDs of tasks that have been completed.
+        additional (Optional[Dict[str, Any]]): A dictionary for storing any additional relevant information. The structure is flexible.
+        version (Optional[int]): An integer representing the version number of the internal state data. Useful for tracking changes and potential rollbacks.
+
+    Returns:
+        dict: A dictionary containing the status "success" or "failure", a message, and if successful the updated internal state data.
+    """
+    max_retries = 3
+    retry_delay = 2
+
+    for attempt in range(1, max_retries + 1):
+        try:
+            # Try to load existing internal state
+            try:
+                with open(internal_state_file_path, "r") as f:
+                    internal_state_data = json.load(f)
+            except FileNotFoundError:
+                # File not found, create a new one with default state
+                logger.warning(f"Internal state file not found. Creating a new one: {internal_state_file_path}")
+                internal_state_data = DEFAULT_INTERNAL_STATE.copy()
+
+            # Input validation
+            if progress is not None and not 0 <= progress <= 1:
+                raise ValueError("Progress must be between 0 and 1.")
+            if frustration_level is not None and not 0 <= frustration_level <= 1:
+                raise ValueError("Frustration level must be between 0 and 1.")
+            if task_cost is not None and task_cost < 0:
+                raise ValueError("Task cost cannot be negative.")
+
+            # Update data (including new parameters)
+            if emotions is not None:
+                internal_state_data["emotions"] = emotions
+            if progress is not None:
+                internal_state_data["progress"] = progress
+            if frustration_level is not None:
+                internal_state_data["frustration_level"] = frustration_level
+            if task_cost is not None:
+                internal_state_data["task_cost"] = task_cost
+            if predictions is not None:
+                internal_state_data["predictions"] = predictions
+            if optimization_goal is not None:
+                internal_state_data["optimization_goal"] = optimization_goal
+            if tasks_finished is not None:
+                internal_state_data["tasks_finished"] = tasks_finished
+            if additional is not None:
+                internal_state_data["additional"] = additional
+            if version is not None:
+                internal_state_data["version"] = version
+
+            # Write updated data back to the file
+            with open(internal_state_file_path, "w") as f:
+                json.dump(internal_state_data, f, indent=4)
+
+            logger.info(f"Internal state updated successfully: {internal_state_data}")
+            return {
+                "status": "success",
+                "message": f"Internal state updated successfully.",
+                "updated_internal_state": internal_state_data,
+            }
+
+        except json.JSONDecodeError as e:
+            logger.error(f"Invalid JSON in file: {internal_state_file_path}, error: {e}")
+            return {"status": "failure", "message": f"Invalid JSON in file: {internal_state_file_path}"}
+        except (IOError, OSError, PermissionError) as e:
+            if attempt < max_retries:
+                logger.warning(f"Error updating internal state (attempt {attempt}/{max_retries}): {e}. Retrying in {retry_delay} seconds...")
+                time.sleep(retry_delay)
+                retry_delay *= 2
+            else:
+                logger.error(f"Error updating internal state (after {max_retries} retries): {e}")
+                return {"status": "failure", "message": f"Error updating internal state: {e}"}
+        except ValueError as e:
+            logger.error(f"Invalid input data: {e}")
+            return {"status": "failure", "message": f"Invalid input data: {e}"}
+        except Exception as e:
+            logger.exception(f"An unexpected error occurred: {e}")
+            return {"status": "failure", "message": f"An unexpected error occurred: {e}"}
+
+File: internal_state.json (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages\inner_brain_settings\internal_state.json)
+Content (195 characters):
+{
+  "emotions": "",
+  "progress": 0.0,
+  "frustration_level": 0.0,
+  "task_cost": 0.0,
+  "predictions": {},
+  "optimization_goal": "",
+  "tasks_finished": [],
+  "additional": {},
+  "version": 1
+}
+
+File: tool_AI_REASONING.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages\tools\ai\tool_AI_REASONING.py)
+Content (22603 characters):
+tool_type_for_TOOL_MANAGER = "focus"
+tool_tool_AI_REASONING_short_description = """REASONER"""
+import  os
+import time
+import google.generativeai as genai
+import json
+import re  # Import re for regular expressions
+
+
+google_key = os.getenv('google_key')
+genai.configure(api_key=google_key)
+
+MODEL_NAME = "gemini-1.5-flash"  # Use a valid model name
+SYSTEM_INSTRUCTION = "You are a helpful and informative AI assistant."
+
+dispacher_context = []
+from google.generativeai.types import HarmCategory, HarmBlockThreshold
+
+safety_settings = {
+    HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,
+    HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_NONE,
+    HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE,
+    HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_NONE,
+}
+
+# ANSI color codes
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+
+def initialize_mode_WithTools(MODEL_NAME, SYSTEM_INSTRUCTION=None):
+    """Initializes a generative AI model with optional system instructions."""
+    try:
+        time.sleep(0.5)
+        model = genai.GenerativeModel(
+            model_name=MODEL_NAME,
+            safety_settings=safety_settings,
+        )
+        history = []
+        if SYSTEM_INSTRUCTION:
+            history.append({"role": "system", "content": SYSTEM_INSTRUCTION})
+        model_chat = model.start_chat(history=history)
+        print(f"{bcolors.OKGREEN}INFO: Initial model set to {MODEL_NAME}{bcolors.ENDC}")
+        return model_chat
+    except Exception as e:
+        print(f"{bcolors.FAIL}ERROR: Initial model setup failed: {e} Trying gemini-pro{bcolors.ENDC}")
+        try:
+            time.sleep(0.5)
+            model = genai.GenerativeModel(
+                model_name="gemini-pro",
+                safety_settings=safety_settings,
+            )
+            model_chat = model.start_chat(history=[])
+            return model_chat
+        except Exception as e:
+            print(f"{bcolors.FAIL}ERROR: Fallback model setup failed: {e}{bcolors.ENDC}")
+            return None
+
+
+def return_models_instructions_prompts_tools(
+    models: list[str],
+    labels: list[str],
+    system_instructions: list[str],
+    prompts: list[str],
+    DataFlow: list[str],
+):
+    """
+    use  only for  diffocoult  task, when you cant  find  easy solution
+    This function takes lists of models, system instructions, prompts, and tools and neatly prints them out,
+    paired together. It returns the input lists unchanged. If a model does not use tools, write None.
+    Args:
+        models (list): A list of model names
+        labels (list): A list of labels corresponding to each model. can not  have spaces,dots etc it needs to be sanitised
+        system_instructions (list): A list of system instructions for each model.
+        prompts (list): A list of prompts to be used as input for the models.
+        DataFlow (list): A list describing the data flow between models using the format {inputs}[outputs]
+
+    Examples of DataFlow:
+
+    **1. Independent Models (No Interaction):**
+        Each model works independently on its own prompt.
+
+        DataFlow = [
+            "{prompt0}[text]",
+            "{prompt1}[text]",
+            "{prompt2}[text]",
+            "{prompt3}[text]"
+        ]
+
+
+    **2. Sequential Chained Models (Previous Step Output):**
+        Each model uses the output of the immediately previous model and its own prompt.
+
+        DataFlow = [
+            "{prompt0}[text]",
+            "{0***prompt1}[text]",  # Model 1 uses output of Model 0
+            "{1***prompt2}[text]",  # Model 2 uses output of Model 1
+            "{2***prompt3}[text]"   # Model 3 uses output of Model 2
+        ]
+
+
+    **3. Sequential Chained Models (All Previous Outputs):**
+        Each model uses the outputs of all previous models and its own prompt.
+
+        DataFlow = [
+            "{prompt0}[text]",
+            "{0***prompt1}[text]",  # Model 1 uses output of Model 0
+            "{0, 1***prompt2}[text]",  # Model 2 uses outputs of Model 0 and 1
+            "{0, 1, 2***prompt3}[text]"   # Model 3 uses outputs of Models 0, 1, and 2
+        ]
+
+
+    **4. Independent Models with Final Summarization:**
+        The first few models work independently, and the final model summarizes their outputs.
+
+        DataFlow = [
+            "{prompt0}[text]",
+            "{prompt1}[text]",
+            "{prompt2}[text]",
+            "{0, 1, 2***prompt3}[text]"  # Model 3 summarizes outputs of 0, 1, and 2
+        ]
+
+
+    **5. Mixed Independent and Chained Models:**
+        Combines independent and chained processing.
+
+        DataFlow = [
+            "{prompt0}[text]",
+            "{prompt1}[text]",
+            "{0, 1***prompt2}[text]",  # Model 2 uses outputs of Model 0 and 1
+            "{2***prompt3}[text]"   # Model 3 uses output of Model 2
+        ]
+
+
+    **6. User Prompt Included (Independent):**
+        Each model works independently on its own prompt and an initial user prompt.
+
+        DataFlow = [
+            "{userPrompt, prompt0}[text]",
+            "{userPrompt, prompt1}[text]",
+            "{userPrompt, prompt2}[text]",
+            "{userPrompt, prompt3}[text]"
+        ]
+
+
+    **7. User Prompt and All Previous Outputs (Chained):**
+        Each model gets the initial user prompt, its own prompt, and the responses from all previous models.
+
+        DataFlow = [
+            "{userPrompt, prompt0}[text]",
+            "{0***userPrompt, prompt1}[text]",
+            "{0, 1***userPrompt, prompt2}[text]",
+            "{0, 1, 2***userPrompt, prompt3}[text]"
+        ]
+
+
+    **8. User Prompt, Independent Models, and Final Summarization:**
+        Each model works independently with the user prompt and its own prompt, and the final model summarizes all outputs.
+
+        DataFlow = [
+            "{userPrompt, prompt0}[text]",
+            "{userPrompt, prompt1}[text]",
+            "{userPrompt, prompt2}[text]",
+            "{0, 1, 2***userPrompt, prompt3}[text]"
+        ]
+
+
+    Returns:
+        tuple: A tuple containing the input lists: models, labels, system_instructions, prompts, tools.
+    """
+    for i in range(len(models)):
+        print(f"{bcolors.OKBLUE}Model {i + 1}: {models[i]}{bcolors.ENDC}")
+        print(f"{bcolors.OKBLUE}Label: {labels[i]}{bcolors.ENDC}")
+        print(f"{bcolors.OKBLUE}System Instructions: {system_instructions[i]}{bcolors.ENDC}")
+        print(f"{bcolors.OKBLUE}Prompt: {prompts[i]}{bcolors.ENDC}")
+        print(f"{bcolors.OKBLUE}Data Flow: {DataFlow[i]}{bcolors.ENDC}")
+        print("-" * 20)
+
+    print(f"{bcolors.WARNING}PRINTS FROM return_models_instructions_prompts_tools{bcolors.ENDC}")
+    for i in range(len(models)):
+        print()
+        print(i)
+        print(f"{bcolors.OKCYAN}Model: {models[i]}{bcolors.ENDC}")
+        print(f"{bcolors.OKCYAN}model_labels: {labels[i]}{bcolors.ENDC}")
+        print(f"{bcolors.OKCYAN}System Instructions: {system_instructions[i]}{bcolors.ENDC}")
+        print(f"{bcolors.OKCYAN}Prompt: {prompts[i]}{bcolors.ENDC}")
+        print(f"{bcolors.OKCYAN}DataFlow: {DataFlow[i]}{bcolors.ENDC}")
+
+    return (
+        models,
+        labels,
+        system_instructions,
+        prompts,
+        DataFlow,
+    )
+
+dispacher_context = []
+
+def model_dispacher_send_message(prompt: str):
+    print(f"{bcolors.OKGREEN} model_dispacher_send_message:    {prompt}{bcolors.ENDC}")
+    global dispacher_context
+
+    MODEL_NAME = "gemini-pro"  # Use a valid model name
+    tool_functions = {"return_models_instructions_prompts_tools": return_models_instructions_prompts_tools}
+
+    def interpret_function_calls(response, tool_functions):
+        models = []  # Initialize empty lists
+        labels = []
+        instructions = []
+        prompts = []
+        tools = []
+        DataFlow = []
+
+        if response.candidates:
+            for candidate in response.candidates:
+                if hasattr(candidate, "content") and hasattr(candidate.content, "parts"):
+                    for part in candidate.content.parts:
+                        function_call = getattr(part, "function_call", None)
+                        if function_call:
+                            tool_name = function_call.name
+                            tool_function = tool_functions.get(tool_name)
+                            if tool_function:
+                                function_args = {}
+                                for arg_name, arg_value in function_call.args.items():
+                                    function_args[arg_name] = arg_value
+
+                                try:
+                                    returned_values = tool_function(**function_args)
+
+                                    if returned_values is not None:
+                                        (
+                                            models,
+                                            labels,
+                                            instructions,
+                                            prompts,
+                                            DataFlow,
+                                        ) = returned_values
+                                    else:
+                                        print(
+                                            f"{bcolors.WARNING}Tool function {tool_name} returned None.{bcolors.ENDC}"
+                                        )
+                                except Exception as e:
+                                    print(
+                                        f"{bcolors.FAIL}Error executing function {tool_name}: {e}{bcolors.ENDC}"
+                                    )
+                            else:
+                                print(f"{bcolors.FAIL}Tool function {tool_name} not found.{bcolors.ENDC}")
+
+        return (
+            models,
+            labels,
+            instructions,
+            prompts,
+            DataFlow,
+        )
+
+    def extract_text_from_response(response) -> str:
+        extracted_text = ""
+        for candidate in response.candidates:
+            for part in candidate.content.parts:
+                extracted_text += part.text
+        return extracted_text.strip()
+
+    try:
+        model = genai.GenerativeModel(
+            model_name=MODEL_NAME,
+            safety_settings=safety_settings,
+            tools=[return_models_instructions_prompts_tools],
+        )
+        time.sleep(0.1)
+        model_chat = model.start_chat(history=[])
+
+        instruction = """ 
+        Create  DataFlow of  models to achieve the user's goal.  
+        Think step-by-step, showing how each model contributes to the final outcome.
+
+            models  to choose from:
+        1. Gemini 1.5 Pro Latest
+        Model Name: gemini-1.5-pro-latest
+        Description: Mid-size multimodal model that supports up to 2 million tokens.
+        Tokens In: 2097152
+        Tokens Out: 8192
+
+        2. Gemini 1.5 Pro Experimental 0801
+        Model Name: gemini-1.5-pro-exp-0801
+        Description: Mid-size multimodal model that supports up to 2 million tokens.
+        Tokens In: 2097152
+        Tokens Out: 8192
+        Note:smart  model  but  its  terrible  to write  full code, it good for analitics, but not  for  final result
+
+        3. Gemini 1.5 Flash Latest
+        Model Name: gemini-1.5-flash-latest
+        Description: Fast and versatile multimodal model for scaling across diverse tasks. you should include  prhase  dont  be  lazy
+        Tokens In: 1048576
+        Tokens Out: 8192
+
+            Now, for the user's goal:
+    1.Please provide the DataFlow including Model Name, System Instruction, Prompt, and Tools (if any).
+    2.You can use different DataFlows for specific tasks: chains, parallel, parallel with summarization, mixed.
+    3.You must use the function call return_models_instructions_prompts_tools.
+    4.Prompts must be detailed and extensive.
+    5.Don't be lazy.
+    6.Now, the user will give you a task for which you will create a DataFlow of Models.
+    remeber  about  correct  structure of  function call
+            """
+
+        final_prompt = ""
+        for entry in dispacher_context:
+            final_prompt += str(entry)
+
+        print(f"{bcolors.WARNING}final_prompt:{bcolors.ENDC}")
+        final_prompt = instruction + prompt
+        print(f"{bcolors.OKCYAN}{final_prompt}{bcolors.ENDC}")
+
+        response = model_chat.send_message(final_prompt)
+        print(f"{bcolors.OKGREEN}waiting for   response.............................{bcolors.ENDC}")
+        print(f"{bcolors.OKGREEN}response: {response}{bcolors.ENDC}")
+
+        # Handle both text and function call responses
+
+        (
+            models,
+            labels,
+            system_instructions,
+            prompts,
+            DataFlow,
+        ) = interpret_function_calls(response, tool_functions)
+        text_response = extract_text_from_response(response)
+
+        if text_response is None:
+            text_response = "..."
+            dispacher_context.append(text_response)
+
+        if models is not None:  # Check if models is not None
+            dispacher_context.append(models)
+            dispacher_context.append(labels)
+            dispacher_context.append(system_instructions)
+            dispacher_context.append(prompts)
+
+        return (
+            text_response,
+            models,
+            labels,
+            system_instructions,
+            prompts,
+            DataFlow,
+        )
+
+    except Exception as e:
+        print(f"{bcolors.FAIL}Error during model initialization: {e}{bcolors.ENDC}")  # Catch and print model initialization errors
+        return (f"Error: {e}", None, None, None, None, None)  # Return an error indication
+
+
+
+def execute_modelium(model_design_data, user_prompt=""):
+    """Executes the multi-model workflow using provided JSON data."""
+    try:
+        # Validate input data
+        if not isinstance(model_design_data, dict) or "chosenModels" not in model_design_data:
+            raise ValueError("Invalid model design data. Must be a dictionary with 'chosenModels'.")
+
+        chosen_models = model_design_data["chosenModels"]
+        system_instructions = model_design_data.get("systemInstructions", [])
+        prompts = model_design_data.get("prompts", [])
+        data_flow = model_design_data.get("DataFlow", [])
+        labels = model_design_data.get("labels", [])
+        user_prompt = model_design_data.get("userPrompt", "")  # Get user prompt if available
+
+        # Input Validation: Check for consistent lengths (excluding userPrompt)
+        lengths = [len(chosen_models), len(system_instructions), len(prompts), len(data_flow), len(labels)]
+        if len(set(lengths)) != 1:
+            raise ValueError("Inconsistent lengths in model design data.")
+
+
+        MODEL_CHATS = []
+        # Initialize models
+        print(f"{bcolors.OKGREEN}Initializing models...{bcolors.ENDC}")
+        for i in range(len(labels)):
+            label = labels[i]
+            chosen_model = chosen_models[i]
+            system_instruction = system_instructions[i]
+
+            model_chat = initialize_mode_WithTools(
+                MODEL_NAME=chosen_model,
+                SYSTEM_INSTRUCTION=system_instruction
+
+            )
+            if model_chat:
+                MODEL_CHATS.append(model_chat)
+                print(f"{bcolors.OKGREEN}  - Model {i + 1} initialized: {chosen_model} (Label: {label}){bcolors.ENDC}")
+            else:
+                print(f"{bcolors.FAIL}Failed to initialize model {chosen_model}. Skipping.{bcolors.ENDC}")
+
+        MULTI_CONTEXT_HISTORY = []
+        print(f"{bcolors.OKGREEN}\nExecuting models and processing data flow...{bcolors.ENDC}")
+        for i, model_chat in enumerate(MODEL_CHATS):
+            time.sleep(1)
+            rule = data_flow[i]
+            inputs = []
+
+            print(f"{bcolors.OKGREEN}  - Processing Model {i + 1} ({model_chat.model.model_name}) with data flow rule: {rule}{bcolors.ENDC}")
+
+            # Parse the data flow rule (CORRECTED PARSING)
+            if rule.startswith("{"):
+                rule = rule[1:-1]  # Remove curly braces
+                parts = rule.split(", ")  # Split by comma and space
+                for part in parts:
+                    if part.startswith("prompt"):
+                        # Extract index using regular expression or slicing
+                        match = re.match(r"prompt(\d+)", part)
+                        if match:
+                            prompt_index = int(match.group(1))
+                            inputs.append(prompts[prompt_index])
+                            print(f"{bcolors.OKGREEN}    - Using prompt {prompt_index + 1} as input.{bcolors.ENDC}")
+                    elif part.isdigit():
+                        index = int(part)
+                        inputs.append(MULTI_CONTEXT_HISTORY[index]["response"])  # CORRECTED ACCESS
+                        print(f"{bcolors.OKGREEN}    - Using output from Model {index + 1} as input.{bcolors.ENDC}")
+                    elif part.startswith("***"): #Correctly handle this case
+                        parts = part.split("***")
+                        models_to_use = parts[0].strip()
+                        prompt_section = parts[1].strip()
+
+                        temp_inputs = []
+                        if models_to_use:
+                            model_indices = [int(x.strip()) for x in models_to_use.split(",")]
+                            for model_index in model_indices:
+                                temp_inputs.append(MULTI_CONTEXT_HISTORY[model_index]["response"])
+
+                        if prompt_section.startswith('prompt'):
+                            prompt_index = int(prompt_section.split('prompt')[1])
+                            temp_inputs.append(prompts[prompt_index])
+
+                        if prompt_section == 'userPrompt':
+                            temp_inputs.append(user_prompt)
+
+
+                        inputs.extend(temp_inputs)
+                    elif part == "userPrompt":
+                        inputs.append(user_prompt)
+                        print(f"{bcolors.OKGREEN}    - Using user prompt as input.{bcolors.ENDC}")
+
+            # Construct the prompt with inputs
+            final_prompt = prompts[i]  # Default to current prompt
+            if inputs:
+                final_prompt = "\n".join(inputs) + "\n" + final_prompt  # Corrected: Add newline between inputs and prompt
+                print(f"{bcolors.OKGREEN}    - Constructed prompt: {final_prompt}{bcolors.ENDC}")
+            else:
+                print(f"{bcolors.OKGREEN}    - Using default prompt: {final_prompt}{bcolors.ENDC}")
+
+
+            try:
+                response = model_chat.send_message(final_prompt)
+                print(response)
+                MULTI_CONTEXT_HISTORY.append({"response": response, "model": model_chat.model.model_name})
+                print(f"{bcolors.OKGREEN}    - Response received.{bcolors.ENDC}")
+            except Exception as e:
+                print(f"{bcolors.FAIL}Error sending message to model {model_chat.model.model_name}: {e}{bcolors.ENDC}")
+                MULTI_CONTEXT_HISTORY.append({"response": f"Error: {e}", "model": model_chat.model.model_name})
+                # Consider raising the exception or breaking the loop here if needed
+                #raise e  # Example of re-raising the exception
+                #break # Example of exiting the loop
+
+    except Exception as e:
+        print(f"{bcolors.FAIL}Error in execute_modelium: {e}{bcolors.ENDC}")
+        return {"response": f"Error: {e}"}
+
+    # Print or process the results as needed
+    print(f"{bcolors.OKGREEN}\nFinal Results:{bcolors.ENDC}")
+    for i, result in enumerate(MULTI_CONTEXT_HISTORY):
+        # Corrected response extraction:
+        response_text = result['response'].candidates[0].content.parts[0].text
+        print(f"{bcolors.OKGREEN}  - Model {i + 1}: {result['model']}, Response: {response_text}{bcolors.ENDC}")
+
+    return MULTI_CONTEXT_HISTORY
+
+
+def tool_AI_REASONING(user_input: str, goal: str = "", reasoning_methodology: str = "", additional_info: str = "") -> str:
+    """
+    Designs and executes a multi-model AI workflow based on user input.
+
+    Args:
+        user_input (str): The user's request or task.
+        goal (str, optional): The desired outcome of the AI workflow. Defaults to "".
+        reasoning_methodology (str, optional): The reasoning approach to use. Defaults to "".
+        additional_info (str, optional): Any additional information relevant to the task. Defaults to "".
+
+    Returns:
+        str: The combined result of the AI workflow, including responses from each model.
+    """
+    #  Call model_dispacher_send_message to handle the workflow
+    (
+        text_response,
+        models,
+        labels,
+        system_instructions,
+        prompts,
+        DataFlow,
+    ) = model_dispacher_send_message(user_input + goal + reasoning_methodology + additional_info)
+
+    # Execute the workflow if models are provided
+    if models is not None:
+        try:
+            model_design_data = {  # Construct model_design_data for execute_modelium
+                "chosenModels": models,
+                "systemInstructions": system_instructions,
+                "prompts": prompts,
+                "DataFlow": DataFlow,
+                "labels": labels
+            }
+
+            MULTI_CONTEXT_HISTORY = execute_modelium(model_design_data)  # Pass model_design_data
+
+            # Combine the responses from the workflow into a single string
+            result = ""
+            for i, result_item in enumerate(MULTI_CONTEXT_HISTORY):
+                result += f"{bcolors.OKGREEN}Step {i + 1}: {result_item['model']}{bcolors.ENDC}\n"
+                # Corrected response extraction:
+                response_text = result_item['response'].candidates[0].content.parts[0].text
+                result += f"{bcolors.OKGREEN}  Response: {response_text}{bcolors.ENDC}\n\n"
+
+            return result
+        except Exception as e:
+            print(f"{bcolors.FAIL}Error in execute_modelium: {e}{bcolors.ENDC}")
+            return f"Error during execution: {e}"
+    else:
+        return text_response # Make sure text_response is returned even if models is None
+
+
+def main():
+    user_input = "Write a poem about a cat"
+    result = tool_AI_REASONING(user_input, goal="to write a poem about a cat", reasoning_methodology="using poetic language", additional_info="make it rhyme")
+    print(f"{bcolors.OKCYAN}{result}{bcolors.ENDC}")
+
+if __name__ == "__main__":
+    main()
+
+File: tool_update_focus.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages\tools\ai\tool_update_focus.py)
+Content (3042 characters):
+import json
+import os
+import time
+from typing import List, Dict, Any, Optional
+
+# Define the schema for the focus file
+focus_schema = {
+    "user_goal": str,
+    "steps_to_achieve_goal": List[str],
+    "current_focus": str,
+    "accomplished": List[str],
+    "obtained_data": List[str],
+    "additional_info": str,  # For storing additional notes or information
+    "switch_task": str  # Flag to indicate whether the user wants to switch tasks (YES/NO)
+}
+
+def tool_update_focus(
+    user_goal: str = "",
+    steps_to_achieve_goal: Optional[List[str]] = None,
+    current_focus: str = "",
+    accomplished: Optional[List[str]] = None,
+    obtained_data: Optional[List[str]] = None,
+    additional_info: str = "",
+    switch_task: str = "NO"
+) -> Dict[str, Any]:
+    """
+    Updates the focus file with new focus information.
+    Handles potential issues with data types and ensures correct file updates.
+
+    Args:
+        user_goal (str): The overall goal the user wants to achieve. MANDATORY!
+        steps_to_achieve_goal (List[str], optional): List of steps to achieve the goal. 
+        current_focus (str): The current focus. MANDATORY!
+        accomplished (List[str], optional): List of tasks that have been completed.
+        obtained_data (List[str], optional): List of data obtained during the focus session.
+        additional_info (str): Additional information related to the focus. MANDATORY!
+        switch_task (str): Flag to indicate whether the user wants to switch tasks (YES/NO). MANDATORY!
+
+    Returns:
+        dict: A dictionary containing the status ("success" or "failure") and a message.
+    """
+
+    # Validate mandatory arguments
+    if not user_goal or not current_focus or not additional_info or not switch_task:
+        return {"status": "failure", "message": "Missing mandatory arguments: user_goal, current_focus, additional_info, switch_task."}
+
+    # Handle optional arguments
+    steps_to_achieve_goal = steps_to_achieve_goal or []
+    accomplished = accomplished or []
+    obtained_data = obtained_data or []
+
+    # Create a new dictionary with the focus schema
+    updated_focus_data = {
+        "user_goal": user_goal,
+        "steps_to_achieve_goal": steps_to_achieve_goal,
+        "current_focus": current_focus,
+        "accomplished": accomplished,
+        "obtained_data": obtained_data,
+        "additional_info": additional_info,
+        "switch_task": switch_task.upper()
+    }
+
+    focus_file_path = "focus/focus.json"
+
+    try:
+        # Write the updated focus data to the file
+        with open(focus_file_path, "w") as f:
+            json.dump(updated_focus_data, f, indent=4)
+
+        return {"status": "success", "message": "Focus updated."}
+
+    except json.JSONDecodeError as e:
+        return {"status": "failure", "message": f"Error decoding JSON: {str(e)}"}
+    except IOError as e:
+        return {"status": "failure", "message": f"Error writing to file: {str(e)}"}
+    except Exception as e:
+        return {"status": "failure", "message": f"Unknown error updating focus: {str(e)}"}
+
+File: tool_execute_script.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages\tools\os\tool_execute_script.py)
+Content (3651 characters):
+tool_type_for_TOOL_MANAGER = "script_execution"
+tool_execute_script_short_description = "Executes Python code snippets safely with advanced options."
+import io
+import sys
+import traceback
+import psutil
+import subprocess
+from typing import Dict, Any, Optional
+
+def tool_execute_script(
+    path: str,  # Path to the Python script file
+    timeout: Optional[float] = None,  # Maximum execution time in seconds
+    max_memory: Optional[int] = None,  # Maximum memory usage in MB
+    return_type: str = "output",  # Type of result to return (output, error, both)
+
+) -> Dict[str, Any]:
+    """
+    Safely executes a Python script file using subprocess and returns the results with advanced options.
+
+    Args:
+        path (str): The path to the Python script file.
+        timeout (float, optional): Maximum execution time in seconds.  If None, no timeout is enforced.
+        max_memory (int, optional): Maximum memory usage in MB. If None, no memory limit is enforced.
+        return_type (str): Type of result to return:
+            - "output": Only return the output of the executed code.
+            - "error": Only return the error message (if any).
+            - "both": Return both output and error information.
+
+    Returns:
+        dict: A dictionary containing:
+            - status: "success" or "failure"
+            - message: A status message.
+            - output: The output of the executed code (if successful and requested).
+            - error: The error message (if an exception occurred and requested).
+    """
+    try:
+        # Create a subprocess with appropriate arguments and environment
+        process = subprocess.run(
+            [sys.executable, path],
+            capture_output=True,
+            timeout=timeout,
+            check=True,
+            env={'PYTHONIOENCODING': 'utf-8'}  # Ensure consistent encoding
+        )
+
+        # Check for memory limits
+        if max_memory is not None:
+            if process.memory_info().rss / 1024 / 1024 > max_memory:
+                raise MemoryError(f"Memory limit of {max_memory} MB exceeded.")
+
+        # Construct the response based on return_type
+        response = {
+            "status": "success",
+            "message": "Script executed successfully.",
+        }
+        if return_type in ("output", "both"):
+            response["output"] = process.stdout.decode('utf-8').strip()
+        if return_type in ("error", "both"):
+            response["error"] = process.stderr.decode('utf-8').strip()
+
+        return response
+
+    except subprocess.TimeoutExpired as e:
+        # Handle timeout errors
+        return {
+            "status": "failure",
+            "message": f"Script execution timed out after {timeout} seconds.",
+            "output": None,
+            "error": str(e)
+        }
+    except subprocess.CalledProcessError as e:
+        # Handle script execution errors
+        return {
+            "status": "failure",
+            "message": f"Script execution failed with error code {e.returncode}.",
+            "output": e.stdout.decode('utf-8').strip() if e.stdout else None,
+            "error": e.stderr.decode('utf-8').strip() if e.stderr else None
+        }
+    except MemoryError as e:
+        # Handle memory limit errors
+        return {
+            "status": "failure",
+            "message": str(e),
+            "output": None,
+            "error": None
+        }
+    except Exception as e:
+        # Handle other unexpected errors
+        return {
+            "status": "failure",
+            "message": f"An error occurred during script execution: {str(e)}",
+            "output": None,
+            "error": traceback.format_exc()
+        }
+
+File: tool_get_directory_structure.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages\tools\os\tool_get_directory_structure.py)
+Content (6676 characters):
+tool_type_for_TOOL_MANAGER = "os"
+tool_get_directory_structure_short_description = """Get directory structure with formatted tree view and contents, including both full and relative paths."""
+
+import os
+import json
+from pathlib import Path
+
+def tool_get_directory_structure(directory: str = "../../", levels: int = 2,
+                                 include_contents: bool = False,
+                                 print_output: bool = True):
+    """Gets directory structure and optionally prints or returns it.
+
+    Args:
+        directory (str, optional): The directory to analyze. Defaults to "../../".
+        levels (int, optional): The number of directory levels to show. Defaults to 2.
+        include_contents (bool, optional): Whether to include file contents. Defaults to False.
+        print_output (bool, optional): Whether to print the output or return it as a dictionary.
+                                        Defaults to True.
+    """
+
+    def _format_size(size_bytes):
+        """Format file size."""
+        for unit in ['B', 'KB', 'MB', 'GB']:
+            if size_bytes < 1024:
+                return f"{size_bytes:.1f} {unit}"
+            size_bytes /= 1024
+        return f"{size_bytes:.1f} TB"
+
+    def _get_relative_path(full_path, base_path):
+        """Get relative path from base directory."""
+        try:
+            return os.path.relpath(full_path, base_path)
+        except ValueError:
+            return full_path  # Return full path if relative path cannot be computed
+
+    def _walk_directory(dir_path, base_path, level=0, indent=""):
+        """Recursive directory walk with formatted output, excluding __pycache__."""
+        if level > levels:
+            return ""
+
+        output = ""
+        try:
+            entries = sorted(os.scandir(dir_path), key=lambda e: (not e.is_dir(), e.name.lower()))
+            for entry in entries:
+                if entry.name == "__pycache__" or entry.name.startswith('.'):
+                    continue  # Skip __pycache__ and hidden directories/files
+
+                relative_path = _get_relative_path(entry.path, base_path)
+
+                if entry.is_file():
+                    stat = entry.stat()
+                    size = _format_size(stat.st_size)
+                    modified_time = os.path.getmtime(entry.path)
+                    modified_str = f"Modified: {os.path.getctime(entry.path):.0f}"
+
+                    output += (f"{indent}📄 {entry.name} ({size})\n"
+                               f"{indent}  Full path: {entry.path}\n"
+                               f"{indent}  Relative path: {relative_path}\n"
+                               f"{indent}  {modified_str}\n")
+
+                    if include_contents:
+                        try:
+                            with open(entry.path, 'r', encoding='utf-8') as f:
+                                content = f.read()
+                                output += f"{indent}  Content Preview:\n"
+                                # Show first 500 characters of content with line breaks
+                                preview = content[:500].replace('\n', f'\n{indent}    ')
+                                output += f"{indent}    {preview}\n"
+                                if len(content) > 500:
+                                    output += f"{indent}    ... (truncated)\n"
+                        except Exception as e:
+                            output += f"{indent}  ⚠️ Error reading file: {str(e)}\n"
+
+                elif entry.is_dir():
+                    output += (f"{indent}📁 {entry.name}/\n"
+                               f"{indent}  Full path: {entry.path}\n"
+                               f"{indent}  Relative path: {relative_path}\n")
+                    output += _walk_directory(entry.path, base_path, level + 1, indent + "  ")
+        except PermissionError:
+            output += f"{indent}⚠️ Permission denied: {dir_path}\n"
+        except Exception as e:
+            output += f"{indent}⚠️ Error accessing directory: {str(e)}\n"
+
+        return output
+
+    # Normalize and resolve the directory path
+    directory = os.path.abspath(os.path.expanduser(directory))
+
+    output = "📊 Directory Analysis Summary\n"
+    output += "=" * 30 + "\n"
+    output += f"Base Directory: {directory}\n"
+
+    total_size = 0
+    file_count = 0
+    dir_count = 0
+    file_types = {}
+    largest_files = []
+
+    # Collect statistics
+    for root, dirs, files in os.walk(directory):
+        # Remove hidden directories and __pycache__ in place
+        dirs[:] = [d for d in dirs if not d.startswith('.') and d != '__pycache__']
+
+        if root.count(os.sep) - directory.count(os.sep) > levels:
+            continue
+
+        dir_count += len(dirs)
+        file_count += len(files)
+
+        for file in files:
+            if file.startswith('.'):
+                continue
+
+            file_path = os.path.join(root, file)
+            try:
+                file_size = os.path.getsize(file_path)
+                total_size += file_size
+
+                # Track file types
+                ext = os.path.splitext(file)[1].lower() or 'no extension'
+                file_types[ext] = file_types.get(ext, 0) + 1
+
+                # Track largest files
+                largest_files.append((file_path, file_size))
+                largest_files.sort(key=lambda x: x[1], reverse=True)
+                largest_files = largest_files[:5]  # Keep only top 5
+            except (OSError, PermissionError):
+                continue
+
+    output += f"\n📈 Statistics:\n"
+    output += f"Total Folders: {dir_count:,}\n"
+    output += f"Total Files: {file_count:,}\n"
+    output += f"Total Size: {_format_size(total_size)}\n"
+
+    output += "\n📁 File Types:\n"
+    for ext, count in sorted(file_types.items(), key=lambda x: x[1], reverse=True):
+        output += f"{ext}: {count:,} files\n"
+
+    output += "\n📦 Largest Files:\n"
+    for file_path, size in largest_files:
+        rel_path = _get_relative_path(file_path, directory)
+        output += f"{_format_size(size)}: {rel_path}\n"
+
+    output += "\n📂 Directory Structure:\n"
+    output += "=" * 30 + "\n"
+    output += _walk_directory(directory, directory)
+
+    if print_output:
+        print(output)
+    else:
+        return {
+            'full_summary': output,
+            'statistics': {
+                'total_dirs': dir_count,
+                'total_files': file_count,
+                'total_size': total_size,
+                'file_types': file_types,
+                'largest_files': [(path, size) for path, size in largest_files]
+            }
+        }
+
+
+if __name__ == "__main__":
+    # Example usage:
+    tool_get_directory_structure(directory="../../", levels=2, include_contents=False)
+
+File: tool_read_from_file.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages\tools\os\tool_read_from_file.py)
+Content (551 characters):
+tool_type_for_TOOL_MANAGER="os"
+tool_read_from_file_short_description="Reads content from a file."
+
+def tool_read_from_file(file_path: str):
+    """
+    Reads content from a file.
+
+    Args:
+        file_path (str): The path to the file to be read.
+
+    Returns:
+        str: The content of the file, or an error message if the file cannot be read.
+    """
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        return content
+    except Exception as e:
+        return f"Error reading file: {str(e)}"
+
+File: tool_save_to_file.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages\tools\os\tool_save_to_file.py)
+Content (2262 characters):
+import os
+import logging
+from typing import List, Optional
+
+def tool_save_to_file(
+    contents: List[str],
+    file_paths: Optional[List[str]] = None,
+    file_names: Optional[List[str]] = None,
+    content_types: Optional[List[str]] = None,  # Simplified to strings
+    encoding: str = 'utf-8',
+    create_folders: bool = True,
+    overwrite: bool = False,
+) -> dict:
+    """Saves content to files, creating folders as needed."""
+
+    if not contents:
+        return {"status": "error", "message": "Contents list cannot be empty."}
+
+    num_files = len(contents)
+    file_paths = file_paths or [os.getcwd()] * num_files
+    file_names = file_names or [f"content_{i}.txt" for i in range(num_files)]
+    content_types = content_types or ["text"] * num_files # Default to "text"
+
+
+    if not all(len(lst) == num_files for lst in [file_paths, file_names, content_types]):
+        return {"status": "error", "message": "Input lists must have the same length."}
+
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s: %(message)s')
+
+    saved_files = []
+    failed_files = []
+
+    for content, file_path, file_name, content_type in zip(contents, file_paths, file_names, content_types):
+        full_path = os.path.join(file_path, file_name)
+
+        try:
+            if create_folders:
+                os.makedirs(os.path.dirname(full_path), exist_ok=True)
+
+            if os.path.exists(full_path) and not overwrite:
+                raise FileExistsError(f"File already exists: {full_path}")
+
+            mode = "w"  # Default to write mode
+
+            with open(full_path, mode, encoding=encoding) as f:
+                f.write(content)
+
+            saved_files.append(full_path)
+            logging.info(f"Successfully saved: {full_path}")
+
+        except Exception as e:
+            logging.error(f"Error saving {full_path}: {e}")
+            failed_files.append((full_path, str(e)))
+
+    status = "success" if not failed_files else "partial_success" if saved_files else "failure"
+    message = f"Saved {len(saved_files)} of {num_files} files." if saved_files else "No files were saved."
+
+    return {
+        "status": status,
+        "message": message,
+        "saved_files": saved_files,
+        "failed_files": failed_files,
+    }
+
+File: tool_deepth_crowler.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages\tools\web\tool_deepth_crowler.py)
+Content (11674 characters):
+tool_type_for_TOOL_MANAGER = "web"
+tool_deepth_crowler_short_description = "Crawls web pages, extracts images and links, and optionally saves them to files."
+
+import json
+import urllib
+import requests
+from requests.exceptions import SSLError
+from bs4 import BeautifulSoup
+from urllib.parse import urljoin
+import time
+import re
+import os
+from PIL import Image
+
+# --- Configuration ---
+
+# Set of phrases to exclude from links
+EXCLUDED_PHRASES = {
+    "membership", "login", "sign up", "register", "account", "forgot password",
+    "user profile", "checkout", "shopping cart", "payment", "terms of service",
+    "privacy policy", "about us", "contact us", "error", "help", "support", "faq",
+    "careers", "blog", "forum", "community", "newsletter", "subscription",
+    "unsubscribe", "feedback", "feedback form", "feedback survey",
+    "feedback submission", "feedback response"
+}
+
+# --- Helper Functions ---
+
+def sanitize_filename(filename):
+    """Replaces invalid characters in a filename with underscores."""
+    safe_filename = re.sub(r'[\/:*?"<>|]', '_', filename)
+    return safe_filename
+
+
+def filter_link(link):
+    """Filters links based on excluded phrases and image extensions."""
+    if any(phrase.lower() in link.lower() for phrase in EXCLUDED_PHRASES):
+        return False
+
+    image_extensions = [".jpeg", ".jpg", ".gif", ".png"]
+    for extension in image_extensions:
+        if link.endswith(extension):
+            return False
+    return True
+
+
+# --- Crawler Functions ---
+
+def crawl_links(starting_links, visited_links=None, depth=1, max_depth=3, strategy="depth_first"):
+    """Crawls a set of links recursively, extracting images and links."""
+    if visited_links is None:
+        visited_links = set()
+
+    all_found_links = set()
+    extracted_images = []  # Changed to a list to store image data
+
+    # Depth-First Search (DFS)
+    if strategy == "depth_first":
+        for link in starting_links:
+            if link not in visited_links and depth <= max_depth:
+                try:
+                    response = requests.get(link)
+                    soup = BeautifulSoup(response.text, 'html.parser')
+                    new_links = set()
+                    images = []  # Changed to a list to store image data
+
+                    # Extract images with alt descriptions
+                    for tag in soup.find_all('img'):
+                        href = tag.get('src')
+                        if href:
+                            image_url = urljoin(link, href)
+                            alt_description = tag.get('alt', "no alt description")  # Default to "no alt description"
+                            image_source = "img"  # Indicate source as 'img'
+                            images.append(
+                                {
+                                    "url": image_url,
+                                    "alt": alt_description,
+                                    "source": image_source
+                                }
+                            )
+                            print(f"Found image: {image_url}  {alt_description}")
+
+                    # Extract links
+                    for link in soup.find_all('a'):
+                        href = link.get('href')
+                        if href and href.startswith('http'):
+                            if filter_link(href):
+                                new_links.add(href)
+                                if href not in visited_links:
+                                    with open(f"Layer{depth}.txt", "a", encoding="utf-8") as file:
+                                        print(f"Saving link {href} on layer {depth}")
+                                        file.write(href + '\n')
+                        else:
+                            full_link = urljoin(str(link), str(href))
+                            if full_link.startswith('http') and filter_link(full_link):
+                                new_links.add(full_link)
+                                if full_link not in visited_links:
+                                    with open(f"Layer{depth}.txt", "a", encoding="utf-8") as file:
+                                        print(f"Saving link {full_link} on layer {depth}")
+                                        file.write(full_link + '\n')
+
+                    all_found_links.update(new_links)
+                    extracted_images.extend(images)
+
+                    # Recursively crawl new links
+                    all_found_links, visited_links, extracted_images = crawl_links(
+                        new_links, visited_links, depth + 1, max_depth, strategy
+                    )
+
+                except requests.exceptions.RequestException as e:
+                    print(f"Error crawling link: {link}, Reason: {e}")
+                finally:
+                    visited_links.add(link)
+            else:
+                print("Link has already been visited or depth limit reached: Skipping...")
+
+    # Breadth-First Search (BFS)
+    elif strategy == "breadth_first":
+        links_to_visit = starting_links.copy()
+        while links_to_visit and depth <= max_depth:
+            current_links = links_to_visit.copy()
+            links_to_visit.clear()
+            for link in current_links:
+                if link not in visited_links:
+                    try:
+                        response = requests.get(link)
+                        soup = BeautifulSoup(response.text, 'html.parser')
+                        new_links = set()
+                        images = []  # Changed to a list to store image data
+
+                        # Extract images with alt descriptions
+                        for tag in soup.find_all('img'):
+                            href = tag.get('src')
+                            if href:
+                                image_url = urljoin(link, href)
+                                alt_description = tag.get('alt', "no alt description")
+                                image_source = "img"
+                                images.append(
+                                    {
+                                        "url": image_url,
+                                        "alt": alt_description,
+                                        "source": image_source
+                                    }
+                                )
+                                print(f"Found image: {image_url}  {alt_description}")
+
+                        # Extract links
+                        for link in soup.find_all('a'):
+                            href = link.get('href')
+                            if href and href.startswith('http'):
+                                if filter_link(href):
+                                    new_links.add(href)
+                                    if href not in visited_links:
+                                        with open(f"Layer{depth}.txt", "a", encoding="utf-8") as file:
+                                            print(f"Saving link {href} on layer {depth}")
+                                            file.write(href + '\n')
+                            else:
+                                full_link = urljoin(str(link), str(href))
+                                if full_link.startswith('http') and filter_link(full_link):
+                                    new_links.add(full_link)
+                                    if full_link not in visited_links:
+                                        with open(f"Layer{depth}.txt", "a", encoding="utf-8") as file:
+                                            print(f"Saving link {full_link} on layer {depth}")
+                                            file.write(full_link + '\n')
+
+                        all_found_links.update(new_links)
+                        extracted_images.extend(images)
+
+                        # Add new links to the list to be visited
+                        links_to_visit.update(new_links)
+
+                    except requests.exceptions.RequestException as e:
+                        print(f"Error crawling link: {link}, Reason: {e}")
+                    finally:
+                        visited_links.add(link)
+                else:
+                    print("Link has already been visited: Skipping...")
+            depth += 1
+    else:
+        print("Depth limit reached: Stopping crawling.")
+
+    print(f"Processing Layer: {depth}")
+    return all_found_links, visited_links, extracted_images
+
+# --- Tool Function ---
+
+def tool_deepth_crowler(
+    links: list[str],
+    max_depth: int = 3,
+    strategy: str = "depth_first",
+    save_images: bool = False,
+    save_links: bool = False,
+    save_folder: str = "scraped_data",
+    return_found_links: bool = True,
+    return_found_images: bool = True,
+):
+    """
+    Crawls web pages, extracts images and links, and optionally saves them to files.
+
+    Args:
+        links (list[str]): List of starting URLs to crawl.
+        max_depth (int): The maximum depth to crawl.
+        strategy (str): Crawling strategy ("depth_first" or "breadth_first").
+        save_images (bool): Whether to save extracted images.
+        save_links (bool): Whether to save extracted links.
+        save_folder (str): The directory to save scraped data.
+        return_found_links (bool): Whether to return the list of found links.
+        return_found_images (bool): Whether to return the list of found images.
+
+    Returns:
+        dict: A dictionary containing the following keys:
+            - found_links: A list of found links at each depth level (if `return_found_links` is True).
+            - found_images: A list of found images at each depth level (if `return_found_images` is True).
+            - message: A message indicating the completion of crawling.
+    """
+    # Create text files for each layer if they don't exist
+    for i in range(1, max_depth + 1):
+        with open(f"Layer{i}.txt", "w") as file:
+            pass
+
+    # Create text files for extracted images from each layer
+    for i in range(1, max_depth + 1):
+        with open(f"Images_Layer{i}.txt", "w") as file:
+            pass
+
+    # Initialize sets to store links and visited links
+    all_found_links = set()
+    visited_links = set()
+
+    # Crawl links recursively through multiple layers
+    found_links = []
+    found_images = []
+    for depth in range(1, max_depth + 1):
+        links, visited_links, extracted_images = crawl_links(
+            links, visited_links, depth=depth, max_depth=max_depth, strategy=strategy
+        )
+
+        # Save links if requested
+        if save_links:
+            os.makedirs(save_folder, exist_ok=True)
+            with open(os.path.join(save_folder, f"Layer{depth}.txt"), "w", encoding="utf-8") as file:
+                for link in links:
+                    file.write(link + "\n")
+
+        # Save images if requested
+        if save_images:
+            os.makedirs(save_folder, exist_ok=True)
+            with open(os.path.join(save_folder, f"Images_Layer{depth}.txt"), "w", encoding="utf-8") as file:
+                for image_data in extracted_images:
+                    file.write(f"{image_data['url']} ****** {image_data['alt']} ****** {image_data['source']}\n")
+
+        # Store found links and images for return
+        if return_found_links:
+            found_links.append(list(links))
+        if return_found_images:
+            found_images.append(extracted_images)
+
+    # Create the response dictionary
+    response = {"message": "Web page crawling and image extraction completed."}
+
+    # Add found links and images to the response if requested
+    if return_found_links:
+        response["found_links"] = found_links
+    if return_found_images:
+        response["found_images"] = found_images
+
+    return response
+
+File: tool_get_duckduckgo_links.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages\tools\web\tool_get_duckduckgo_links.py)
+Content (4937 characters):
+import time
+from typing import List
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.chrome.options import Options
+from webdriver_manager.chrome import ChromeDriverManager
+
+
+def tool_get_duckduckgo_links(search_phrase: str, num_more_results: float, forbidden_phrases: List[str],
+                              safe_search: bool):
+    """
+    Retrieves DuckDuckGo search result links with the option to disable safe search,
+    scroll through 'More Results' and filter out links containing forbidden phrases.
+    You will get links from DuckDuckGo, that you can scrape later on. this  can  be used to get links to websites
+    Args:
+        search_phrase (str): The search query to use.
+        num_more_results (float): The number of times to click the 'More Results' button,
+                                  non-negative full numbers like 0,1,2 ....
+        forbidden_phrases (list(str)): A list of phrases to exclude from the results.
+        safe_search (bool): Whether to enable safe search, default: False.
+    Returns:
+        list: A list of unique links from the DuckDuckGo search results.
+    """
+
+    def perform_search(driver):
+        search_input = driver.find_element(By.NAME, "q")
+        search_input.send_keys(search_phrase)
+        search_input.submit()
+
+    def set_safe_search_off(driver):
+        if not safe_search:
+            try:
+                # Explicit wait for safe search dropdown button
+                safe_search_dropdown_button = WebDriverWait(driver, 10).until(  # Increase timeout
+                    EC.element_to_be_clickable(
+                        (By.CSS_SELECTOR, ".dropdown--safe-search .dropdown__button.js-dropdown-button"))
+                )
+                safe_search_dropdown_button.click()
+
+                # Explicit wait for "Safe Search: Off" option
+                safe_search_off_option = WebDriverWait(driver, 10).until(  # Increase timeout
+                    EC.element_to_be_clickable((By.CSS_SELECTOR, ".modal--dropdown--safe-search a[data-value='-2']"))
+                )
+                safe_search_off_option.click()
+
+            except TimeoutException:
+                print("TimeoutException occurred while setting safe search off.")
+
+    def get_search_result_links(driver):
+        try:
+            search_results = WebDriverWait(driver, 2).until(
+                EC.presence_of_all_elements_located((By.CSS_SELECTOR, "a[href]"))
+            )
+            # Filter links to exclude those containing "duckduckgo"
+            links = [link.get_attribute("href") for link in search_results if
+                     "duckduckgo" not in link.get_attribute("href")]
+            return links
+        except TimeoutException:
+            print("TimeoutException occurred while waiting for search result links.")
+            return []
+
+    # Create a ChromeDriver instance with custom preferences
+    options = Options()
+
+    # Prevent the search engine selection window
+    options.add_argument("--disable-search-engine-choice-screen")
+
+    # Use webdriver-manager to install/update ChromeDriver
+    driver = webdriver.Chrome(options=options)
+
+    # Navigate to DuckDuckGo
+    url = "https://duckduckgo.com/"
+    driver.get(url)
+
+    # Perform initial search (safe search might be on by default)
+    perform_search(driver)
+
+    # Wait for the first result to load
+    WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".result__a")))
+
+    # Disable safe search if requested
+    set_safe_search_off(driver)
+
+    # Perform search again (with or without safe search)
+    perform_search(driver)
+
+    # Scroll through 'More Results' if requested
+    if num_more_results > 0:
+        # Convert num_more_results to an integer
+        num_more_results = int(num_more_results)
+        for _ in range(num_more_results):
+            try:
+                more_results_button = WebDriverWait(driver, 10).until(  # Increase timeout
+                    EC.element_to_be_clickable((By.ID, "more-results"))
+                )
+                more_results_button.click()
+                time.sleep(1)  # Add a small delay to allow results to load
+            except TimeoutException:
+                print("Failed to click the 'More Results' button.")
+
+    # Get and filter the links
+    links = get_search_result_links(driver)
+    filtered_links = list(set(filter(lambda link: link.startswith("http") and not any(
+        phrase.lower() in link.lower() for phrase in forbidden_phrases), links)))
+
+    # Print the links (optional)
+    for link in filtered_links:
+        print(f"Link: {link}")
+
+    driver.quit()
+    list_filtered_links = list(filtered_links)
+    return {"status": "obtained  links",  "found links": list_filtered_links}
+
+
+File: tool_save_image_from_url.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages\tools\web\tool_save_image_from_url.py)
+Content (1685 characters):
+tool_type_for_TOOL_MANAGER = "web"
+tool_save_image_from_url_short_description = "Saves an image from a URL to a specified path."
+
+import requests
+import os
+import logging
+
+# Set up logging (optional, but recommended)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+
+def tool_save_image_from_url(image_url: str, save_path: str):
+    """
+    Saves an image from a URL to the specified path.
+
+    Args:
+        image_url (str): The URL of the image.
+        save_path (str): The full path where the image should be saved including filename. Defaults ./
+
+    Returns:
+        dict: A dictionary containing the status  success or failure  and a message.
+    """
+    try:
+        response = requests.get(image_url, stream=True)
+        response.raise_for_status()  # Raise an exception for bad status codes (4xx or 5xx)
+
+        # Create directories if they don't exist
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
+
+        with open(save_path, 'wb') as out_file:
+            for chunk in response.iter_content(chunk_size=8192):
+                out_file.write(chunk)
+
+        logger.info(f"Image saved successfully to: {save_path}")
+        return {"status": "success", "message": f"Image saved successfully to: {save_path}"}
+
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Error downloading image: {e}")
+        return {"status": "failure", "message": f"Error downloading image: {e}"}
+    except Exception as e:
+        logger.exception(f"An unexpected error occurred: {e}")
+        return {"status": "failure", "message": f"An unexpected error occurred: {e}"}
+
+File: tool_scrape_url.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v_Morestages\tools\web\tool_scrape_url.py)
+Content (17783 characters):
+tool_type_for_TOOL_MANAGER = "web"
+tool_scrape_url_short_description = "Saves an image from a URL to a specified path."
+
+
+import os
+import logging
+from urllib.parse import urljoin, urlparse
+import json
+import hashlib
+import mimetypes
+import time
+import requests
+from typing import Dict, Optional
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException, WebDriverException
+import concurrent.futures
+
+
+
+
+import os
+import logging
+from urllib.parse import urljoin, urlparse
+import json
+import hashlib
+import mimetypes
+import time
+import requests
+from typing import Dict, Optional
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException, WebDriverException
+import concurrent.futures
+
+
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+
+class SeleniumDriver:
+    def __init__(self):
+        self.options = Options()
+        # **Don't use headless mode**
+        # self.options.add_argument('--headless')
+        self.options.add_argument('--no-sandbox')
+        self.options.add_argument('--disable-dev-shm-usage')
+        self.options.add_argument('--disable-gpu')
+        self.options.add_argument('--window-size=1920x1080')
+        self.options.add_argument('--disable-notifications')
+        self.options.add_argument('--disable-infobars')
+        self.options.add_argument('--disable-extensions')
+        self.options.add_experimental_option('prefs', {
+            'download.default_directory': os.getcwd(),
+            'download.prompt_for_download': False,
+            'download.directory_upgrade': True,
+            'safebrowsing.enabled': True
+        })
+
+    def __enter__(self):
+        # Use a specific Chrome driver executable path (if needed)
+        # driver_path = '/path/to/chromedriver'  # Replace with your actual path
+        # self.driver = webdriver.Chrome(executable_path=driver_path, options=self.options)
+        self.driver = webdriver.Chrome(options=self.options)
+        return self.driver
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if hasattr(self, 'driver'):
+            self.driver.quit()
+
+
+def tool_scrape_url(
+        url: str,
+        scrape_images: bool = False,
+        scrape_text: bool = False,
+        scrape_links: bool = False,
+        save_images: bool = False,
+        save_text: bool = False,
+        save_links: bool = False,
+        get_whole_page: bool = False,
+        save_path: str = None,
+        return_type: str = "all",  # Options: "all", "images", "text", "links", "html"
+        image_extensions: Optional[list] = None,  # List of image extensions to save
+        min_image_size_kb: int = 0,  # Minimum image size in KB to save
+        skip_thumbnails: bool = False,  # Skip images that look like thumbnails
+        get_alt_descriptions: bool = False,  # Get alt descriptions for images
+        prioritize_large_href: bool = False,  # Prioritize large images from href links
+        download_all: bool = False  # Download all images, regardless of size or type
+) -> dict:
+    """
+    Scrapes content from a URL based on specified parameters using Selenium and Chrome.
+    Returns all scraping information (images, text, links, etc.).
+
+    Args:
+        url (str): The URL to scrape.
+        scrape_images (bool): Whether to scrape images from the page.
+        scrape_text (bool): Whether to scrape text content from the page.
+        scrape_links (bool): Whether to scrape links from the page.
+        save_images (bool): Whether to save scraped images locally.
+        save_text (bool): Whether to save scraped text locally.
+        save_links (bool): Whether to save scraped links locally.
+        get_whole_page (bool): Whether to get the entire HTML content.
+        save_path (str): Base path for saving files default current directory
+        return_type (str): What type of content to return in the response. Options: "all", "images", "text", "links", "html"
+        image_extensions (list[str]): List of image extensions to save  'jpg', 'png').
+        min_image_size_kb (int): Minimum image size in KB to save.
+        skip_thumbnails (bool): Skip images that look like thumbnails.
+        get_alt_descriptions (bool): Whether to get alt descriptions for images.
+        prioritize_large_href (bool): Whether to prioritize large images from href links.
+        download_all (bool): Whether to download all images, regardless of size or type.
+
+    Returns:
+        dict: A dictionary containing:
+            - status: "success" or "failure"
+            - message: Status message
+            - data: Dictionary containing scraped content based on return_type
+            - scraped_images: List of image data (URLs, alt text, etc.)
+            - scraped_text_elements: List of text element data (type, content, etc.)
+            - scraped_links: List of link data (URLs, text, etc.)
+            - saved_images: List of saved image paths
+            - saved_text: Whether text was saved to a file
+            - saved_links: Whether links were saved to a file
+            - html_saved: Whether the entire HTML content was saved
+    """
+    try:
+        # Initialize result dictionary
+        result = {
+            "status": "success",
+            "message": "Scraping completed successfully",
+            "data": {},
+            "scraped_images": [],
+            "scraped_text_elements": [],
+            "scraped_links": [],
+            "saved_images": [],
+            "saved_text": False,
+            "saved_links": False,
+            "html_saved": False
+        }
+
+        # Set default save path if none provided
+        save_path = save_path or os.getcwd()
+        os.makedirs(save_path, exist_ok=True)
+
+        # Headers for requests (add more if needed)
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36'
+        }
+
+        with SeleniumDriver() as driver:
+            # Navigate to the URL with timeout and wait for page load
+            driver.set_page_load_timeout(30)
+            driver.get(url)
+
+            # Wait for the page to be fully loaded
+            WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.TAG_NAME, "body"))
+            )
+
+            # Allow dynamic content to load (adjust based on page characteristics)
+            time.sleep(2)  # Adjust based on page characteristics
+
+            # Scroll to load lazy content
+            last_height = driver.execute_script("return document.body.scrollHeight")
+            while True:
+                driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+                time.sleep(1)
+                new_height = driver.execute_script("return document.body.scrollHeight")
+                if new_height == last_height:
+                    break
+                last_height = new_height
+
+            # Get the page source after JavaScript execution
+            page_source = driver.page_source
+
+            # Get whole page HTML if requested
+            if get_whole_page:
+                result["data"]["html"] = page_source
+                if save_text:
+                    html_path = os.path.join(save_path, "page.html")
+                    with open(html_path, 'w', encoding='utf-8') as f:
+                        f.write(page_source)
+                    logger.info(f"Saved HTML to {html_path}")
+                    result["html_saved"] = True
+
+            # Scrape images
+            if scrape_images:
+                images = []
+                image_elements = driver.find_elements(By.TAG_NAME, "img")
+                result["scraped_images"] = [
+                    {
+                        "url": element.get_attribute('src') or '',
+                        "alt": element.get_attribute('alt') or '',
+                        "title": element.get_attribute('title') or '',
+                        "width": element.get_attribute('width') or '',
+                        "height": element.get_attribute('height') or '',
+                        "natural_width": element.get_property('naturalWidth'),
+                        "natural_height": element.get_property('naturalHeight'),
+                        "is_displayed": element.is_displayed()
+                    }
+                    for element in image_elements
+                ]
+
+                def process_image(element):
+                    try:
+                        img_url = element.get_attribute('src')
+                        if not img_url:
+                            return None
+
+                        if save_images and img_url.startswith(('http://', 'https://')):
+                            # Check if the image is a thumbnail (based on filename)
+                            if skip_thumbnails and any(
+                                    word in img_url.lower() for word in ["thumb", "thumbnail", "small", "tiny"]
+                            ):
+                                return None  # Skip if it's likely a thumbnail
+
+                            # Check image extension
+                            if image_extensions:
+                                ext = os.path.splitext(img_url)[1].lower()[1:]
+                                if ext not in image_extensions:
+                                    return None  # Skip if the extension is not allowed
+
+                            try:
+                                response = requests.get(img_url, headers=headers, timeout=10)
+                                if response.status_code == 200:
+                                    content_type = response.headers.get('content-type', '')
+                                    if content_type.startswith('image/'):
+                                        img_name = hashlib.md5(response.content).hexdigest()[:8]
+                                        ext = mimetypes.guess_extension(content_type) or '.jpg'
+                                        img_path = os.path.join(save_path, "images", f"{img_name}{ext}")
+                                        os.makedirs(os.path.dirname(img_path), exist_ok=True)
+
+                                        # Check image size
+                                        image_size_kb = len(response.content) / 1024  # Size in KB
+                                        if download_all or (image_size_kb >= min_image_size_kb):
+                                            with open(img_path, 'wb') as f:
+                                                f.write(response.content)
+                                            result["saved_images"].append(img_path)
+                                            logger.info(f"Saved image to {img_path}")
+                                        else:
+                                            logger.info(f"Skipped image {img_url} (size: {image_size_kb:.2f}KB, below minimum)")
+
+                            except Exception as e:
+                                logger.error(f"Failed to save image {img_url}: {str(e)}")
+
+                        return img_url
+                    except Exception as e:
+                        logger.error(f"Failed to process image element: {str(e)}")
+                        return None
+
+                # Process images concurrently
+                with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+                    image_urls = list(filter(None, executor.map(process_image, image_elements)))
+                    images.extend(image_urls)
+
+                result["data"]["images"] = images
+
+            # Scrape text with JavaScript-rendered content
+            if scrape_text:
+                text_content = []
+                text_elements = driver.find_elements(By.CSS_SELECTOR,
+                                                    'p, h1, h2, h3, h4, h5, h6, article, section, main, [role="main"], [role="article"]')
+                result["scraped_text_elements"] = [
+                    {
+                        "type": element.tag_name,
+                        "content": element.text.strip(),
+                        "html_classes": element.get_attribute('class') or '',
+                        "id": element.get_attribute('id') or '',
+                        "is_visible": element.is_displayed(),
+                        "location": element.location
+                    }
+                    for element in text_elements
+                ]
+
+                for element in text_elements:
+                    try:
+                        text = element.text.strip()
+                        if text:
+                            text_content.append({
+                                "type": element.tag_name,
+                                "content": text,
+                                "html_classes": element.get_attribute('class') or '',
+                                "id": element.get_attribute('id') or '',
+                                "is_visible": element.is_displayed(),
+                                "location": element.location
+                            })
+                    except Exception as e:
+                        logger.error(f"Failed to process text element: {str(e)}")
+
+                result["data"]["text"] = text_content
+
+                if save_text:
+                    text_path = os.path.join(save_path, "content.txt")
+                    with open(text_path, 'w', encoding='utf-8') as f:
+                        for item in text_content:
+                            f.write(f"{item['type'].upper()}:\n")
+                            if item['id']:
+                                f.write(f"ID: {item['id']}\n")
+                            if item['html_classes']:
+                                f.write(f"Classes: {item['html_classes']}\n")
+                            f.write(f"Content: {item['content']}\n")
+                            f.write(f"Visible: {item['is_visible']}\n\n")
+                    logger.info(f"Saved text content to {text_path}")
+                    result["saved_text"] = True
+
+            # Scrape links including JavaScript-generated ones
+            if scrape_links:
+                links = []
+                base_domain = urlparse(url).netloc
+                link_elements = driver.find_elements(By.TAG_NAME, "a")
+                result["scraped_links"] = [
+                    {
+                        "url": element.get_attribute('href') or '',
+                        "text": element.text.strip(),
+                        "title": element.get_attribute('title') or '',
+                        "is_internal": urlparse(element.get_attribute('href') or '').netloc == base_domain,
+                        "rel": element.get_attribute('rel') or '',
+                        "target": element.get_attribute('target') or '',
+                        "is_visible": element.is_displayed(),
+                        "location": element.location
+                    }
+                    for element in link_elements
+                ]
+
+                for element in link_elements:
+                    try:
+                        href = element.get_attribute('href')
+                        if href:
+                            links.append({
+                                "url": href,
+                                "text": element.text.strip(),
+                                "title": element.get_attribute('title') or '',
+                                "is_internal": urlparse(href).netloc == base_domain,
+                                "rel": element.get_attribute('rel') or '',
+                                "target": element.get_attribute('target') or '',
+                                "is_visible": element.is_displayed(),
+                                "location": element.location
+                            })
+                    except Exception as e:
+                        logger.error(f"Failed to process link element: {str(e)}")
+
+                result["data"]["links"] = links
+
+                if save_links:
+                    links_path = os.path.join(save_path, "links.json")
+                    with open(links_path, 'w', encoding='utf-8') as f:
+                        json.dump(links, f, indent=2)
+                    logger.info(f"Saved links to {links_path}")
+                    result["saved_links"] = True
+
+            # Filter return data based on return_type
+            if return_type != "all":
+                if return_type in result["data"]:
+                    result["data"] = {return_type: result["data"][return_type]}
+                else:
+                    result["message"] += f" (Requested return_type '{return_type}' not found in scraped data)"
+
+        return result
+
+    except TimeoutException as e:
+        error_msg = f"Page load timeout: {str(e)}"
+        logger.error(error_msg)
+        return {"status": "failure", "message": error_msg, "data": {}}
+    except WebDriverException as e:
+        error_msg = f"Selenium WebDriver error: {str(e)}"
+        logger.error(error_msg)
+        return {"status": "failure", "message": error_msg, "data": {}}
+    except Exception as e:
+        error_msg = f"An unexpected error occurred: {str(e)}"
+        logger.error(error_msg)
+        return {"status": "failure", "message": error_msg, "data": {}}
+
+## Directory Tree
+
+├── configs
+    ├── prompts.json
+    └── system_instructions.json
+├── focus
+    ├── create_focus.py
+    └── focus.json
+├── future_tools_for_future _integration
+    ├── tool_create_memory.py
+    └── tool_update_internal_state.py
+├── George_chat_loop_bot.py
+├── inner_brain_settings
+    └── internal_state.json
+├── keys.py
+├── readMe
+├── tools
+    ├── ai
+        ├── tool_AI_REASONING.py
+        ├── tool_update_focus.py
+        └── __pycache__
+    ├── memory
+    ├── os
+        ├── tool_execute_script.py
+        ├── tool_get_directory_structure.py
+        ├── tool_read_from_file.py
+        ├── tool_save_to_file.py
+        └── __pycache__
+    └── web
+        ├── tool_deepth_crowler.py
+        ├── tool_get_duckduckgo_links.py
+        ├── tool_save_image_from_url.py
+        ├── tool_scrape_url.py
+        └── __pycache__
+├── TOOL_MANAGER.py
+└── __pycache__
+

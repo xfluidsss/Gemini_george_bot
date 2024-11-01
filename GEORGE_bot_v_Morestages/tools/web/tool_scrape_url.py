@@ -1,3 +1,8 @@
+tool_type_for_TOOL_MANAGER = "web"
+tool_scrape_url_short_description = "Saves an image from a URL to a specified path."
+
+
+import concurrent.futures
 import os
 import logging
 from urllib.parse import urljoin, urlparse
@@ -16,7 +21,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, WebDriverException
 import concurrent.futures
 
-# Set up logging
+
+
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
@@ -24,7 +30,7 @@ logger = logging.getLogger(__name__)
 class SeleniumDriver:
     def __init__(self):
         self.options = Options()
-        # Remove the --headless argument
+        # **Don't use headless mode**
         # self.options.add_argument('--headless')
         self.options.add_argument('--no-sandbox')
         self.options.add_argument('--disable-dev-shm-usage')
@@ -62,11 +68,17 @@ def tool_scrape_url(
         save_links: bool = False,
         get_whole_page: bool = False,
         save_path: str = None,
-        return_type: str = "all"  # Options: "all", "images", "text", "links", "html"
+        return_type: str = "all",  # Options: "all", "images", "text", "links", "html"
+        image_extensions: list[str]=["jpg","png"],  # List of image extensions to save
+        min_image_size_kb: int = 0,  # Minimum image size in KB to save
+        skip_thumbnails: bool = False,  # Skip images that look like thumbnails
+        get_alt_descriptions: bool = False,  # Get alt descriptions for images
+        prioritize_large_href: bool = False,  # Prioritize large images from href links
+        download_all: bool = False  # Download all images, regardless of size or type
 ) -> dict:
     """
     Scrapes content from a URL based on specified parameters using Selenium and Chrome.
-    Returns all scraping information (images, text, links, etc.).
+    Returns all scraping information images, text, links, etc
 
     Args:
         url (str): The URL to scrape.
@@ -77,17 +89,23 @@ def tool_scrape_url(
         save_text (bool): Whether to save scraped text locally.
         save_links (bool): Whether to save scraped links locally.
         get_whole_page (bool): Whether to get the entire HTML content.
-        save_path (str): Base path for saving files (default: current directory).
-        return_type (str): What type of content to return in the response. Options: "all", "images", "text", "links", "html"
+        save_path (str): Base path for saving files default current directory
+        return_type (str): What type of content to return in the response. Options: all, images, text, links, html
+        image_extensions (list[str]): List of image extensions to save  jpg, png
+        min_image_size_kb (int): Minimum image size in KB to save.
+        skip_thumbnails (bool): Skip images that look like thumbnails.
+        get_alt_descriptions (bool): Whether to get alt descriptions for images.
+        prioritize_large_href (bool): Whether to prioritize large images from href links.
+        download_all (bool): Whether to download all images, regardless of size or type.
 
     Returns:
         dict: A dictionary containing:
-            - status: "success" or "failure"
+            - status: success or failure
             - message: Status message
             - data: Dictionary containing scraped content based on return_type
-            - scraped_images: List of image data (URLs, alt text, etc.)
-            - scraped_text_elements: List of text element data (type, content, etc.)
-            - scraped_links: List of link data (URLs, text, etc.)
+            - scraped_images: List of image data URLs, alt text, etc
+            - scraped_text_elements: List of text element data type, content, etc.
+            - scraped_links: List of link data URLs, text, etc.
             - saved_images: List of saved image paths
             - saved_text: Whether text was saved to a file
             - saved_links: Whether links were saved to a file
@@ -178,6 +196,18 @@ def tool_scrape_url(
                             return None
 
                         if save_images and img_url.startswith(('http://', 'https://')):
+                            # Check if the image is a thumbnail (based on filename)
+                            if skip_thumbnails and any(
+                                    word in img_url.lower() for word in ["thumb", "thumbnail", "small", "tiny"]
+                            ):
+                                return None  # Skip if it's likely a thumbnail
+
+                            # Check image extension
+                            if image_extensions:
+                                ext = os.path.splitext(img_url)[1].lower()[1:]
+                                if ext not in image_extensions:
+                                    return None  # Skip if the extension is not allowed
+
                             try:
                                 response = requests.get(img_url, headers=headers, timeout=10)
                                 if response.status_code == 200:
@@ -188,10 +218,16 @@ def tool_scrape_url(
                                         img_path = os.path.join(save_path, "images", f"{img_name}{ext}")
                                         os.makedirs(os.path.dirname(img_path), exist_ok=True)
 
-                                        with open(img_path, 'wb') as f:
-                                            f.write(response.content)
-                                        result["saved_images"].append(img_path)
-                                        logger.info(f"Saved image to {img_path}")
+                                        # Check image size
+                                        image_size_kb = len(response.content) / 1024  # Size in KB
+                                        if download_all or (image_size_kb >= min_image_size_kb):
+                                            with open(img_path, 'wb') as f:
+                                                f.write(response.content)
+                                            result["saved_images"].append(img_path)
+                                            logger.info(f"Saved image to {img_path}")
+                                        else:
+                                            logger.info(f"Skipped image {img_url} (size: {image_size_kb:.2f}KB, below minimum)")
+
                             except Exception as e:
                                 logger.error(f"Failed to save image {img_url}: {str(e)}")
 

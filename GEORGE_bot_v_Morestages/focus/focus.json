@@ -1,9 +1,5 @@
 {
-    "user_goal": " ",
+    "user_goal": "create example python file and save it as example.py",
     "steps_to_achieve_goal": [],
-    "current_focus": " ",
-    "accomplished": [],
-    "obtained_data": [],
-    "additional_info": " ",
-    "switch_task": " "
-}
+    "current_focus": "saving python file",
+    "accomplished": 

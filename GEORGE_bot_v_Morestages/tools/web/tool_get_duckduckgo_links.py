@@ -1,3 +1,9 @@
+tool_type_for_TOOL_MANAGER = "web"
+tool_get_duckduckgoshort_description = """ Retrieves DuckDuckGo search result links with the option to disable safe search,
+    scroll through 'More Results' and filter out links containing forbidden phrases.
+    You will get links from DuckDuckGo, that you can scrape later on. this  can  be used to get links to websites"""
+
+
 import time
 from typing import List
 from selenium import webdriver
@@ -17,10 +23,9 @@ def tool_get_duckduckgo_links(search_phrase: str, num_more_results: float, forbi
     You will get links from DuckDuckGo, that you can scrape later on. this  can  be used to get links to websites
     Args:
         search_phrase (str): The search query to use.
-        num_more_results (float): The number of times to click the 'More Results' button,
-                                  non-negative full numbers like 0,1,2 ....
-        forbidden_phrases (list(str)): A list of phrases to exclude from the results.
-        safe_search (bool): Whether to enable safe search, default: False.
+        num_more_results (float): The number of times to click the More Results button, non-negative full numbers like 0,1,2 ....
+        forbidden_phrases (list[str]): A list of phrases to exclude from the results.
+        safe_search (bool): Whether to enable safe search, default  False.
     Returns:
         list: A list of unique links from the DuckDuckGo search results.
     """

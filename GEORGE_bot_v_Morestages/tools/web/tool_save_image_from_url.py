@@ -16,7 +16,7 @@ def tool_save_image_from_url(image_url: str, save_path: str):
 
     Args:
         image_url (str): The URL of the image.
-        save_path (str): The full path where the image should be saved including filename. Defaults ./
+        save_path (str): The full path where the image should be saved including filename. Default folder to ../../DONWLOADED_IMAGES
 
     Returns:
         dict: A dictionary containing the status  success or failure  and a message.
