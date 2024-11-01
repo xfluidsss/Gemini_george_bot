@@ -1,19 +1,5 @@
 {
-    "current_focus": "",
-    "user_goal": "Download 10 images of Dragon Ball in 4K",
-    "frustration": 0.0,
-    "focus_strength": 0.9,
-    "defocus_threshold": 0.0,
-    "importance": 1.0,
-    "progress": 0.0,
-    "additional": "",
-    "verbose": "",
-    "tasks": {
-        "current_task": "",
-        "task_list_to_accomplish_user_goal": "Finding URLs for Dragon Ball images in 4K, Evaluating URLs for quality and relevance, Downloading the images, Saving images to a specified folder",
-        "tasks_in_progress": "Finding URLs for Dragon Ball images in 4K, Evaluating URLs for quality and relevance",
-        "finished_tasks": "",
-        "failed_tasks": ""
-    },
-    "should_defocus": false
-}
+    "user_goal": "Create a playable Python Snake game",
+    "steps_to_achieve_goal": [],
+    "current_focus": "Create a playable Python Snake game",
+    "accomplished": 

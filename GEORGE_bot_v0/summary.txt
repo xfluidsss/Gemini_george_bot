@@ -8,12 +8,10 @@
     ├── tool_create_memory.py
     └── tool_update_internal_state.py
 ├── images
-    └── images
-        ├── 201e50d8.png
-        └── edd0e34f.svg
 ├── inner_brain_settings
     └── internal_state.json
 ├── keys.py
+├── readMe
 ├── tools
     ├── ai
         ├── tool_AI_REASONING.py
@@ -37,7 +35,7 @@
 ## Summary of 'C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v0'
 
 File: chat_loop_bot.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v0\chat_loop_bot.py)
-Content (10455 characters):
+Content (10461 characters):
 import time
 import google.generativeai as genai
 import json
@@ -186,7 +184,7 @@ def process_turn(user_input: str) -> None:
             tool_results = handle_tool_calls(response_input)
             print(f"Extracted Text: {text_extracted_response}")
             print(f"Tool Results: {tool_results}")
-            conversation_history.append(f"Tool Results: {tool_results}")
+            conversation_history.append(f"obtained tool Results in conversation context: {tool_results}")
             current_turn.extend(tool_results)
         except Exception as E:
             print_colored(Color.FAIL, f"Error generating content from Input/Reasoning Model: {E}")
@@ -194,7 +192,7 @@ def process_turn(user_input: str) -> None:
         # Stage 2: Action Taker
         time.sleep(1)
         try:
-            conversation_history.append("based on  that  what  steps,actions can be taken, use  tools if nessesery")
+            conversation_history.append("take  next  step  accoording  to   logical execution of  steps  ")
             response_action_taker = action_taker_model.generate_content(conversation_history)
             print(f"Action Taker Model Response: {response_action_taker}")
 
@@ -212,7 +210,7 @@ def process_turn(user_input: str) -> None:
         # Stage 3: Evaluator Model
         time.sleep(3)
         try:
-            conversation_history.append("focus of evaluation of  resuls and propose  course of  acction, you can update  your  focus")
+            conversation_history.append(" update  your  focus , you must  describe   what  has  been accomplished ")
             response_evaluator = evaluator_model.generate_content(conversation_history)
             print(f"Evaluator Model Response: {response_evaluator}")
             conversation_history.append(f"Evaluator Model Response: {response_evaluator}")
@@ -306,6 +304,10 @@ while True:
 File: keys.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v0\keys.py)
 Content (51 characters):
 googleKey='AIzaSyDuqD6MksWRqXB0VgHC22xSMn41BaP0reA'
+
+File: readMe (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v0\readMe)
+Content (78 characters):
+you allso  need  to add  your  api  google  ke  in tools  tool_AI_REASONING.py
 
 File: TOOL_MANAGER.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v0\TOOL_MANAGER.py)
 Content (7256 characters):
@@ -474,7 +476,7 @@ class ToolManager:
         return {tool.name: tool.description for tool in self.tools.values()}
 
 File: create_focus.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v0\focus\create_focus.py)
-Content (1637 characters):
+Content (1666 characters):
 import json
 import os
 
@@ -512,7 +514,8 @@ def create_focus_file(file_path="focus.json"):
             ],
             "failed_tasks": []
         },
-        "should_defocus": False
+        "should_defocus": False,
+        "obtained_data":{},
     }
 
     # Create the directory if it doesn't exist
@@ -534,20 +537,10 @@ if __name__ == "__main__":
     create_focus_file(file_path)
 
 File: focus.json (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v0\focus\focus.json)
-Content (706 characters):
+Content (52 characters):
 {
-    "current_focus": "Determine appropriate next steps",
-    "user_goal": "Complete user tasks",
-    "frustration": 0.2,
-    "focus_strength": 0.8,
-    "defocus_threshold": 0.5,
-    "importance": 0.9,
-    "progress": 0.1,
-    "additional": "I am updating the focus. The user asked \"What are the possible actions to take next?\".",
-    "verbose": "The user is looking for guidance on what to do next. I need to analyze the prompt, determine the possible actions, and provide the user with the options. I should also explain the reasoning behind each option.",
-    "tasks": {
-        "current_task": "Analyze user prompt and determine appropriate next steps",
-        "task_list_to_accomplish_user_goal": 
+    "user_goal": "",
+    "steps_to_achieve_goal": 
 
 File: tool_create_memory.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v0\future_tools_for_future _integration\tool_create_memory.py)
 Content (13018 characters):
@@ -995,13 +988,6 @@ def tool_update_internal_state(
             logger.exception(f"An unexpected error occurred: {e}")
             return {"status": "failure", "message": f"An unexpected error occurred: {e}"}
 
-File: 201e50d8.png (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v0\images\images\201e50d8.png)
-Decoding error: 'utf-8' codec can't decode byte 0x89 in position 0: invalid start byte
-
-File: edd0e34f.svg (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v0\images\images\edd0e34f.svg)
-Content (742 characters):
-<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/><path d="M1 1h22v22H1z" fill="none"/></svg>
-
 File: internal_state.json (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v0\inner_brain_settings\internal_state.json)
 Content (195 characters):
 {
@@ -1017,7 +1003,7 @@ Content (195 characters):
 }
 
 File: tool_AI_REASONING.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v0\tools\ai\tool_AI_REASONING.py)
-Content (22508 characters):
+Content (22529 characters):
 tool_type_for_TOOL_MANAGER = "focus"
 tool_tool_AI_REASONING_short_description = """REASONER"""
 
@@ -1025,9 +1011,9 @@ import time
 import google.generativeai as genai
 import json
 import re  # Import re for regular expressions
-from ...keys import  googleKey
 
 
+googleKey='AIzaSyDuqD6MksWRqXB0VgHC22xSMn41BaP0reA'
 genai.configure(api_key=googleKey)
 
 MODEL_NAME = "gemini-pro"  # Use a valid model name
@@ -1563,142 +1549,78 @@ if __name__ == "__main__":
     main()
 
 File: tool_update_focus.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v0\tools\ai\tool_update_focus.py)
-Content (5038 characters):
+Content (2697 characters):
 import json
 import os
 from typing import List, Dict, Any
 
 # Define the schema for the focus file
 focus_schema = {
-    "current_focus": str,
     "user_goal": str,
-    "frustration": float,
-    "focus_strength": float,
-    "defocus_threshold": float,
-    "importance": float,
-    "progress": float,
-    "additional": str,
-    "verbose": str,
-    "tasks": {
-        "current_task": str,
-        "task_list_to_accomplish_user_goal": str,
-        "tasks_in_progress": str,
-        "finished_tasks": str,
-        "failed_tasks": str
-    },
-    "should_defocus": bool
+    "steps_to_achieve_goal": List[str],
+    "current_focus": str,
+    "accomplished": List[str],
+    "obtained_data": List[str],
+    "additional_info": str,  # For storing additional notes or information
+    "switch_task": str  # Flag to indicate whether the user wants to switch tasks (YES/NO)
 }
 
 def tool_update_focus(
-    new_focus: str,
-    user_goal: str,
-    frustration_level: float,
-    focus_strength: float,
-    defocus_threshold: float,
-    importance: float,
-    progress: float,
-    additional: str,
-    verbose: str,
-    current_task: str,
-    task_list_to_accomplish_user_goal: List[str],
-    tasks_in_progress: List[str],
-    finished_tasks: List[str],
-    failed_tasks: List[str],
-    should_defocus: bool
-) -> dict:
+    user_goal: str = "",
+    steps_to_achieve_goal: List[str] = [],
+    current_focus: str = "",
+    accomplished: List[str] = [],
+    obtained_data: List[str] = [],
+    additional_info: str = "",  # Additional information
+    switch_task: str = "NO"  # Flag for switching tasks (YES/NO)
+) -> Dict[str, Any]:
     """
-    Updates the focus file with new focus information, including task management.
+    Updates the focus file with new focus information.
+    Overwrites the entire file with the provided data and the focus schema.
 
     Args:
-        new_focus (str): The new focus text to be added to the focus file.
         user_goal (str): The overall goal the user wants to achieve.
-        frustration_level (float): Level of frustration (0-1).
-        focus_strength (float): Strength of focus (0-1).
-        defocus_threshold (float): Threshold for defocusing (0-1).
-        importance (float): Importance of focus (0-1).
-        progress (float): Progress on the focus (0-1).
-        additional (str): Additional information related to the focus.
-        verbose (str): Detailed description of the focus.
-        current_task (str): The task currently being worked on.
-        task_list_to_accomplish_user_goal (List[str]): List of tasks required to achieve the user's goal.
-        tasks_in_progress (List[str]): List of tasks currently in progress.
-        finished_tasks (List[str]): List of completed tasks.
-        failed_tasks (List[str]): List of tasks that failed.
-        should_defocus (bool): Whether to defocus from the current focus.
+        steps_to_achieve_goal (List[str]): List of steps to achieve the goal.
+        current_focus (str): The current focus.
+        accomplished (List[str]): List of tasks that have been completed.
+        obtained_data (List[str]): List of data obtained during the focus session.
+        additional_info (str): Additional information related to the focus.
+        switch_task (str): Flag to indicate whether the user wants to switch tasks (YES/NO).
 
     Returns:
-        dict: A dictionary containing the status of the operation, a message, and the updated focus text.
+        Dict[str, Any]: A dictionary containing the status of the operation, a message, and the updated focus text.
     """
+
+    # Create a new dictionary with the focus schema and populate it with the provided data
+    updated_focus_data = {
+        "user_goal": user_goal,
+        "steps_to_achieve_goal": steps_to_achieve_goal,
+        "current_focus": current_focus,
+        "accomplished": accomplished,
+        "obtained_data": obtained_data,
+        "additional_info": additional_info,
+        "switch_task": switch_task.upper()  # Ensure switch_task is stored as "YES" or "NO"
+    }
 
     focus_file_path = "focus/focus.json"
 
-    # Check if the file exists, if not, create an empty file
-    if not os.path.exists(focus_file_path):
-        with open(focus_file_path, "w") as f:
-            json.dump({}, f, indent=4)
-
     try:
-        # Read the existing focus from the file
-        with open(focus_file_path, "r") as f:
-            focus_data = json.load(f)
-
-        # **Initialize focus_data with the schema if it's empty**
-        if not focus_data:
-            focus_data = focus_schema.copy()
-
-        # Update the focus data with new values
-        focus_data["current_focus"] = new_focus
-        focus_data["user_goal"] = user_goal
-        focus_data["frustration"] = frustration_level
-        focus_data["focus_strength"] = focus_strength
-        focus_data["defocus_threshold"] = defocus_threshold
-        focus_data["importance"] = importance
-        focus_data["progress"] = progress
-        focus_data["additional"] = additional
-        focus_data["verbose"] = verbose
-
-        # Convert lists to comma-separated strings
-        focus_data["tasks"]["task_list_to_accomplish_user_goal"] = ", ".join(task_list_to_accomplish_user_goal)
-        focus_data["tasks"]["tasks_in_progress"] = ", ".join(tasks_in_progress)
-        focus_data["tasks"]["finished_tasks"] = ", ".join(finished_tasks)
-        focus_data["tasks"]["failed_tasks"] = ", ".join(failed_tasks)
-
-        # Update should_defocus
-        focus_data["should_defocus"] = should_defocus
-
-        # Write the updated focus back to the file
+        # Write the updated focus data to the file
         with open(focus_file_path, "w") as f:
-            json.dump(focus_data, f, indent=4)
+            json.dump(updated_focus_data, f, indent=4)
 
         return {
             "status": "success",
-            "message": f"Focus updated with: '{new_focus}'",
-            "updated_focus": focus_data,
+            "message": f"Focus updated.",
+
         }
 
+    except json.JSONDecodeError as e:
+        return {"status": "failure", "message": f"Error decoding JSON: {str(e)}"}
+    except IOError as e:
+        return {"status": "failure", "message": f"Error writing to file: {str(e)}"}
     except Exception as e:
-        return {"status": "failure", "message": f"Error updating focus: {str(e)}"}
-
-if __name__ == "__main__":
-    # Example usage:
-    result = tool_update_focus(
-        new_focus="Download images of main characters of Dragon Ball",
-        user_goal="Create a collection of Dragon Ball character images",
-        frustration_level=0.2,
-        focus_strength=0.8,
-        defocus_threshold=0.5,
-        importance=0.9,
-        progress=0.1,
-        additional="I'm looking for high-quality images from reliable sources.",
-        verbose="I want to create a collection of Dragon Ball character images for a personal project.",
-        current_task="Download images of Goku",
-        task_list_to_accomplish_user_goal=["Research Dragon Ball characters", "Download images", "Organize images"],
-        tasks_in_progress=["Download images of Vegeta"],
-        finished_tasks=["Research Dragon Ball characters"],
-        failed_tasks=[],
-        should_defocus=False
-    )
-    print(result)
+        return {"status": "failure", "message": f"Unknown error updating focus: {str(e)}"}
 
 File: tool_execute_script.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v0\tools\os\tool_execute_script.py)
 Content (3844 characters):
@@ -2081,7 +2003,7 @@ def tool_save_to_file(
     return {"status": status, "message": message, "saved_files": saved_files}
 
 File: tool_get_duckduckgo_links.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v0\tools\web\tool_get_duckduckgo_links.py)
-Content (4972 characters):
+Content (4937 characters):
 import time
 from typing import List
 from selenium import webdriver
@@ -2098,7 +2020,7 @@ def tool_get_duckduckgo_links(search_phrase: str, num_more_results: float, forbi
     """
     Retrieves DuckDuckGo search result links with the option to disable safe search,
     scroll through 'More Results' and filter out links containing forbidden phrases.
-    You will get links from DuckDuckGo, that you can scrape later on.
+    You will get links from DuckDuckGo, that you can scrape later on. this  can  be used to get links to websites
     Args:
         search_phrase (str): The search query to use.
         num_more_results (float): The number of times to click the 'More Results' button,
@@ -2196,7 +2118,7 @@ def tool_get_duckduckgo_links(search_phrase: str, num_more_results: float, forbi
 
     driver.quit()
     list_filtered_links = list(filtered_links)
-    return {"status": "finished", "tool_get_duckduckgo_links": "you  need  to decde which links  have  the highest potential", "links": list_filtered_links}
+    return {"status": "obtained  links",  "found links": list_filtered_links}
 
 
 File: tool_save_image_from_url.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v0\tools\web\tool_save_image_from_url.py)
@@ -2246,7 +2168,7 @@ def tool_save_image_from_url(image_url: str, save_path: str):
         return {"status": "failure", "message": f"An unexpected error occurred: {e}"}
 
 File: tool_scrape_url.py (C:\Users\DELL\Desktop\openAIF_frontend\Gemini_george_bot\GEORGE_bot_v0\tools\web\tool_scrape_url.py)
-Content (14985 characters):
+Content (14980 characters):
 import os
 import logging
 from urllib.parse import urljoin, urlparse
@@ -2271,10 +2193,10 @@ logger = logging.getLogger(__name__)
 
 
 class SeleniumDriver:
-    def __init__(self, headless: bool = True):
+    def __init__(self):
         self.options = Options()
-        if headless:
-            self.options.add_argument('--headless')
+        # Remove the --headless argument
+        # self.options.add_argument('--headless')
         self.options.add_argument('--no-sandbox')
         self.options.add_argument('--disable-dev-shm-usage')
         self.options.add_argument('--disable-gpu')
@@ -2581,12 +2503,10 @@ def tool_scrape_url(
     ├── tool_create_memory.py
     └── tool_update_internal_state.py
 ├── images
-    └── images
-        ├── 201e50d8.png
-        └── edd0e34f.svg
 ├── inner_brain_settings
     └── internal_state.json
 ├── keys.py
+├── readMe
 ├── tools
     ├── ai
         ├── tool_AI_REASONING.py

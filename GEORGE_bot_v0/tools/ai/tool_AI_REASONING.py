@@ -7,7 +7,7 @@ import json
 import re  # Import re for regular expressions
 
 
-googleKey='           '
+googleKey='AIzaSyDzxczuqD6MksWRqXB0VgHC22xSMn41BaP0reA'
 genai.configure(api_key=googleKey)
 
 MODEL_NAME = "gemini-pro"  # Use a valid model name

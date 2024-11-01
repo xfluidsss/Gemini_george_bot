@@ -1,1 +1,1 @@
-googleKey='  '
+googleKey='AIzaSyxcDuqD6MksWRzxczxcVgHC22xSMn41BaP0reA'
